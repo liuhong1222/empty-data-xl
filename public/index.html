@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta content="yes" name="apple-mobile-web-app-capable">
+  <meta content="black" name="apple-mobile-web-app-status-bar-style">
+  <meta content="telephone=no" name="format-detection">
+  <meta name="keywords" content="空号检测软件,检测空号,空号检测,手机空号过滤,号码过滤,号码检测,号码清洗,空号在线检测,数据清洗,数据检测,筛号,空号检测平台">
+  <meta name="description" content="空号检测软件,检测空号,空号检测,手机空号过滤,号码过滤,号码检测,号码清洗,空号在线检测,数据清洗,数据检测,筛号,空号检测平台">
+  <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+  <title>空号检测</title>
+  <style>
+    #loading {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.2);
+    }
+
+    .loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin-top: -100px;
+      margin-left: -100px;
+      width: 200px;
+      height: 200px;
+      background-image: url("./loading.png");
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: 200px 200px;
+      animation: rotate 1s linear infinite;
+      transform-origin: center;
+    }
+
+    @keyframes rotate {
+      from {
+        transform: rotate(0deg)
+      }
+      to {
+        transform: rotate(360deg)
+      }
+    }
+  </style>
+</head>
+<body>
+<noscript>
+  <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled.
+    Please enable it to continue.</strong>
+</noscript>
+<div id="loading">
+  <div class="loading"></div>
+</div>
+<div id="app"></div>
+<!-- built files will be auto injected -->
+</body>
+<script src="./jquery.min.js"></script>
+<script src="./qrcode.min.js"></script>
+</html>
