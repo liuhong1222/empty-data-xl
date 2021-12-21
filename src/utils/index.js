@@ -43,3 +43,17 @@ export var getSessionStorage = (name) => {
 export var setSessionStorage = (name, value) => {
   return window.sessionStorage.setItem(name, value)
 }
+
+// 计算文件大小
+export var computeFileSize = (size) => {
+  size = +size
+  if (!size) {
+    return 0 + 'KB'
+  }
+  let formatSize = (size / 1024).toFixed(2)
+  formatSize = +formatSize
+  if (formatSize < 1) {
+    return '< 1KB'
+  }
+  return formatSize + 'KB'
+}

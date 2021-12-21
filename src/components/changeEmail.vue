@@ -22,7 +22,8 @@
         <a-input style="width: 100%" v-decorator="[ 'userName', userNameRules]" @blur="emailIsUsed"/>
       </a-form-item>
       <a-form-item class="changephonebtn">
-        <button type="button" class="el-button cl-submit-butt el-button--primary" @click="handleSubmit"><span>确定</span>
+        <button :disabled="submitLoading" type="button" class="el-button cl-submit-butt el-button--primary" @click="handleSubmit">
+          <span>{{ submitLoading ? '处理中...' : '确定' }}</span>
         </button>
       </a-form-item>
     </a-form>
@@ -41,7 +42,8 @@ export default {
         rules: [{
           required: true, message: '请输入'
         }]
-      }
+      },
+      submitLoading: false
     }
   },
   mounted () {
@@ -64,7 +66,7 @@ export default {
       if (data.code === 200) {
         // this.closelogin()
       } else if (data.code === 500) {
-        this.$toast(data.msg)
+        this.$message.error(data.msg)
       } else {
         this.$message.error(data.msg)
       }
@@ -73,14 +75,18 @@ export default {
       e.preventDefault()
       this.form.validateFields(async (err, values) => {
         if (!err) {
+          this.submitLoading = true
           var userInfo = this.getUserInfo()
           var params = {
             customerId: userInfo.id,
             email: this.form.getFieldValue('userName')
           }
           var {data} = await server.addEmail(params)
+          this.submitLoading = false
           if (data.code === 200) {
+            this.$message.success('邮箱绑定成功')
             this.closelogin()
+            this.$emit('getNewPersonalInfo')
           } else {
             this.$message.error(data.msg)
           }
@@ -109,80 +115,6 @@ export default {
     top: 10px;
     right: 10px;
     cursor: pointer;
-  }
-
-  .login-form {
-    padding: 20px 0;
-
-    .ant-input {
-      padding-right: 100px;
-      display: inline-block;
-      line-height: 40px;
-      height: 40px;
-      border: 0;
-      border-bottom: 1px solid #dcdee2;
-      border-radius: 0;
-
-      &:focus {
-        border-bottom: 1px solid #dcdee2;
-        box-shadow: none;
-      }
-
-      &:hover {
-        border-bottom: 1px solid #dcdee2;
-        box-shadow: none;
-      }
-    }
-
-    .ant-input-affix-wrapper .ant-input-prefix {
-      font-size: 20px;
-      left: 1px;
-    }
-
-    .ant-input-affix-wrapper .ant-input:not(:first-child) {
-      padding-left: 32px;
-    }
-
-    .login-form-button {
-      width: 100%;
-      margin-top: 24px;
-      background-color: #3a7cff;
-      height: 40px;
-    }
-
-    .ant-form-explain {
-      padding-left: 32px;
-    }
-
-    .has-error .ant-form-explain, .has-error .ant-form-split {
-      color: #f56c6c;
-    }
-
-    .has-error .ant-input-affix-wrapper .ant-input, .has-error .ant-input-affix-wrapper .ant-input:hover {
-      border-color: #dcdee2;
-    }
-
-    .ant-input-affix-wrapper:hover .ant-input:not(.ant-input-disabled) {
-      border-color: #dcdee2;
-    }
-
-    .password-form {
-      position: relative;
-    }
-
-    .getcodebtn {
-      position: absolute;
-      right: 0;
-      top: -6px;
-    }
-
-    .ant-btn-link.is-disabled, .ant-btn-link.is-disabled:focus, .ant-btn-link.is-disabled:hover {
-      color: #c0c4cc;
-      cursor: not-allowed;
-      background-image: none;
-      background-color: #fff;
-      border-color: #ebeef5;
-    }
   }
 
   .changeEmail {

@@ -1,6 +1,6 @@
 import withAxios from './axios/withAxios'
 
-import {commonConfig} from './common'
+import { commonConfig } from './common'
 
 var mockURL = process.env.NODE_ENV === 'production' ? '' : '/apis'
 export var serverConfig = {
@@ -152,7 +152,15 @@ export var serverConfig = {
   mergeFileMatching: {
     url: '/front/customer/mergeFileMatching',
     method: 'post',
-    baseURL: mockURL
+    headers: {
+      // fetchtype: 'file',
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    transformRequest: [
+      function (params) {
+        return params
+      }
+    ]
   },
   // 下载已匹配文件
   downloadMatchingFile: {
@@ -174,7 +182,7 @@ export var serverConfig = {
   },
   // 获取客户认证信息
   isCertified: {
-    url: '/front/personal/isCertified',
+    url: '/front/personal/isPermission',
     method: 'GET',
     baseURL: mockURL
   },
@@ -254,7 +262,7 @@ export var serverConfig = {
     baseURL: mockURL
   },
   deleteEmptyById: {
-    url: '/front/empty/delete/{id}',
+    url: '/front/empty/delete/{id}/{isOldData}',
     method: 'post',
     baseURL: mockURL
   },
@@ -305,6 +313,194 @@ export var serverConfig = {
   },
   modifyMobile: {
     url: '/front/customer/modifyMobile',
+    method: 'post',
+    baseURL: mockURL
+  },
+  // 忘记密码-校验验证码
+  checkCode: {
+    url: '/front/customer/checkCodePwd/{verifyToken}/{code}',
+    method: 'get',
+    baseURL: mockURL
+  },
+  // 忘记密码-修改密码
+  forgetPassword: {
+    url: '/front/customer/forgetPassword',
+    method: 'post',
+    baseURL: mockURL
+  },
+  // 空号检测-分片上传文件
+  chunkUpload: {
+    url: '/front/chunk/chunkUpload',
+    method: 'post',
+    headers: {
+      fetchtype: 'file',
+      'Content-Type': 'multipart/form-data'
+    },
+    transformRequest: [
+      function (params) {
+        return params
+      }
+    ]
+  },
+  // 空号检测-查询分片上传状态
+  uploadStatus: {
+    url: '/front/chunk/uploadStatus',
+    method: 'post',
+    headers: {
+      // fetchtype: 'file',
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    transformRequest: [
+      function (params) {
+        return params
+      }
+    ]
+  },
+  // 空号检测-执行空号检测
+  checkFile: {
+    url: '/front/empty/emptyCheckByFile',
+    method: 'post',
+    headers: {
+      // fetchtype: 'file',
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    transformRequest: [
+      function (params) {
+        return params
+      }
+    ]
+  },
+  // 空号检测-获取空号检测进度
+  checkFileProgress: {
+    url: '/front/empty/getTestProcessMobile',
+    method: 'post',
+    headers: {
+      // fetchtype: 'file',
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    transformRequest: [
+      function (params) {
+        return params
+      }
+    ]
+  },
+  // 实时检测-执行实时检测
+  realtimeCheckFile: {
+    url: '/front/realtime/realtimeCheckByFile',
+    method: 'post',
+    headers: {
+      // fetchtype: 'file',
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    transformRequest: [
+      function (params) {
+        return params
+      }
+    ]
+  },
+  // 实时检测-获取实时检测进度
+  realtimeCheckFileProgress: {
+    url: '/front/realtime/getTestProcessMobile',
+    method: 'post',
+    headers: {
+      // fetchtype: 'file',
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    transformRequest: [
+      function (params) {
+        return params
+      }
+    ]
+  },
+  // 获取api接口账密
+  apiSettings: {
+    url: '/front/apiSettings/info/{customerId}',
+    method: 'get',
+    baseURL: mockURL
+  },
+  // 空号检测api
+  emptyApiTest: {
+    url: '/front/empty/batchCheckNew',
+    method: 'post',
+    headers: {
+      // fetchtype: 'file',
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    transformRequest: [
+      function (params) {
+        return params
+      }
+    ]
+  },
+  // 空号检测api-检测记录
+  emptyApiTestRecord: {
+    url: '/front/empty/getTestRecord',
+    method: 'get',
+    baseURL: mockURL
+  },
+  // 实时检测api
+  realtimeApiTest: {
+    url: '/front/realtime/mobileStatusStatic',
+    method: 'post',
+    headers: {
+      // fetchtype: 'file',
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    transformRequest: [
+      function (params) {
+        return params
+      }
+    ]
+  },
+  // 空号检测api-检测记录
+  realtimeApiTestRecord: {
+    url: '/front/realtime/getTestRecord',
+    method: 'get',
+    baseURL: mockURL
+  },
+  // 历史检测-实时检测
+  // 获取最新的一条实时检测记录
+  getLatestRealtime: {
+    url: '/front/realtime/getLatestRealtime',
+    method: 'GET',
+    baseURL: mockURL
+  },
+  // 分页列表
+  getRealtimePageList: {
+    url: '/front/realtime/getRealtimePageList',
+    method: 'post',
+    baseURL: mockURL
+  },
+  // 删除实时检测记录
+  deleteRealtimeById: {
+    url: '/front/realtime/delete/{id}/{isOldData}',
+    method: 'post',
+    baseURL: mockURL
+  },
+  realtimeStatistics: {
+    url: '/front/realtime/statistics/{year}/{month}',
+    method: 'get',
+    baseURL: mockURL
+  },
+  addZipPassword: {
+    url: '/front/personal/addUnzipPassword',
+    method: 'post',
+    baseURL: mockURL
+  },
+  updateZipPassword: {
+    url: '/front/personal/updateUnzipPassword',
+    method: 'post',
+    baseURL: mockURL
+  },
+  // 忘记密码-修改密码
+  forgetZipPassword: {
+    url: '/front/personal/updateUnzipPassword',
+    method: 'post',
+    baseURL: mockURL
+  },
+  // 号码魔方
+  getMobileCubePath: {
+    url: '/front/getMobileCubePath ',
     method: 'post',
     baseURL: mockURL
   }

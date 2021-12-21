@@ -4,7 +4,7 @@
       <span><span class="white-text">无需注册，</span>快速登录</span>
     </a-button>
     <div class="logo-show">
-      <img height="36" :src="siteInfo.agentLogo" :alt="siteInfo.agentName">
+      <img height="36" :src="downloadDomain + siteInfo.agentLogo" :alt="siteInfo.agentName">
     </div>
   </header>
 </template>

@@ -1,5 +1,5 @@
 <template>
-  <a-locale-provider :locale="locale">
+  <a-config-provider :locale="locale">
     <div id="app">
       <router-view/>
       <loading></loading>
@@ -8,7 +8,7 @@
       <certification/>
       <agreement-modal/>
     </div>
-  </a-locale-provider>
+  </a-config-provider>
 </template>
 
 <script>
@@ -120,5 +120,9 @@ export default {
   .ant-modal-wrap {
     min-width: 320px;
     z-index: 99999;
+  }
+
+  .ant-message-notice-content {
+    padding: 15px 22px !important;
   }
 </style>

@@ -39,7 +39,7 @@
         label="新手机号"
         class="newphone"
       >
-        <a-input style="width: 100%" v-decorator="[ 'newPhone', newPhoneRules]"/>
+        <a-input style="width: 100%" v-decorator="[ 'newPhone', newPhoneRules]" :disabled="notChange"/>
       </a-form-item>
       <a-form-item
         label="短信验证码"
@@ -48,7 +48,7 @@
         required
       >
         <a-form-item :style="{ display: 'inline-block', width: '50%'}">
-          <a-input style="width: 100%" v-decorator="[ 'newCode', newCodeRules]"/>
+          <a-input style="width: 100%" @blur="checkNewPhone" v-decorator="[ 'newCode', newCodeRules]"/>
         </a-form-item>
         <a-form-item :style="{ display: 'inline-block', width: 'calc(50% - 12px)',marginLeft: '10px'  }">
           <button data-v-bfb0dc60="" type="button" class="el-button cl-code-butt el-button--primary is-plain"
@@ -70,7 +70,8 @@
         </div>
       </a-form-item>
       <a-form-item class="changephonebtn">
-        <button type="button" class="el-button cl-submit-butt el-button--primary" @click="handleSubmit"><span>确定</span>
+        <button :disabled="submitLoading" type="button" class="el-button cl-submit-butt el-button--primary" @click="handleSubmit">
+          <span>{{ submitLoading ? '处理中...' : '确定' }}</span>
         </button>
       </a-form-item>
     </a-form>
@@ -115,7 +116,9 @@ export default {
         rules: [{
           required: true, message: '请输入'
         }]
-      }
+      },
+      notChange: false, // 能否修改新手机号
+      submitLoading: false
     }
   },
   props: {
@@ -145,15 +148,16 @@ export default {
     },
     async getcode1 () {
       if (this.waitingtime1 !== 0) return
-      if (!this.form.getFieldValue('newPhone')) return
+      if (!this.form.getFieldValue('newPhone').trim()) return
       var params = {
-        phone: this.form.getFieldValue('newPhone')
+        phone: this.form.getFieldValue('newPhone').trim()
       }
       var {data} = await server.sendSms(params)
       if (data.code === 200) {
         this.verifyToken1 = data.data
         this.countdown1()
         this.$message.success('获取验证码成功')
+        this.notChange = true
       } else {
         this.$message.error(data.msg)
       }
@@ -178,6 +182,21 @@ export default {
       var {data} = await server.verifySmsCode(params)
       if (data.code === 200) {
         this.countdown()
+        this.$message.success('验证成功')
+      } else {
+        this.$message.error(data.msg)
+      }
+    },
+    async checkNewPhone () {
+      var code = this.form.getFieldValue('newCode')
+      if (!code || !this.verifyToken) return
+      var params = {
+        verifyToken: this.verifyToken,
+        code: this.form.getFieldValue('code')
+      }
+      var {data} = await server.verifySmsCode(params)
+      if (data.code === 200) {
+        this.countdown1()
         this.$message.success('验证成功')
       } else {
         this.$message.error(data.msg)
@@ -221,17 +240,19 @@ export default {
       e.preventDefault()
       this.form.validateFields(async (err, values) => {
         if (!err) {
+          this.submitLoading = true
           var params = {
             newCode: values.newCode,
-            newPhone: values.newPhone,
+            newPhone: values.newPhone.trim(),
             newVerifyToken: this.verifyToken1,
             oldCode: values.code,
             oldPhone: this.phone,
             oldVerifyToken: this.verifyToken
           }
           var {data} = await server.modifyMobile(params)
+          this.submitLoading = false
           if (data.code === 200) {
-            this.$toast('手机号修改成功，稍后重新登录')
+            this.$message.success('手机号修改成功，稍后重新登录')
             this.logout()
           } else {
             this.$message.error(data.msg)
@@ -275,80 +296,6 @@ export default {
     top: 10px;
     right: 10px;
     cursor: pointer;
-  }
-
-  .login-form {
-    padding: 20px 0;
-
-    .ant-input {
-      padding-right: 100px;
-      display: inline-block;
-      line-height: 40px;
-      height: 40px;
-      border: 0;
-      border-bottom: 1px solid #dcdee2;
-      border-radius: 0;
-
-      &:focus {
-        border-bottom: 1px solid #dcdee2;
-        box-shadow: none;
-      }
-
-      &:hover {
-        border-bottom: 1px solid #dcdee2;
-        box-shadow: none;
-      }
-    }
-
-    .ant-input-affix-wrapper .ant-input-prefix {
-      font-size: 20px;
-      left: 1px;
-    }
-
-    .ant-input-affix-wrapper .ant-input:not(:first-child) {
-      padding-left: 32px;
-    }
-
-    .login-form-button {
-      width: 100%;
-      margin-top: 24px;
-      background-color: #3a7cff;
-      height: 40px;
-    }
-
-    .ant-form-explain {
-      padding-left: 32px;
-    }
-
-    .has-error .ant-form-explain, .has-error .ant-form-split {
-      color: #f56c6c;
-    }
-
-    .has-error .ant-input-affix-wrapper .ant-input, .has-error .ant-input-affix-wrapper .ant-input:hover {
-      border-color: #dcdee2;
-    }
-
-    .ant-input-affix-wrapper:hover .ant-input:not(.ant-input-disabled) {
-      border-color: #dcdee2;
-    }
-
-    .password-form {
-      position: relative;
-    }
-
-    .getcodebtn {
-      position: absolute;
-      right: 0;
-      top: -6px;
-    }
-
-    .ant-btn-link.is-disabled, .ant-btn-link.is-disabled:focus, .ant-btn-link.is-disabled:hover {
-      color: #c0c4cc;
-      cursor: not-allowed;
-      background-image: none;
-      background-color: #fff;
-      border-color: #ebeef5;
-    }
   }
 
   .changephone {

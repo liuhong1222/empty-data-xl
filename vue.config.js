@@ -30,13 +30,17 @@ module.exports = {
 
   devServer: {
     host: lIP, // can be overwritten by process.env.HOST
-    port: 9999, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
+    // port: 80, // 域名访问
+    port: 9999, // xybb-9999端口号访问
     https: false,
     open: true,
     openPage: '/',
+    disableHostCheck: true,
     proxy: {
       '/apis/*': {
-        target: 'http://172.18.109.136:8802',
+        // target: 'http://172.18.109.136:8883', // xybb
+        // target: 'http://172.18.109.31:8883', // lh
+        target: 'http://172.16.43.37:8883', // stable
         // target: 'http://khkjc.com/',
         ws: false,
         secure: false,

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import qs from 'querystring'
-import {setSessionStorage} from '../../utils'
-import {httpMessage} from './httpMessage'
+import { setSessionStorage } from '../../utils'
+import { httpMessage } from './httpMessage'
 import showModel from '../../components/showDialog/index'
 
 export var showStatus = (status) => {
@@ -28,6 +28,9 @@ var baseURL = ''
 var server = axios.create({
   baseURL: process.env.NODE_ENV === 'production' ? baseURL : `/apis${baseURL}`,
   headers: {
+    domain: window.location.hostname, // 在请求头传域名(域名访问)
+    // domain: 'test.xunlong.com', // 在请求头传域名(9999端口号访问) xybb
+    // domain: 'test.liuhong.com',
     get: {
       'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
     },
@@ -50,60 +53,90 @@ var server = axios.create({
   validateStatus: function () {
     return true
   },
-  transformResponse: [function (data) {
-    if (typeof data === 'string' && data[0] === '{') {
-      data = JSON.parse(data)
-    }
-    return data
-  }]
-})
-
-server.interceptors.request.use(function (config) {
-  return config
-}, function (error) {
-  console.log(error)
-  error.data = {}
-  error.data.msg = '请求失败'
-  return Promise.resolve(error)
-})
-
-server.interceptors.response.use(function (response) {
-  var status = response.status
-  let code = ''
-  if (status < 200 || status >= 300) {
-    code = showStatus(status)
-    if (typeof response.data === 'string') {
-      response.data = {
-        msg: httpMessage[code]
+  transformResponse: [
+    function (data) {
+      if (typeof data === 'string' && data[0] === '{') {
+        data = JSON.parse(data)
       }
-    } else {
-      response.data.msg = httpMessage[code]
+      return data
     }
-  }
-  if (response.data.code === 5104 || response.data.code === 5103) {
-    setSessionStorage('token', '')
-    setSessionStorage('userInfo', '')
-    // window.location.reload()
-  }
-
-  if (response.data.code === 5106) {
-    showModel({
-      url: response.data.data
-    })
-    throw Error('')
-  }
-  return response
-}, function (error) {
-  console.log(error)
-  error.response = {}
-  error.response.data = {}
-  error.response.data.msg = '响应错误'
-  // 判断请求超时
-  if (error.code === 'ECONNABORTED' && error.message.indexOf('timeout') !== -1) {
-    error.response.data.msg = '网络超时'
-  }
-
-  return Promise.resolve(error.response)
+  ]
 })
+
+server.interceptors.request.use(
+  function (config) {
+    // debugger
+    // 统一为get请求URL，添加
+    if (config.method === 'get') {
+      const time = new Date().getTime()
+      config.url += '?time=' + time
+    }
+    return config
+  },
+  function (error) {
+    console.log(error)
+    error.data = {}
+    error.data.msg = '请求失败'
+    return Promise.resolve(error)
+  }
+)
+
+server.interceptors.response.use(
+  function (response) {
+    var status = response.status
+    let code = ''
+    if (status < 200 || status >= 300) {
+      code = showStatus(status)
+      if (typeof response.data === 'string') {
+        response.data = {
+          msg: httpMessage[code]
+        }
+      } else {
+        response.data.msg = httpMessage[code]
+      }
+    }
+    if (response.data.code === 5104 || response.data.code === 5103) {
+      setSessionStorage('token', '')
+      setSessionStorage('userInfo', '')
+      // window.location.reload()
+    }
+
+    if (response.data.code === 5106) {
+      showModel({
+        url: response.data.data
+      })
+      throw Error('')
+    }
+    // debugger
+    if (
+      (response.data.code === 500 &&
+        response.data.msg === 'token验证信息异常') ||
+      response.data.code === 400007
+    ) {
+      // token失效，退出登录
+      setSessionStorage('token', '')
+      setSessionStorage('userInfo', '')
+      window.location.href = '/'
+      // window.location.reload()
+      // return
+    }
+
+    return response
+  },
+  function (error) {
+    error.response = {}
+    error.response.data = {}
+    error.response.data.msg = '响应错误'
+    // 判断请求超时
+    if (
+      error.code === 'ECONNABORTED' &&
+      error.message.indexOf('timeout') !== -1
+    ) {
+      error.response.data.msg = '网络超时'
+    }
+
+    return Promise.resolve(error.response)
+  }
+)
 
 export default server

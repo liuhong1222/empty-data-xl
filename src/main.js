@@ -8,20 +8,28 @@ import toast from './components/toast/index.js'
 import router from './router'
 import store from './store'
 import server from './server/index'
+import SlideVerify from 'vue-monoplasty-slide-verify'
 
 // Carousel
 import * as Antd from 'ant-design-vue'
 import 'ant-design-vue/dist/antd.css'
-import {getCookie, getSessionStorage, setSessionStorage} from './utils'
+import { getCookie, getSessionStorage, setSessionStorage } from './utils'
 
 Vue.use(toast)
 Vue.use(Antd)
+Vue.use(SlideVerify)
 
 Vue.config.productionTip = false
 
 Vue.prototype.moment = moment
 
 Vue.prototype.bus = new Vue()
+
+// 统一下载域名
+Vue.prototype.downloadDomain = 'http://test.haifou.com:8088/' // stable
+// Vue.prototype.downloadDomain = 'http://tp.xlhmjc.com/' // 正式上线 tp.xlhmjc.com
+// 批量下载前缀
+Vue.prototype.batchDownload = 'batch_download' // nginx配置批量下载前缀
 
 /* 原方法 */
 Vue.prototype.getLoginFlag = () => {
@@ -69,40 +77,47 @@ function loadJS (src) {
 }
 
 // 查看代理商网站设置
-server.siteInfo({}).then(({data}) => {
-  if (data.code === 200) {
-    var siteInfo = data.data || {}
-    Vue.prototype.siteInfo = siteInfo
-    document.title = siteInfo.siteName || ''
-    document.querySelector("link[rel*='icon']").href = siteInfo?.agentIcon || ''
-    document.querySelector("meta[name='description']").content = siteInfo?.seoDescription || ''
-    document.querySelector("meta[name='keywords']").content = siteInfo?.seoKeywords || ''
-    if (siteInfo?.la51Src) {
-      const srcList = siteInfo?.la51Src.split(',')
-      srcList.map(src => loadJS(src))
-    }
-    if (siteInfo?.baiduSrc) {
-      window._hmt = window._hmt || []
-      loadJS(siteInfo?.baiduSrc)
-    }
-    new Vue({
-      router,
-      store,
-      render: h => h(App, {ref: 'app'})
-    }).$mount('#app')
-  } else {
-    if (process.env.NODE_ENV === 'production') {
-      new Vue({
-        render: h => h(NotFound)
-      }).$mount('#app')
-    } else {
+server
+  .siteInfo({})
+  .then(({ data }) => {
+    if (data.code === 200) {
+      var siteInfo = data.data || {}
+      Vue.prototype.siteInfo = siteInfo
+      document.title = siteInfo.siteName || ''
+      document.querySelector("link[rel*='icon']").href =
+        Vue.prototype.downloadDomain + siteInfo?.agentIcon || ''
+      // console.log(Vue.prototype.downloadDomain + siteInfo?.agentIcon)
+      document.querySelector("meta[name='description']").content =
+        siteInfo?.seoDescription || ''
+      document.querySelector("meta[name='keywords']").content =
+        siteInfo?.seoKeywords || ''
+      if (siteInfo?.la51Src) {
+        const srcList = siteInfo?.la51Src.split(',')
+        srcList.map((src) => loadJS(src))
+      }
+      if (siteInfo?.baiduSrc) {
+        window._hmt = window._hmt || []
+        loadJS(siteInfo?.baiduSrc)
+      }
       new Vue({
         router,
         store,
-        render: h => h(App, {ref: 'app'})
+        render: (h) => h(App, { ref: 'app' })
       }).$mount('#app')
+    } else {
+      if (process.env.NODE_ENV === 'production') {
+        new Vue({
+          render: (h) => h(NotFound)
+        }).$mount('#app')
+      } else {
+        new Vue({
+          router,
+          store,
+          render: (h) => h(App, { ref: 'app' })
+        }).$mount('#app')
+      }
     }
-  }
-}).catch((err) => {
-  console.log(err)
-})
+  })
+  .catch((err) => {
+    console.log(err)
+  })

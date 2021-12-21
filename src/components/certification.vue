@@ -4,14 +4,14 @@
     title=""
     width="450px"
     :visible="modal1Visible"
-    :closable="false"
     :maskClosable="false"
     :footer="null"
+    @cancel="modal1Visible = false"
   >
     <h3>尊敬的用户</h3>
     <p style="color: #ffffff">您的试用期已过，根据互联网安全相关规定，您需通过实名认证后方可继续使用本平台产品，如需帮助请联系客服人员。</p>
     <div class="auth-footer">
-      <button type="button" class="el-button el-button--default el-button--small" @click="closeModal">
+      <button type="button" class="el-button el-button--default el-button--small" @click="closeModal" v-if="isShowClose">
         <span>暂不认证</span></button>
       <button type="button" class="el-button el-button--default el-button--small" @click="gotocertification">
         <span>立即认证</span></button>
@@ -24,7 +24,8 @@ export default {
   data () {
     return {
       modal1Visible: false,
-      source: undefined
+      source: undefined,
+      isShowClose: true
     }
   },
   mounted () {
@@ -34,12 +35,24 @@ export default {
     setModal1Visible ({source, flag}) {
       this.modal1Visible = flag
       this.source = source
+      if (source.url === 'emptyapiNot') { // 不可点击暂不认证
+        this.isShowClose = false
+      } else {
+        this.isShowClose = true
+      }
     },
     closeModal () {
       this.modal1Visible = false
-      // if (this.source === 'empty') {
-      //   document.getElementById('singlefilea').click()
-      // }
+      if (this.source.url === 'empty') {
+        this.$root.$emit('closeCertification', { source: 'certification', flag: true })
+        if (!this.source.balance || this.source.balance === '0') {
+          this.$message.error('余额不足')
+        } else {
+          document.getElementById(this.source.type).click()
+        }
+      } else if (this.source.url === 'emptyapi') {
+        this.$root.$emit('closeCertification', { source: 'certification', flag: true })
+      }
     },
     gotocertification () {
       this.modal1Visible = false
@@ -62,10 +75,12 @@ export default {
     color: #fff;
     font-size: 16px;
     line-height: 30px;
+    .ant-modal-close-x {
+      color: #fff;
+    }
 
     .ant-modal-body {
       padding: 30px 20px;
-
       h3 {
         color: #fff;
         text-align: center;
@@ -127,7 +142,7 @@ export default {
     .ant-modal-content, .ant-modal-body {
       /*background-color: transparent;*/
       top: 15%;
-      height: 253px;
+      height: 285px;
       background-color: rgba(9,16,44,.9);
     }
   }

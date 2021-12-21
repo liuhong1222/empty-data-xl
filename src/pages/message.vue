@@ -156,7 +156,7 @@ export default {
     async messageList () {
       var userInfo = this.getUserInfo()
       var params = {
-        current: this.pagination.current,
+        page: this.pagination.current,
         customerId: userInfo.id,
         keyword: '',
         orders: [
@@ -170,7 +170,7 @@ export default {
       }
       var {data} = await server.messageList(params)
       if (data.code === 200) {
-        this.orderlist = data.data.records
+        this.orderlist = data.data.list
         this.pagination.total = parseInt(data.data.total)
       } else {
         this.$message.error(data.msg)

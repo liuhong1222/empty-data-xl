@@ -13,7 +13,10 @@
         我已阅读并同意该协议
       </a-button>
     </template>
-    <div class="details-content" v-html="escapeCharacter(siteInfo.agreement)"></div>
+    <div
+      class="details-content"
+      v-html="escapeCharacter(siteInfo.agreement)"
+    ></div>
   </a-modal>
 </template>
 <script>
@@ -28,10 +31,12 @@ export default {
     }
   },
   created () {
+    // console.log(escapeCharacter(this.siteInfo.agreement))
     const showAgreement = sessionStorage.getItem('isShowAgreement') === 'true'
     if (showAgreement) {
       sessionStorage.setItem('isShowAgreement', 'false')
     }
+    // console.log(this.siteInfo.agreement)
     this.showAgreement = this.siteInfo?.agreement ? showAgreement : false
   },
   methods: {
@@ -42,8 +47,8 @@ export default {
 }
 </script>
 <style lang="less">
-  .details-content {
-    max-height: 400px;
-    overflow-x: auto;
-  }
+.details-content {
+  max-height: 400px;
+  overflow-x: auto;
+}
 </style>

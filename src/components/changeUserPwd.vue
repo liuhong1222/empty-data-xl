@@ -12,7 +12,9 @@
   >
     <a-icon @click="closelogin" class="closebtn" type="close"/>
     <div class="el-dialog__header">
-      <span class="el-dialog__title">修改登录密码</span>
+      <span class="el-dialog__title">
+        {{haspassword ? '修改登录密码' : '添加登录密码'}}
+      </span>
     </div>
     <a-form
       :form="form">
@@ -37,8 +39,10 @@
                  v-decorator="[ 'confirmpassword', confirmpasswordRules]"/>
       </a-form-item>
       <a-form-item class="changephonebtn">
-        <button type="button" class="el-button cl-submit-butt el-button--primary" @click="handleSubmit"><span>确定</span>
+        <button :disabled="submitLoading" type="button" class="el-button cl-submit-butt el-button--primary" @click="handleSubmit">
+          <span>{{ submitLoading ? '处理中...' : '确定' }}</span>
         </button>
+        <span v-if="haspassword" class="forget-pass" @click="forgetPassTab">忘记密码</span>
       </a-form-item>
     </a-form>
   </a-modal>
@@ -66,7 +70,8 @@ export default {
         rules: [{
           required: true, message: '请输入确认新密码'
         }]
-      }
+      },
+      submitLoading: false
     }
   },
   props: {
@@ -76,6 +81,9 @@ export default {
     }
   },
   methods: {
+    forgetPassTab () {
+      this.$emit('forgetPassShow')
+    },
     async checkOldPwd () {
       var userInfo = this.getUserInfo()
       var params = {
@@ -85,9 +93,9 @@ export default {
       if (!this.form.getFieldValue('oldpassword')) return
       var {data} = await server.validOldPassword(params)
       if (data.code === 200) {
-        this.$toast('校验通过')
+        this.$message.success('校验通过')
       } else if (data.code === 500) {
-        this.$toast('旧密码验证失败，请重新输入密码')
+        this.$message.error('旧密码验证失败，请重新输入密码')
       } else {
         this.$message.error(data.msg)
       }
@@ -107,7 +115,7 @@ export default {
           var params = {}
           var result, data
           if (this.form.getFieldValue('newpassword') !== this.form.getFieldValue('confirmpassword')) {
-            this.$toast('两次输入密码不一致')
+            this.$message.error('两次输入密码不一致')
             return
           }
           params = {
@@ -115,13 +123,17 @@ export default {
             newPassword: this.form.getFieldValue('newpassword'),
             confirmPassword: this.form.getFieldValue('confirmpassword')
           }
+          this.submitLoading = true
           if (this.haspassword) {
             params.oldPassword = this.form.getFieldValue('oldpassword')
             result = await server.updatePassword(params)
             data = result.data
             if (data.code === 200) {
               this.closelogin()
+              this.$message.success('密码修改成功,请重新登录')
               this.$emit('changeUserPwdFlag')
+              // 重新登录
+              this.logout()
             } else {
               this.$message.error(data.msg)
             }
@@ -130,16 +142,34 @@ export default {
             data = result.data
             if (data.code === 200) {
               this.closelogin()
+              this.$message.success('密码添加成功,请重新登录')
               this.$emit('changeUserPwdFlag')
+              // 重新登录
+              this.logout()
             } else {
               this.$message.error(data.msg)
             }
           }
+          this.submitLoading = false
         }
       })
     },
     closelogin () {
       this.setModal1Visible(false)
+    },
+    async logout () {
+      var params = {}
+      var {data} = await server.logout(params)
+      if (data.code === 200) {
+        this.setSessionToken('')
+        this.setUserInfo('')
+        setTimeout(() => {
+          this.$router.push('/')
+          window.location.reload()
+        }, 2500)
+      } else {
+        this.$message.error(data.msg)
+      }
     }
   }
 }
@@ -160,80 +190,6 @@ export default {
     top: 10px;
     right: 10px;
     cursor: pointer;
-  }
-
-  .login-form {
-    padding: 20px 0;
-
-    .ant-input {
-      padding-right: 100px;
-      display: inline-block;
-      line-height: 40px;
-      height: 40px;
-      border: 0;
-      border-bottom: 1px solid #dcdee2;
-      border-radius: 0;
-
-      &:focus {
-        border-bottom: 1px solid #dcdee2;
-        box-shadow: none;
-      }
-
-      &:hover {
-        border-bottom: 1px solid #dcdee2;
-        box-shadow: none;
-      }
-    }
-
-    .ant-input-affix-wrapper .ant-input-prefix {
-      font-size: 20px;
-      left: 1px;
-    }
-
-    .ant-input-affix-wrapper .ant-input:not(:first-child) {
-      padding-left: 32px;
-    }
-
-    .login-form-button {
-      width: 100%;
-      margin-top: 24px;
-      background-color: #3a7cff;
-      height: 40px;
-    }
-
-    .ant-form-explain {
-      padding-left: 32px;
-    }
-
-    .has-error .ant-form-explain, .has-error .ant-form-split {
-      color: #f56c6c;
-    }
-
-    .has-error .ant-input-affix-wrapper .ant-input, .has-error .ant-input-affix-wrapper .ant-input:hover {
-      border-color: #dcdee2;
-    }
-
-    .ant-input-affix-wrapper:hover .ant-input:not(.ant-input-disabled) {
-      border-color: #dcdee2;
-    }
-
-    .password-form {
-      position: relative;
-    }
-
-    .getcodebtn {
-      position: absolute;
-      right: 0;
-      top: -6px;
-    }
-
-    .ant-btn-link.is-disabled, .ant-btn-link.is-disabled:focus, .ant-btn-link.is-disabled:hover {
-      color: #c0c4cc;
-      cursor: not-allowed;
-      background-image: none;
-      background-color: #fff;
-      border-color: #ebeef5;
-    }
   }
 
   .changePwd {
@@ -356,6 +312,11 @@ export default {
 
     .changephonebtn {
       margin-bottom: 0;
+      .forget-pass {
+        color: #409eff;
+        margin-left: 75px;
+        cursor: pointer;
+      }
     }
 
     .nuzip-tips {

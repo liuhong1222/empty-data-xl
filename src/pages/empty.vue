@@ -1,265 +1,467 @@
 <template>
-  <div class="empty">
-    <div class="fixed-view">
+  <section>
+    <div class="fixed-view" ref="fixedView">
       <section class="body-regin">
-        <div class="center-box"><img height="100" src="../assets/index/index_title.png"
-                                     alt="空号检测-全网数据">
+        <div class="center-box">
+          <img
+            height="100"
+            src="../assets/index/empty_khjc.png"
+            alt="空号检测-真实数据"
+          />
           <div class="file-box">
-            <div class="file-input">{{fileInfObj.fileName ? fileInfObj.fileName:'请上传文件进行检测（当前可用余额：' + userInfo.remainNumberTotal + '条）'}}</div>
-            <div class="file-butt file-butt-select" @click="browseButt" v-if="visible4 || fileRows.length === 0">
-              <img height="18"
-                   src="../assets/index/folder.png">浏览
-              <form ref="formelem" class="formelem">
-                <input
-                  id="singlefilea"
-                  name="img" type="file"
-                  multiple
-                  accept="text/plain,application/vnd.ms-excel" class="file-hidden" ref="singlefile"
-                  @change="uploadAxios">
-              </form>
+            <div class="file-input">
+              {{
+                this.fileObj['name'] ||
+                ('请上传文件进行检测（当前可用余额：' +
+                  (userInfo.remainNumberTotal || 0) +
+                  '条）')
+                  | formatName
+              }}
             </div>
-            <div class="file-butt file-butt-select backgrounde5" @click="showvisible4" v-else>
-              <img height="18"
-                   src="../assets/index/folder.png">检测中
+            <div
+              v-if="fileInfObj['minshow']"
+              class="file-butt file-butt-layouts"
+              @click="dialogIndex = 2"
+            >
+              <img height="20" src="../assets/index/loading.png" />{{
+                mobileObj['stateDesc']
+              }}
+            </div>
+            <div
+              v-else
+              class="file-butt file-butt-select"
+              @mouseenter="showFileBtn()"
+              @mouseleave="hideFileBtn()"
+            >
+              <img height="18" src="../assets/index/folder.png" />浏览
+            </div>
+            <!-- 可选择单文件上传/多文件上传 -->
+            <div
+              class="file-butt file-butt-select file-butt-choose"
+              @mouseenter="showFileBtn()"
+              @mouseleave="hideFileBtn()"
+              v-if="fileBtnShow"
+            >
+              <ul>
+                <li @click="browseButt($event, 'singlefile')">上传单个文件</li>
+                <li @click="browseButt($event, 'multfile')">上传多个文件</li>
+              </ul>
             </div>
           </div>
-          <p class="form-remark">注: 1、待检测文件格式<strong>仅支持TXT文本文档格式（每行一个手机号码）</strong>
+          <p class="form-remark">
+            注: 1、待检测文件格式<strong
+              >支持TXT格式（每行一个手机号码）、xls（手机号须在第一张工作表的第一列）</strong
+            >
           </p>
-          <p class="form-remark1">2、支持最低3001—150W条号码(20M)上传，并支持批量上传，最多上传30个文件</p>
-          <p class="form-remark1">3、检测完成后，请点击右上角<strong>【个人中心】>【历史检测】</strong>查看检测报告</p>
-          <div v-if="false" class="handle-regin">
-            <button type="button" class="el-button el-button--default" @click="processButtonClick">
-              <span>立即检测</span>
-            </button>
+          <p class="form-remark1">
+            2、支持最低3001—300W条号码(40M)上传，并支持批量上传，最多上传30个文件
+          </p>
+          <p class="form-remark1">
+            3、检测完成后，请点击右上角<strong>【个人中心】>【历史检测】</strong>查看检测报告
+          </p>
+          <div v-if="isSingleFile" if="stepIndex > 0" class="handle-regin">
+            <!-- <a-button v-if='stepIndex == 1' @click='clickSingleUpload'>点击上传</a-button> -->
+            <a-progress
+              v-if="stepIndex == 2"
+              :text-inside="true"
+              :strokeWidth="18"
+              :percent="singleProgressVal"
+            ></a-progress>
+            <a-button v-if="stepIndex == 3" @click="clickTesting"
+              >立即检测</a-button
+            >
           </div>
         </div>
       </section>
-      <ul class="copy-right">
-        <footerinfo></footerinfo>
-      </ul>
+      <form ref="formelem">
+        <input
+          class="file-hidden"
+          name="empty"
+          id="singlefile"
+          ref="singlefile"
+          type="file"
+          accept="text/plain,application/vnd.ms-excel"
+          @change="singlefilePreview($event)"
+        />
+      </form>
+      <form ref="formelem">
+        <input
+          class="file-hidden"
+          name="multfile"
+          id="multfile"
+          ref="multfile"
+          type="file"
+          accept="text/plain,application/vnd.ms-excel"
+          multiple
+          @change="multfilePreview($event)"
+        />
+      </form>
+      <footerinfo></footerinfo>
     </div>
-    <a-modal v-model="visible1" :footer="null" title="" class="dialog-loading" :closable="false" width="300px"
-             style="top: 30%">
-      <img class="img" height="30" src="../assets/index/loading.png">
-      <p class="loadingp">文件读取中，请勿离开...</p>
-    </a-modal>
-    <a-modal v-model="visible2" :footer="null" title="" class="checkdialog" width="880px" style="top: 15%"
-             @cancel="cancelHandler">
-      <div class="el-dialog__header">
-        <span data="">空号检测</span>
-      </div>
-      <div class="el-dialog__body">
-        <div data="" class="loading-regin">
-          <div data="" class="loading1" style="background-position-y: 0px;"></div>
-          <div data="" class="loading2"><img data="" width="100%"
-                                             src="../assets/index/circle1.png"></div>
-          <div data="" class="loading3"><img data="" width="100%"
-                                             src="../assets/index/circle2.png"></div>
-          <div data="" class="loading4"><img data="" width="100%"
-                                             src="../assets/index/circle3.png"></div>
-        </div>
-        <p data="" class="conduct-remarks">无需等待，系统后台自动执行......</p></div>
-    </a-modal>
-    <a-modal v-model="visible3" :footer="null" title="" class="success-loading" width="450px"
-             style="top: 15%"
-             @cancel="backcancel">
-      <div class="el-dialog__body"><img src="../assets/index/success.png" alt="">
-        <h3>恭喜！检测完成</h3>
-        <h4>{{time}}s后进入检测结果页面，或点击<a href="javascript:" class="" @click="goto('/testrecord')">直接进入</a>
-        </h4></div>
-    </a-modal>
-
-    <a-modal v-model="visible4" :footer="null" title="" class="dialog-showlist easy_upload-container" width="888px"
-             style="top: 30%"
-             :maskClosable="false"
-             :keyboard="false"
-             @cancel="backcancel"
+    <!-- 单文件分片上传弹窗 -->
+    <!-- <a-modal width='300px' wrapClassName='dialog-reset dialog-loading' :destroyOnClose='true' :maskClosable='false' :closable='false' :visible='isSingleFile && isUploadShow'>
+      <img height='30' src='../assets/index/loading.png' />
+      <p>{{uploadCompleted}}</p>
+    </a-modal> -->
+    <!-- 单文件上传 -->
+    <a-modal
+      width="300px"
+      wrapClassName="dialog-reset dialog-loading"
+      :destroyOnClose="true"
+      :maskClosable="false"
+      :closable="false"
+      :visible="dialogIndex == 1"
     >
-      <div class="checktitle">检测列表</div>
-      <ul class="item-cantainer easy_upload_queue">
-        <li class="easy_upload_queue_item queue_check_allow_true" data-index="0" v-for="(item, index) in fileRows"
-            :key="index">
-          <div class="easy_upload_preview queue_item-section" style="color: #cde1fa;font-size: 16px;font-weight:bold">
-            {{ 9 >= (index+1) ? ('0'+(index+1)):index+1}}
-          </div>
-          <div class="easy_upload_file1 queue_item-section">
-            <p class="easy_upload_filename">{{item.name}}</p>
-            <p class="easy_upload_fiesize">{{item.size/1000}}KB</p>
-            <p class="easy_upload_progress"><span class="easy_upload_bar">
-              <span class="easy_upload_bar_guang" data-index="" style="display:none"></span></span></p>
-          </div>
-          <div class="easy_upload_file2 queue_item-section"><p class="easy_upload_percent" style="color: #8996a6;"></p>
-          </div>
-          <div class="easy_upload_file2 queue_item-section">
-            <p class="easy_check_percent" style="color: #8996a6;display:none"></p></div>
-          <div class="easy_upload_status queue_item-section">
-            <p class="status status1" v-if="item.status == '1'">等待上传</p>
-            <p class="status status3" v-else-if="item.status == '3'">上传中{{item.progress ? ('(' + item.progress + ')') : '...'}}</p>
-            <p class="status status4" v-else-if="item.status == '4'">上传失败</p>
-            <p class="status status5" v-else-if="item.status == '5'">上传完成</p>
-            <p class="status status7" style="margin-top: -3px;" v-else-if="item.status == '7'">检测中</p>
-            <p class="status status20" style="color:red" v-else-if="item.status == '-1'">最低上传3001条</p>
-            <p class="status status21" style="color:red" v-else-if="item.status == '-4'">最大检测150万条</p>
-            <p class="status status8" style="color:#bee8fb" v-else-if="item.status == '9'">检测完成<img
-              src="../assets/index/wanc.png"
-              style="position: relative; right: -10px;">
-            </p>
-            <p class="status status9" style="color:red" v-else-if="item.status == '-2'">余额不足</p>
-            <p class="status status9" style="color:red" v-else-if="item.status == '-3'">代理商余额不足</p>
-            <p class="easy_upload_delbtn btn noselect" style="margin-left:13px;cursor:pointer" v-if="item.status == '1'"
-               @click="deleteThis(index)"><img
-              src="../assets/index/delUpload.png"></p>
-          </div>
-          <div class="easy_upload_btn queue_item-section"></div>
+      <img height="30" src="../assets/index/loading.png" />
+      <p>文件读取中，请勿离开...</p>
+    </a-modal>
+    <a-modal
+      width="880px"
+      wrapClassName="dialog-reset dialog-conduct"
+      :destroyOnClose="true"
+      :maskClosable="false"
+      :dialogStyle="dialogStyle"
+      :visible="dialogIndex == 2"
+      @cancel="dialogIndex = 0"
+    >
+      <template slot="title">
+        <span>空号检测</span>
+        <!-- <button type='button' class='a-modal__headerbtn' @click='dialogIndex = 0'>
+          <a-icon type='close' class='a-modal__close a-icon a-icon-close' />
+        </button> -->
+      </template>
+      <div class="loading-regin">
+        <div class="loading1" :style="testingPosition">{{ testingScale }}%</div>
+        <div class="loading2">
+          <img width="100%" src="../assets/index/circle1.png" />
+        </div>
+        <div class="loading3">
+          <img width="100%" src="../assets/index/circle2.png" />
+        </div>
+        <div class="loading4">
+          <img width="100%" src="../assets/index/circle3.png" />
+        </div>
+      </div>
+      <div class="conduct-scaling">
+        <span>{{ mobileObj['stateDesc'] }}</span
+        >({{ mobileObj['testCounts'] }}/{{ mobileObj['fileCounts'] }})
+      </div>
+      <ul class="conduct-order">
+        <li
+          v-for="(item, index) in mobileObj['mobileList']"
+          :class="item.color"
+          :key="index"
+        >
+          <span>{{ item.mobile }}</span>
+          <a-icon
+            type="exclamation-circle"
+            v-if="item['color'] == 'red'"
+            class="a-icon-warning"
+          />
+          <a-icon
+            type="check-circle"
+            v-else-if="item['color'] == 'blue'"
+            class="a-icon-success"
+          />
+          <a-icon
+            type="close-circle"
+            v-else-if="item['color'] == 'gray'"
+            class="a-icon-error"
+          />
+          <a-icon
+            type="question-circle"
+            v-else-if="item['color'] == 'yellow'"
+            class="a-icon-question"
+          />
         </li>
       </ul>
-      <template v-if="running">
-        <span class="easy_upload_head_btn1 uploadBtn noselect" style="" @click="showUploadDialogBtn">立即上传检测</span>
-        <span class="continueAdd" style="display:block" @click="browseButtt"><img src="../assets/index/uploadPlus.png"
-                                                                                  style="margin-right: 6px;vertical-align: sub;">添加文件</span>
-        <p class="waringTips"><span style="color:#4a568a;margin: 20px auto;width:300px;display: block;">注：您已添加{{fileRows.length}}个文件，最多可检测30个文件</span>
-        </p>
+      <p class="conduct-remarks">无需等待，系统后台自动执行......</p>
+    </a-modal>
+    <a-modal
+      width="450px"
+      wrapClassName="dialog-reset dialog-suspend"
+      :destroyOnClose="true"
+      :maskClosable="false"
+      :dialogStyle="dialogStyle"
+      :visible="dialogIndex == 3"
+      @cancel="dialogIndex = 0"
+    >
+      <template slot="title">
+        <span>提示</span>
+        <!-- <button type='button' class='a-modal__headerbtn' @click='dialogIndex = 0'>
+          <a-icon type='close' class='a-modal__close a-icon a-icon-close' />
+        </button> -->
+      </template>
+      <p class="text-desc">根据您的需求，此次检测已经被终止！</p>
+      <template slot="footer">
+        <a-button type="primary" size="small" @click="dialogIndex = 0"
+          >确定</a-button
+        >
       </template>
     </a-modal>
-    <div class="notice-pop-up" v-show="showUploadDialog">
-      <p>文档上传后会自动进行检测,</p>
-      <p>该过程无法暂停或取消，是否立即上传</p>
-      <button id="notice-pop-upBtnTrue" @click="gotofileUpload">是</button>
-      <button id="notice-pop-upBtnClear" @click="hideUploadDialogBtn">否</button>
-    </div>
-  </div>
-</template>
-<script>
-import footerinfo from '../components/footerinfo'
-import server from '../server/index'
-import { uploadByPieces } from '../utils/uploadByPieces'
+    <a-modal
+      width="450px"
+      wrapClassName="dialog-reset dialog-success"
+      :destroyOnClose="true"
+      :dialogStyle="dialogStyle"
+      :closable="false"
+      :visible="dialogIndex == 4"
+    >
+      <img src="../assets/index/success.png" alt="" />
+      <h3>恭喜！检测完成</h3>
+      <!-- <h4>
+        本次检测提交条数：<span class="red">{{ fileRows }}条</span>
+      </h4> -->
+      <h4>
+        {{ countDown }}s后进入检测结果页面，或点击<a
+          @click="$router.push('/testrecord')"
+          >直接进入</a
+        >
+      </h4>
+    </a-modal>
 
+    <!-- 多文件上传 -->
+    <a-modal
+      width="860px"
+      wrapClassName="dialog-batch"
+      :destroyOnClose="true"
+      :maskClosable="false"
+      :dialogStyle="dialogStyle"
+      :visible="dialogVisible"
+      :closable="mulCloseIcon"
+      @cancel="closedialog"
+    >
+      <template slot="title">
+        <span>批量检测</span>
+      </template>
+      <div class="vue-scroll">
+        <template v-for="(item, index) in mulFileList">
+          <div v-bind:key="index">
+            <a-row class="file-select">
+              <a-col class="list1" :span="2">{{
+                (index >= 9 ? '' : '0') + (index + 1)
+              }}</a-col>
+              <a-col class="list2" :span="16">
+                <h3>{{ item.file.name | formatName }}</h3>
+                <p v-if="item.uploadobj.fileRows">
+                  号码条数：{{ item.uploadobj.fileRows || 0 }}条
+                </p>
+                <p v-else>{{ item.file.size | formatSize }}</p>
+              </a-col>
+              <a-col class="list3" :span="6">
+                <span v-html="item.stateDesc"></span>
+                <a-icon
+                  type="close-circle"
+                  v-if="mulStepIndex == 1"
+                  class="a-icon-error"
+                  @click="delectfile(index)"
+                />
+              </a-col>
+            </a-row>
+            <a-progress
+              :text-inside="true"
+              :show-text="false"
+              :strokeWidth="1"
+              :percent="item.progressVal"
+              :successPercent="item.progressVal"
+            ></a-progress>
+          </div>
+        </template>
+      </div>
+      <template v-if="mulStepIndex == 1">
+        <div v-if="mulFileList.length < 30" class="add-file">
+          <a-button
+            size="default"
+            type="primary"
+            @click="browseButt($event, 'multfile')"
+          >
+            <a-icon type="cloud-upload" />&nbsp;&nbsp;添加文件
+          </a-button>
+        </div>
+        <div class="upload-file">
+          <a-button type="primary" @click="clickMultiUpload">立即上传</a-button>
+          <p>
+            注：您已添加{{ mulFileList.length }}个文件，最多可再添加{{
+              30 - mulFileList.length
+            }}个文件
+          </p>
+        </div>
+      </template>
+    </a-modal>
+    <a-modal
+      width="450px"
+      wrapClassName="dialog-confirm"
+      :destroyOnClose="true"
+      :closable="false"
+      :dialogStyle="dialogStyle"
+      :visible="mulStepIndex == 2"
+    >
+      <p>
+        文档上传后会自动进行检测，<br />
+        上传过程无法暂停或取消，是否立即上传
+      </p>
+      <a-button type="primary" :disabled="mulYesDisabled" @click="mulUploadYes"
+        >是</a-button
+      >
+      <a-button
+        type="primary"
+        :disabled="mulYesDisabled"
+        @click="
+          mulStepIndex = 1
+          mulCloseIcon = true
+        "
+        >否</a-button
+      >
+    </a-modal>
+  </section>
+</template>
+
+<script>
+// import qs from 'qs'
+import server from '../server/index'
+import footerinfo from '../components/footerinfo'
+import { uploadByPieces } from '../utils/uploadByPieces'
 export default {
-  name: 'empty',
   components: {
     footerinfo
   },
   data () {
     return {
-      checkList: [],
-      errList: [],
-      visible4: false,
-      formData: null,
-      time: 10,
+      fileObj: {},
+      fileRows: 0, // 条数
+      fileInfObj: {
+        id: null,
+        minshow: false
+      },
       stepIndex: 0,
-      fileRows: [], // 条数
-      progressVal: 0,
-      fileInfObj: {},
-      timersecond: '',
-      timerInterval: '',
-      mobileList: [],
-      checkStatus: '',
-      showUploadDialog: false,
-      running: true,
-      visible3: false,
+      singleProgressVal: 0,
+      dialogIndex: 0, // dialog状态
+      mobileObj: {
+        // 循环检测结果
+        fileCounts: 0,
+        testCounts: 0,
+        mobileList: [],
+        stateDesc: ''
+      },
+      countDown: 10, // 完成10秒倒计时
+      timersecond: null, // 倒计时对象
+      fileBtnShow: false, // 是否展示可选上传按钮
       userInfo: {},
-      isCertified: false
+      isCertified: false,
+      checkList: [],
+      fileBtnTimer: null, // 倒计时对象
+      fileList: [], // 多个上传文件
+      isSingleFile: true, // 单文件上传/多文件上传
+      fileObjList: [], // 所有上传文件对象
+      dialogVisible: false, // 多文件上传弹窗
+      dialogStyle: {
+        'margin-top': '5vh'
+      },
+      isUploadShow: false, // 分片上传弹窗
+      uploadCompleted: '文件上传中，请勿离开...', // 分片上传进度
+      checkId: '', // 文件检测id（唯一id）
+      mulFileList: [], // 多文件上传列表
+      mulStepIndex: 1,
+      mulCheckId: [], // 上传文件id
+      mulCloseIcon: true, // 批量检测icon是否展示
+      mulYesDisabled: false // 批量检测点击是按钮是否禁用
     }
+  },
+  head () {
+    return { title: '空号检测' }
   },
   computed: {
-    visible1 () {
-      return this.stepIndex === 2
+    testingScale () {
+      const { testCounts = 0, fileCounts = 1 } = this.mobileObj || {}
+      return parseInt((Number(testCounts) / (Number(fileCounts) || 1)) * 100)
     },
-    visible2 () {
-      return this.stepIndex === 3
+    testingPosition () {
+      const { testCounts = 0, fileCounts = 1 } = this.mobileObj || {}
+      return {
+        'background-position-y':
+          138 - (Number(testCounts) / (Number(fileCounts) || 1)) * 138 + 'px'
+      }
     }
   },
-  watch: {
-    stepIndex (val) {
-      if (val === 4) {
-        this.visible3 = true
-      } else {
-        this.visible3 = false
+  filters: {
+    formatName (filename) {
+      if (filename) {
+        return filename.replace(/^(^.{12})(.+)(.{5}\.+\w+$)$/g, '$1...$3')
       }
+      return filename
+    },
+    formatSize (filesize) {
+      let size = ''
+      if (filesize < 1 * 1024 * 1024) {
+        size = (filesize / 1024).toFixed(2) + 'KB'
+      } else {
+        size = (filesize / (1024 * 1024)).toFixed(2) + 'MB'
+      }
+      return size
     }
   },
   mounted () {
-    this.getRunningList()
     this.getPersonalInfo()
     this.getCertifiedInfo()
-  },
-  beforeDestroy () {
-    clearTimeout(this.timersecond)
-    clearInterval(this.timerInterval)
+    // this.getRunningList()
+
+    // 单文件上传
+    try {
+      const testingId = sessionStorage.getItem('TestingID')
+      const testingrows = sessionStorage.getItem('TestingRows')
+      if (testingId) {
+        this.fileInfObj = { id: testingId, minshow: true }
+        this.getTestProcessMobile('fromMounted')
+      }
+      if (testingrows) {
+        this.fileRows = testingrows
+      }
+    } catch (err) {
+      this.fileInfObj = {
+        id: null,
+        minshow: false
+      }
+      sessionStorage.removeItem('TestingID')
+    }
+
+    // 多文件上传
+    try {
+      const TestingList = sessionStorage.getItem('TestingList')
+      this.fileList = JSON.parse(TestingList || '[]')
+      if (this.fileList.length) {
+        this.fileList.forEach((itemobj) => {
+          if (itemobj.checkval === 3) {
+            this.loopTestingProcess(itemobj)
+          }
+        })
+        this.mulStepIndex = 4
+        this.minshow = true
+      }
+    } catch (err) {
+      this.fileList = []
+      this.mulStepIndex = 1
+      this.minshow = false
+      this.dialogVisible = false
+      sessionStorage.removeItem('TestingList')
+    }
   },
   methods: {
-    cancelHandler () {
-      clearTimeout(this.timersecond)
-      this.stepIndex = 0
-    },
-    goto (path) {
-      this.$router.push(path)
-    },
-    browseButtt () {
-      document.getElementById('singlefilea').click()
-    },
-    async browseButt (event) {
-      this.running = true
-      var userInfo = this.getUserInfo()
-      if (!this.getSessionToken()) {
-        event.preventDefault()
-        this.$root.$emit('showlogin', true)
-        return
-      }
-      if (!this.isCertified) {
-        event.preventDefault()
-        this.$root.$emit('showCertification', { source: 'empty', flag: true })
-        return
-      }
-
-      if (this.getSessionToken()) {
-        userInfo = this.getUserInfo()
-        var params = {
-          customerId: userInfo.id
-        }
-        var {data} = await server.isCertified(params)
-        if (data.code === 200) {
-          if (data.data) {
-            // document.getElementById('singlefilea').click()
-          } else {
-            this.$root.$emit('showCertification', true)
-          }
-        } else {
-          this.$message.error(data.msg)
-        }
-      } else {
-        this.$root.$emit('showlogin', true)
-      }
-    },
-    resetFrom () {
-      this.$refs.formelem.reset()
-    },
-    showvisible4 () {
-      this.visible4 = true
-    },
-    testingSuccess () {
-      this.stepIndex = 4
-      this.timerInterval = setInterval(() => {
-        if (this.time <= 0) {
-          this.goto('/testrecord')
-          clearInterval(this.timerInterval)
-          return
-        }
-        this.time--
-      }, 1e3)
-    },
     async getRunningList () {
       var params = {}
-      var {data} = await server.getRunningList(params)
+      var { data } = await server.getRunningList(params)
       if (data.code === 200) {
         // console.log(data)
-        this.fileRows = data.data.map(v => {
+        this.fileRows = data.data.map((v) => {
+          // console.log(v)
           if (v.status === 3) v.status = 7
           return v
         })
 
+        // console.log(this.fileRows)
+
         if (this.fileRows.length > 0) {
-          this.checkList = this.fileRows.map(v => v.id)
+          this.checkList = this.fileRows.map((v) => v.id)
+          // console.log(this.checkList)
           this.loopTestProcess()
           this.running = false
         }
@@ -267,104 +469,373 @@ export default {
         this.$message.error(data.msg)
       }
     },
-    async getTestProcessMobile () {
-      if (this.fileRows?.length > 0 && this.fileRows.find(v => v.status === 3 || v.status === 1) !== undefined) {
-        console.log('多文件上传未完成，暂不获取检测状态')
+    // 批量上传点击是
+    mulUploadYes () {
+      this.mulStepIndex = 3
+      this.mulBeginUpload(0)
+      this.mulYesDisabled = true
+    },
+    // 是否展示文件上传可选按钮
+    showFileBtn () {
+      clearTimeout(this.fileBtnTimer)
+      this.fileBtnShow = true
+    },
+    hideFileBtn () {
+      this.fileBtnTimer = setTimeout(() => {
+        this.fileBtnShow = false
+      }, 500)
+    },
+    // 点击预览
+    async browseButt (event, dom) {
+      // console.log(event, dom)
+      // 先判断是否登录
+      if (!this.getSessionToken()) {
+        event.preventDefault()
+        this.$root.$emit('showlogin', true)
         return
       }
-      if (this.checkList.length === 0) {
-        clearTimeout(this.timersecond)
-        if (this.fileRows?.length > 0 && this.fileRows.every(v => v.status === 9)) {
-          this.testingSuccess()
+
+      // 判断是否认证
+      if (!this.isCertified) {
+        switch (this.userInfo.authenticationLimitLevel) {
+          case 1: // 可关（对应等级二）
+            event.preventDefault()
+            this.$root.$emit('showCertification', {
+              source: {
+                url: 'empty',
+                type: dom,
+                balance: this.userInfo.remainNumberTotal
+              },
+              flag: true
+            })
+            break
+          case 2: // 不可关（对应等级三）
+            event.preventDefault()
+            this.$root.$emit('showCertification', {
+              source: { url: 'emptyapiNot', type: 'testBtn' },
+              flag: true
+            })
+            break
+          default:
+            this.$message.error('请先完成认证')
+            return false
         }
+      } else {
+        // 判断是否有余额
+        if (
+          !this.userInfo.remainNumberTotal ||
+          this.userInfo.remainNumberTotal === '0'
+        ) {
+          event.preventDefault()
+          this.$message.error('余额不足')
+          return
+        }
+
+        this.isSingleFile = dom === 'singlefile'
+        // console.log(this.isSingleFile)
+        document.getElementById(dom).click()
+      }
+    },
+    // 验证预览文件1:点击上传 2：显示进度 3：立即检测
+    // 单文件上传
+    singlefilePreview ({ target }) {
+      const file = target.files[0]
+      if (file.size === 0) {
+        this.$message.error('上传文件有误，请重新上传！')
+        this.$refs.singlefile.value = ''
         return
       }
-      var params = {
-        ids: this.checkList.map(v => v)
+      if (file) {
+        if (
+          file.name.substr(-4) !== '.txt' &&
+          file.name.substr(-4) !== '.xls'
+        ) {
+          this.$message.warning('仅支持txt或者xls格式的文件')
+          this.$refs.singlefile.value = ''
+        } else if (file.size >= 41943041) {
+          this.$message.warning('文件大小不能超过40M')
+          this.$refs.singlefile.value = ''
+        } else {
+          this.fileObj = file || {}
+          this.stepIndex = 2
+          this.uploadAxios(file)
+        }
       }
-      var {data} = await server.getTestProcessMobile(params)
-      if (data.code === 200) {
-        data.data.map(v => {
-          var formDatass = this.fileRows.map((vv, i) => {
-            if (vv.id === v.id) {
-              if ([0, 1, 2, 3].indexOf(v.status) === -1) {
-                vv.status = v.status
-              } else {
-                vv.status = 7
-              }
-            }
-            return vv
-          })
-          this.fileRows = formDatass
-          if ([0, 1, 2, 3].indexOf(v.status) === -1) {
-            var index = this.checkList.indexOf(v.id)
-            // 删除已检测成功或失败的id
-            this.checkList.splice(index, 1)
-            if (v.status < 0) {
-              // 记录检测失败的id
-              this.errList.push(v.id)
-            }
-          }
-        })
+    },
+    // 多文件上传
+    multfilePreview ({ target }) {
+      let flag = true
+      const files = target.files || []
+      for (let i = 0; i < files.length; i++) {
+        if (
+          files[i].name.substr(-4) !== '.txt' &&
+          files[i].name.substr(-4) !== '.xls'
+        ) {
+          flag = false
+          this.$message.warning('仅支持txt或者xls格式的文件')
+          break
+        } else if (files[i].size >= 41943041) {
+          flag = false
+          this.$message.warning('文件大小不能超过40M')
+          break
+        }
+      }
+      if (flag) {
+        this.mulFilePush(files)
       } else {
-        this.$message.error(data.msg)
+        this.$refs.formelem.reset()
       }
     },
-    loopTestProcess () {
-      this.timersecond = setInterval(() => {
-        this.getTestProcessMobile()
-      }, 5000)
-    },
-    async uploadAxios (file) {
-      console.log(file.target.files)
-      // var userInfo = this.getUserInfo()
-      // this.formData = new FormData()
-      if (this.fileRows) {
-        this.fileRows = this.fileRows.concat(Array.from(file.target.files))
+    // 封装文件数据对象
+    mulFilePush (files) {
+      for (let i = 0; i < files.length; i++) {
+        if (this.mulFileList.length < 30) {
+          // checkval: 0: 默认值 1: 验证没通过 2:文件上传成功 3：文件检测通过 4:检测成功
+          this.mulFileList.push({
+            checkval: 0,
+            stateDesc: '等待上传',
+            file: files[i],
+            progressVal: 0,
+            uploadobj: {},
+            testobj: {},
+            mobileobj: {}
+          })
+        } else {
+          this.$message.error(
+            '您的文件数量超出限制，最多可上传30个文件，系统已自动选择前30个文件，如需检测其他文件，请删除列表中的文件后再添加。'
+          )
+          break
+        }
       }
-      this.fileRows = this.fileRows.map(v => {
+      this.dialogVisible = true
+      this.$refs.formelem.reset()
+    },
+    // 多文件上传-删除单个文件
+    delectfile (index) {
+      this.mulFileList.splice(index, 1)
+    },
+    // 多文件上传-点击循环上传
+    mulBeginUpload (index = 0) {
+      // debugger
+      const itemobj = this.mulFileList[index]
+      if (itemobj) {
+        index++
+        if (itemobj.checkval === 0) {
+          this.mulProcessUpload(index, itemobj)
+        } else {
+          this.mulBeginUpload(index)
+        }
+      } else {
+        this.mulStepIndex = 4
+        // 全部上传失败时，显示关闭icon
+        this.mulCloseIconDeal()
+      }
+      console.log(itemobj)
+      console.log(this.mulFileList)
+      window.addEventListener('beforeunload', this.beforeunloadHandler, true)
+    },
+    beforeunloadHandler (event) {
+      event.returnValue = '确定要离开当前页面吗？'
+    },
+    // 处理多文件上传icon显隐问题
+    mulCloseIconDeal () {
+      const resbool = this.mulFileList.every((item) => {
+        return item.checkval === 1
+      })
+      if (resbool) {
+        this.mulCloseIcon = true
+      }
+    },
+    // 关闭多文件上传弹窗
+    closedialog () {
+      const resbool = this.mulFileList.some((item) => {
+        return item.checkval === 3
+      })
+      if (resbool && this.mulStepIndex === 4) {
+        this.minshow = true
+        sessionStorage.setItem('TestingList', JSON.stringify(this.mulFileList))
+        window.removeEventListener(
+          'beforeunload',
+          this.beforeunloadHandler,
+          true
+        )
+      } else {
+        this.mulFileList = []
+        this.mulStepIndex = 1
+      }
+      this.dialogVisible = false
+    },
+    // 点击多文件上传
+    clickMultiUpload () {
+      if (this.mulFileList.length === 0) {
+        this.$message.error('请选择检测文件')
+      } else if (this.mulFileList.length >= 31) {
+        this.$message.error('最多同时检测30个文件')
+      } else {
+        const resbool = this.mulFileList.some((item) => {
+          return item.checkval === 0
+        })
+        if (resbool) {
+          this.mulStepIndex = 2
+          this.mulYesDisabled = false
+          this.mulCloseIcon = false
+        } else {
+          this.$message.error('请选择正确的文件')
+        }
+      }
+    },
+    // 文件上传Ajax
+    uploadAxios (file) {
+      // 获取所有上传文件
+      if (this.isSingleFile) {
+        this.fileObjList = [file]
+      } else {
+        this.fileList.map((item) => {
+          this.fileObjList.push(item.file)
+        })
+      }
+      // console.log(this.fileObjList)
+      this.fileObjList = this.fileObjList.map((v) => {
         v.status = '1'
         return v
       })
-      // this.fileRows.forEach(v => {
-      //   this.formData.append('img', v)
-      // })
-      // this.formData.append('customerId', userInfo.id)
-      // this.fileInfObj = {
-      //   fileName: Array.from(this.fileRows).map(v => v.name).join(',')
-      // }
-      // this.stepIndex = 1
-      this.visible4 = true
-      this.resetFrom()
+      // 分片上传
+      this.processButtonClick(this.fileObjList, 0)
     },
-    showUploadDialogBtn () {
-      if (this.fileRows.length > 30) {
-        this.$message.error('最多可检测30个文件')
-        return
-      }
-      this.showUploadDialog = true
-    },
-    hideUploadDialogBtn () {
-      this.showUploadDialog = false
-    },
-    gotofileUpload () {
-      this.hideUploadDialogBtn()
-      this.processButtonClick(this.fileRows, 0)
-    },
-    backcancel () {
+    // 验证检测
+    clickTesting () {
+      // 从后台拿到的上传条数
+      let runCount = 3
       this.stepIndex = 0
-      this.visible4 = false
-      clearInterval(this.timerInterval)
-      this.$nextTick(() => {
-        this.fileRows = []
-        this.errList = []
-      })
+      this.dialogIndex = 1
+      this.timersecond = setInterval(() => {
+        runCount--
+        if (runCount <= 0) {
+          this.testingAxios()
+          clearInterval(this.timersecond)
+        }
+      }, 1000)
     },
-    deleteThis (index) {
-      this.fileRows.splice(index, 1)
+    // 准备检测数据
+    testingAxios () {
+      const testForm = new FormData()
+      testForm.append(
+        'fileId',
+        this.checkId || sessionStorage.getItem('TestingID')
+      )
+      server
+        .checkFile(testForm)
+        .then((res) => {
+          if (res.data.code === 200) {
+            // 请求成功，关闭定时器
+            clearInterval(this.timersecond)
+            this.testingSuccess(res.data.data.runCount)
+            // console.log(res.data)
+            sessionStorage.setItem('TestingID', res.data.data.code)
+            sessionStorage.setItem('TestingRows', this.fileRows)
+          } else {
+            this.dialogIndex = ''
+            this.$message.warning(res.data.msg)
+            this.resetFrom()
+          }
+        })
+        .catch(() => {
+          this.$message.error('检测失败')
+          this.resetFrom()
+        })
     },
+    // 缓冲后台数据读取延迟
+    testingSuccess ({ runCount = 3 }) {
+      // console.log(runCount)
+      this.timersecond = setInterval(() => {
+        runCount--
+        if (runCount <= 0) {
+          this.dialogIndex = 2
+          this.getTestProcessMobile()
+          this.fileInfObj.minshow = true
+          clearInterval(this.timersecond)
+        }
+      }, 1000)
+    },
+    //  200进行中，999979已完成
+    getTestProcessMobile (type) {
+      const testForm = new FormData()
+      testForm.append(
+        'fileId',
+        this.checkId || sessionStorage.getItem('TestingID')
+      )
+      server
+        .checkFileProgress(testForm)
+        .then((res) => {
+          // console.log(res)
+          if (res.data.code === 200) {
+            // 检测中
+            const { testCounts = '36', fileCounts } = res.data.data || {}
+            if (testCounts === '36') {
+              this.mobileObj = {
+                ...res.data.data,
+                testCounts: '0',
+                stateDesc: '准备检测'
+              }
+            } else {
+              if (testCounts === fileCounts) {
+                this.mobileObj = { ...res.data.data, stateDesc: '文件解析中' }
+              } else {
+                this.mobileObj = { ...res.data.data, stateDesc: '正在检测' }
+              }
+            }
+            if (type === 'fromMounted') {
+              this.dialogIndex = 2
+            }
+            this.fileRows = res.data.data.fileCounts
+            this.loopTestProcess(1500)
+          } else if (res.data.code === 999979) {
+            // 检测完成
+            this.fileInfObj = {}
+            this.dialogIndex = 4
+            sessionStorage.removeItem('TestingID')
+            sessionStorage.removeItem('TestingRows')
+            this.handleDoneDown()
+          } else {
+            // 检测失败
+            this.dialogIndex = 0
+            this.$message.warning(res.data.msg)
+            sessionStorage.removeItem('TestingID')
+            sessionStorage.removeItem('TestingRows')
+          }
+          // }
+        })
+        .catch(() => {
+          this.fileInfObj = {}
+          this.loopTestProcess(3000)
+        })
+    },
+    // 循环数据检测进度
+    loopTestProcess (times) {
+      this.timersecond = setTimeout(() => {
+        this.getTestProcessMobile()
+      }, times)
+    },
+    // 完成倒计时
+    handleDoneDown () {
+      this.timersecond = setInterval(() => {
+        this.countDown--
+        if (this.countDown <= 0) {
+          clearInterval(this.timersecond)
+          this.$router.push('/testrecord')
+        }
+      }, 1000)
+    },
+    // 重置文件选择
+    resetFrom () {
+      this.fileObj = {}
+      this.stepIndex = 0
+      this.$refs.formelem.reset()
+      this.mulCloseIcon = true
+    },
+    // 分片上传
     async processButtonClick (formData, index) {
-      this.running = false
+      // console.log(formData, index)
       var userInfo = this.getUserInfo()
       var formDatass = formData.map((v, i) => {
         if (index === i) {
@@ -372,58 +843,57 @@ export default {
         }
         return v
       })
-      console.log(Object.assign([], formDatass))
-      this.fileRows = formDatass
+      // console.log(Object.assign([], formDatass))
+      this.fileObjList = formDatass
       uploadByPieces({
         file: formData[index],
-        fileUpload: server.fileUpload,
-        mergeFile: server.mergeFile,
+        fileUpload: server.chunkUpload,
+        mergeFile: server.uploadStatus,
         customerId: userInfo.id,
         pieceSize: 0.25,
-        success: data => {
-          console.log('文件上传成功--------' + data.data.name)
+        productCodeType: 'empty', // 0-空号检测  1-实时检测
+        success: (data) => {
+          console.log('文件上传成功--------' + data)
           if (data.code === 200) {
-            this.checkList.push(data.data.emptyId)
+            this.isUploadShow = false
+            this.$message.success('文件上传成功')
+            this.stepIndex = 3 // 立即检测
+            this.checkId = data.data
             formDatass = formData.map((v, i) => {
               if (index === i) {
                 v.status = '5'
-                v.id = data.data.emptyId
+                v.id = data.data
               }
               return v
             })
-            this.fileRows = formDatass
-            if (index === 0) {
-              this.loopTestProcess()
-            }
-            if (this.checkList.length === 0) {
-              this.loopTestProcess()
-            }
+            this.fileObjList = formDatass
           } else {
-            // this.stepIndex = 1
-            // this.resetFrom()
-            // this.progressVal = 0
             formDatass = formData.map((v, i) => {
               if (index === i) {
                 v.status = '4'
               }
               return v
             })
-            this.fileRows = formDatass
+            this.fileObjList = formDatass
             this.$message.error(data.msg)
+            this.resetFrom()
           }
         },
-        progress: completed => {
+        progress: (completed) => {
           console.log('分片上传进度：' + completed)
+          this.isUploadShow = true // 文件上传弹窗
+          this.singleProgressVal = Number(completed)
           formDatass = formData.map((v, i) => {
             if (index === i) {
               v.progress = completed
             }
             return v
           })
-          this.fileRows = formDatass
+          this.fileObjList = formDatass
         },
-        error: e => {
-          console.log('分片上传失败')
+        error: (e) => {
+          console.log('分片上传失败' + e)
+          this.isUploadShow = false
           formDatass = formData.map((v, i) => {
             if (index === i) {
               v.status = '4'
@@ -432,788 +902,772 @@ export default {
             this.$message.error(v.msg)
             return v
           })
-          this.fileRows = formDatass
+          this.fileObjList = formDatass
+          this.resetFrom()
         }
       })
-      if (index >= formData.length - 1) {} else {
+      if (index >= formData.length - 1) {
+      } else {
         setTimeout(() => {
           this.processButtonClick(formData, index + 1)
         }, 500)
       }
     },
-    async fileUpload (formData, index) {
-      this.running = false
-      var formDatas = new FormData()
+    // 多文件上传-分片上传
+    async mulProcessUpload (index, itemobj) {
+      console.log(index, itemobj)
+      console.log(this.mulFileList)
       var userInfo = this.getUserInfo()
-      formDatas.append('customerId', userInfo.id)
-      formDatas.append('img', formData[index])
-
-      var formDatass = formData.map((v, i) => {
-        if (index === i) {
-          v.status = '3'
-        }
-        return v
-      })
-      console.log(Object.assign([], formDatass))
-      this.fileRows = formDatass
-      // this.stepIndex = 2
-      var {data} = await server.fileUpload(formDatas, {
-        onUploadProgress: (e) => {
-          console.log(e)
-        }
-      })
-
-      if (data.code === 200) {
-        // this.fileInfObj.id = data.data.emptyId
-        this.checkList.push(data.data.emptyId)
-        formDatass = formData.map((v, i) => {
-          if (index === i) {
-            v.status = '5'
-            v.id = data.data.emptyId
+      const fileobj = itemobj.file
+      uploadByPieces({
+        file: fileobj,
+        fileUpload: server.chunkUpload,
+        mergeFile: server.uploadStatus,
+        customerId: userInfo.id,
+        pieceSize: 0.25,
+        success: (data) => {
+          console.log('文件上传成功--------' + data.data)
+          if (data.code === 200) {
+            itemobj.checkval = 2
+            itemobj.stateDesc = '准备检测'
+            itemobj.file = { name: fileobj.name, size: fileobj.size }
+            itemobj.uploadobj = data
+            this.mulCheckId.push(data.data)
+            console.log(itemobj.uploadobj)
+            // for (let j = 0; j < this.mulCheckId.length; j++) {
+            this.mulTestingAxios(itemobj, data.data)
+            // }
+          } else {
+            itemobj.checkval = 1
+            itemobj.stateDesc = `<span style='color: #F56C6C'>${data.msg}</span>`
           }
-          return v
-        })
-        this.fileRows = formDatass
-        if (index === 0) {
-          this.loopTestProcess()
+          // debugger
+          this.mulBeginUpload(index)
+        },
+        progress: (completed) => {
+          console.log('分片上传进度：' + completed)
+          // itemobj.progressVal = Number(completed)
+        },
+        error: (e) => {
+          itemobj.checkval = 1
+          itemobj.stateDesc = '<span style="color: #F56C6C">文件上传失败</span>'
+          // debugger
+          this.mulBeginUpload(index)
         }
-        if (this.checkList.length === 0) {
-          this.loopTestProcess()
-        }
-      } else {
-        // this.stepIndex = 1
-        // this.resetFrom()
-        // this.progressVal = 0
-        formDatass = formData.map((v, i) => {
-          if (index === i) {
-            v.status = '4'
+      })
+    },
+    // 文件上传完成并全部验证通过
+    mulTestingAxios (itemobj, id) {
+      const testForm = new FormData()
+      testForm.append('fileId', id)
+      server
+        .checkFile(testForm)
+        .then((res) => {
+          if (res.data.code === 200) {
+            itemobj.checkval = 3
+            console.log('开始循环检测--------' + itemobj)
+            this.loopTestingProcess(itemobj)
+          } else {
+            itemobj.checkval = 1
+            itemobj.stateDesc = `<span style='color: #F56C6C'>${res.data.msg}</span>`
+            this.mulCloseIconDeal()
           }
-          return v
         })
-        this.fileRows = formDatass
-        // this.$message.error(data.msg)
-      }
-      if (index >= formData.length - 1) {
-        // var formDatass = formData.map((v) => {
-        //   if (!v.errortype) v.status = '正在检测'
-        //   return v
-        // })
-        // this.fileRows = formDatass
-        // this.loopTestProcess()
-      } else {
-        setTimeout(() => {
-          this.fileUpload(formData, index + 1)
-        }, 500)
+        .catch(() => {
+          itemobj.checkval = 1
+          itemobj.stateDesc = '<span style="color: #F56C6C">检测失败</span>'
+          this.mulCloseIconDeal()
+        })
+    },
+    // 循环数据检测进度
+    loopTestingProcess (itemobj) {
+      // console.log('itemobj的值-------' + itemobj)
+      const { runCount } = itemobj.runCount || {}
+      // console.log('runCount的值--------' + runCount)
+      const countdown = (runCount || 3) * 1000
+      // console.log('countdown的值-------' + countdown)
+      itemobj.stateDesc =
+        '<a-icon type="loading" class="el-icon-loading" />文件读取中'
+      // for (let j = 0; j < this.mulCheckId.length; j++) {
+      setTimeout(() => {
+        this.testingProcessMobile(countdown, itemobj, itemobj.uploadobj.data)
+      }, countdown)
+      // }
+    },
+    // 批量检测-200进行中，999979已完成
+    testingProcessMobile (countdown, itemobj, id) {
+      // console.log('id的值-------' + id)
+      const testForm = new FormData()
+      testForm.append('fileId', id)
+      server
+        .checkFileProgress(testForm)
+        .then((res) => {
+          console.log(res)
+          if (res.data.code === 200) {
+            // 检测中
+            const { testCounts = '36', fileCounts } = res.data.data || {}
+            console.log('testCounts的值-------' + testCounts)
+            if (testCounts === '36') {
+              itemobj.stateDesc =
+                '<a-icon type="loading" class="el-icon-loading" />准备检测<label>0%</label>'
+              itemobj.progressVal = 0
+            } else {
+              if (testCounts === fileCounts) {
+                itemobj.stateDesc =
+                  '<a-icon type="loading" class="el-icon-loading" />解析中<label>100%</label>'
+                itemobj.progressVal = 100
+              } else {
+                const testingScale = parseInt(
+                  (Number(testCounts) / (Number(fileCounts) || 1)) * 100
+                )
+                itemobj.stateDesc =
+                  '<a-icon type="loading" class="el-icon-loading" />正在检测<label>' +
+                  testingScale +
+                  '%</label>'
+                itemobj.progressVal = testingScale
+              }
+            }
+            itemobj.mobileobj = { testCounts, fileCounts }
+            setTimeout(() => {
+              this.testingProcessMobile(countdown, itemobj, id)
+            }, countdown)
+          } else if (res.data.code === 999979) {
+            // 检测完成
+            itemobj.checkval = 4
+            itemobj.stateDesc = '检测已完成<i class="el-icon-success"></i>'
+            this.handeldone()
+          } else {
+            // 检测失败
+            itemobj.checkval = 1
+            itemobj.stateDesc = `<span style='color: #F56C6C'>${res.data.msg}</span>`
+            this.handeldone()
+          }
+        })
+        .catch(() => {
+          itemobj.checkval = 1
+          itemobj.stateDesc = '<span style="color: #F56C6C">检测失败</span>'
+          this.handeldone()
+        })
+    },
+    // 关闭文件预览页面
+    handeldone () {
+      // debugger
+      const resbool = this.mulFileList.every((item) => {
+        return item.checkval === 1 || item.checkval === 4
+      })
+      if (resbool) {
+        this.minshow = false
+        this.dialogVisible = false
+        this.mulCloseIcon = true
+        sessionStorage.removeItem('TestingList')
+        this.$router.push('/testrecord')
       }
     },
+    // 获取用户信息
     async getPersonalInfo () {
       var params = {}
-      var {data} = await server.getPersonalInfo(params)
+      var { data } = await server.getPersonalInfo(params)
       if (data.code === 200) {
         this.userInfo = data.data
       } else {
         this.$message.error(data.msg)
       }
     },
+    // 获取认证信息
     async getCertifiedInfo () {
       var params = {}
-      var {data} = await server.isCertified(params)
+      var { data } = await server.isCertified(params)
       if (data.code === 200) {
         this.isCertified = data.data
       } else {
         this.$message.error(data.msg)
       }
     }
+  },
+  watch: {
+    fileList (newval) {
+      if (newval.length === 0) {
+        this.dialogVisible = false
+      }
+    }
+  },
+  beforeDestroy () {
+    clearTimeout(this.timersecond)
+    clearInterval(this.timersecond)
+    window.removeEventListener('beforeunload', this.beforeunloadHandler, true)
   }
 }
 </script>
-<style lang="less">
-  .empty {
+<style lang="less" scoped>
+.fixed-view {
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  position: fixed;
+  background: url('../assets/index/B01.jpg') no-repeat center;
+  background-size: cover;
+  overflow: auto;
+}
 
-    .el-button {
-      display: inline-block;
-      line-height: 1;
-      white-space: nowrap;
-      cursor: pointer;
-      background: #fff;
-      border: 1px solid #dcdfe6;
-      color: #606266;
-      -webkit-appearance: none;
-      text-align: center;
-      box-sizing: border-box;
-      outline: 0;
-      margin: 0;
-      transition: .1s;
-      font-weight: 500;
-      -moz-user-select: none;
-      -webkit-user-select: none;
-      -ms-user-select: none;
-      padding: 12px 20px;
-      font-size: 14px;
-      border-radius: 4px;
-    }
+.body-regin {
+  top: 20%;
+  padding-top: 60px;
+  position: relative;
+  z-index: 1250;
+}
 
-    .handle-regin .el-button {
-      color: #fff;
-      border-radius: 0;
-      padding: 15px 60px;
-      transition: all .3s;
-      background-color: #09102c;
-    }
+.center-box {
+  width: 700px;
+  margin: 0px auto;
+  text-align: center;
+}
 
-    .fixed-view {
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      position: fixed;
-      background: url(../assets/index/B01.jpg) no-repeat 50%;
-      background-size: cover;
-    }
+.file-box {
+  height: 50px;
+  margin-top: 80px;
+  background-color: #fff;
+  position: relative;
 
-    .body-regin {
-      top: 20%;
-      padding-top: 60px;
-      position: relative;
-      z-index: 1250;
-    }
+  .file-input {
+    float: left;
+    line-height: 50px;
+    padding: 0px 20px;
+  }
 
-    .center-box {
-      width: 700px;
-      margin: 0 auto;
-      text-align: center;
-    }
+  .file-butt {
+    float: right;
+    min-width: 140px;
+    height: 50px;
+    color: #fff;
+    font-size: 16px;
+    line-height: 20px;
+    padding: 15px 20px;
+    cursor: pointer;
 
-    .file-box {
-      height: 50px;
-      margin-top: 80px;
-      background-color: #fff;
-      position: relative;
-    }
-
-    .form-remark, .form-remark1 {
-      margin-top: 18px;
-      color: #676e87;
-      font-size: 12px;
-      text-align: left;
-    }
-
-    .form-remark1 {
-      margin-top: 10px;
-      text-indent: 1.5em;
-    }
-
-    .handle-regin {
-      padding-top: 50px;
-    }
-
-    .file-box .file-input {
-      float: left;
-      line-height: 50px;
-      padding: 0 20px;
-      width: 550px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      text-align: left;
-    }
-
-    .file-box .file-butt-select {
-      background-color: #ffb03f;
-    }
-
-    .file-box .file-butt {
-      float: right;
-      min-width: 140px;
-      height: 50px;
-      color: #fff;
-      font-size: 16px;
-      line-height: 20px;
-      padding: 15px 20px;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .file-box .file-butt img {
+    img {
       vertical-align: top;
       margin-right: 15px;
     }
+  }
 
-    .form-remark1 strong, .form-remark strong {
-      color: #98abcf;
-    }
+  .file-butt-select {
+    background-color: #ffb03f;
+  }
 
-    .file-hidden {
-      position: absolute;
-      top: 0;
-      left: 0;
-      /* visibility: hidden; */
-      width: 140px;
-      height: 50px;
-      opacity: 0;
-      cursor: pointer;
+  .file-butt-choose {
+    position: absolute;
+    right: 0;
+    top: 50px;
+    height: 80px;
+    padding: 0;
+    background-color: white;
+    ul {
+      margin: 0;
+      padding: 0;
+      height: 80px;
+      li {
+        color: #585f68;
+        height: 40px;
+        line-height: 40px;
+        &:first-child {
+          border-bottom: 1px solid #dcdcdc;
+        }
+      }
     }
   }
 
-  .dialog-loading {
-    width: 300px;
-    height: 140px;
-
-    .ant-modal-content {
-      border: 1px solid #273b87;
-      background-color: #09102c;
-      box-shadow: 0 0 5px #273b87;
+  .file-butt-layouts {
+    img {
+      animation: rotate 1s linear infinite;
     }
 
-    .img {
-      -webkit-animation: rotate-data 1s linear infinite;
-      animation: rotate-data 1s linear infinite;
-    }
+    background-color: #999;
+  }
+}
 
-    .loadingp {
-      color: #fff;
-      font-size: 16px;
-      margin-top: 15px;
-    }
+.form-remark,
+.form-remark1 {
+  margin-top: 18px;
+  color: #676e87;
+  font-size: 12px;
+  text-align: left;
 
-    .ant-modal-body {
-      text-align: center;
+  strong {
+    color: #98abcf;
+  }
+}
+
+.form-remark1 {
+  margin-top: 10px;
+  text-indent: 2em;
+}
+
+.handle-regin {
+  padding-top: 50px;
+
+  .ant-btn {
+    color: #fff;
+    border-radius: 0px;
+    padding: 0 60px;
+    transition: all 0.3s;
+    background-color: #09102c;
+    height: 46px;
+    line-height: 46px;
+    &:hover {
+      color: #333;
+      background-color: #fff;
+      border-color: #fff;
     }
   }
+}
 
-  @keyframes water-data {
-    0% {
-      background-position-x: 0;
-    }
-    100% {
-      background-position-x: -180px;
-    }
-  }
+.file-hidden {
+  display: none;
+}
 
-  @keyframes rotate-data {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(1turn);
-    }
-  }
-
-  .checkdialog {
+// 基本样式
+/deep/ .dialog-reset {
+  .ant-modal-content {
+    border: 1px solid #273b87;
+    background-color: #09102c;
+    box-shadow: 0px 0px 5px #273b87;
     .ant-modal-close-x {
-      color: #fff;
+      color: #909399;
+      font-size: 14px;
     }
-
-    .ant-modal-body {
-      padding-top: 20px;
-    }
-
-    .ant-modal-content {
-      border: 1px solid #273b87;
-      background-color: #09102c;
-      box-shadow: 0 0 5px #273b87;
-    }
-
-    .el-dialog__header {
-      text-align: center;
-      padding: 0px 20px 10px;
-    }
-
-    .el-dialog__header span {
+  }
+  .ant-modal-header {
+    background-color: #09102c;
+    border-bottom: none;
+    text-align: center;
+    span {
       color: #fff;
       font-size: 26px;
     }
-
-    .el-dialog__body {
-      padding: 20px 20px 30px;
-    }
-
-    .el-dialog__body {
-      padding: 30px 20px;
-      color: #606266;
-      font-size: 14px;
-      word-break: break-all;
-    }
-
-    .loading-regin {
-      width: 180px;
-      height: 180px;
-      position: relative;
-      margin: 0 auto;
-    }
-
-    .conduct-scaling {
+  }
+  .ant-modal-body {
+    padding: 20px 20px 30px;
+    p {
       color: #fff;
-      margin-top: 15px;
-      text-align: center;
-    }
-
-    .conduct-order {
-      font-size: 0;
-      margin-top: 30px;
-    }
-
-    .conduct-remarks {
-      color: #bee8fb;
-      text-align: center;
-      margin-top: 30px;
-    }
-
-    .loading-regin .loading1 {
-      width: 148px;
-      height: 148px;
-      color: #fff;
-      font-size: 18px;
-      text-align: center;
-      line-height: 148px;
-      border-radius: 124px;
-      margin: 16px;
-      background-color: rgba(17, 62, 169, .4);
-      background-image: url(../assets/index/water.png);
-      background-repeat: repeat-x;
-      background-position-y: 138px;
-      -webkit-animation: water-data 2s linear infinite;
-      animation: water-data 2s linear infinite;
-      transition: all 1s linear;
-      display: inline-block;
-    }
-
-    .loading-regin .loading2, .loading-regin .loading3 {
-      top: 0;
-      width: 180px;
-      height: 180px;
-      overflow: hidden;
-      position: absolute;
-    }
-
-    .loading-regin .loading2 {
-      -webkit-animation: rotate-data 1s linear infinite;
-      animation: rotate-data 1s linear infinite;
-    }
-
-    .loading-regin .loading3 {
-      -webkit-animation: rotate-data 1.5s linear infinite;
-      animation: rotate-data 1.5s linear infinite;
-    }
-
-    .loading-regin .loading2, .loading-regin .loading3 {
-      top: 0;
-      width: 180px;
-      height: 180px;
-      overflow: hidden;
-      position: absolute;
-    }
-
-    .loading-regin .loading4 {
-      top: 0;
-      width: 180px;
-      height: 180px;
-      overflow: hidden;
-      position: absolute;
-      -webkit-animation: rotate-data 2s linear infinite;
-      animation: rotate-data 2s linear infinite;
+      font-size: 16px;
     }
   }
+  .ant-modal-footer {
+    display: none;
+  }
+}
 
-  .success-loading {
-    height: 286px;
+// 正在检测中弹窗
+/deep/ .dialog-loading {
+  .ant-modal {
+    margin-top: 15vh;
+  }
+  .ant-modal-body {
+    text-align: center;
+    padding: 38px;
+    p {
+      margin-top: 15px;
+    }
+    img {
+      animation: rotate 1s linear infinite;
+    }
+  }
+}
 
-    .ant-modal-content {
-      border: 1px solid #273b87;
-      background-color: #09102c;
-      box-shadow: 0 0 5px #273b87;
+// 空号检测进度弹窗
+/deep/.dialog-conduct {
+}
+
+// 检测终止弹窗
+/deep/.dialog-suspend {
+  .ant-modal-content {
+    margin-top: 10vh;
+  }
+}
+
+// 检测完成弹窗
+/deep/.dialog-success {
+  text-align: center;
+
+  h3 {
+    color: #cbe1fa;
+    font-size: 16px;
+    margin-top: 30px;
+    margin-bottom: 25px;
+  }
+
+  h4 {
+    margin-bottom: 10px;
+    color: rgb(230, 230, 230);
+
+    a {
+      color: #f7bd7f;
     }
 
-    .el-dialog__body {
-      text-align: center;
-      color: #ffffff;
+    span {
+      color: #f55f6a;
+    }
+  }
+}
+
+.conduct-scaling {
+  color: #fff;
+  margin-top: 15px;
+  text-align: center;
+
+  span {
+    margin-right: 8px;
+  }
+}
+
+.conduct-order {
+  li {
+    width: 33.33%;
+    font-size: 12px;
+    line-height: 14px;
+    padding: 3px 60px;
+    display: inline-block;
+
+    i {
+      float: right;
     }
 
-    .el-dialog__body h3 {
-      color: #cbe1fa;
-      font-size: 16px;
-      margin-top: 30px;
-      margin-bottom: 25px;
-    }
-
-    .el-dialog__body h4 {
-      margin-bottom: 10px;
-      color: #e6e6e6;
-    }
-
-    .el-dialog__body h4 span {
+    &.red {
       color: #f55f6a;
     }
 
-    .el-dialog__body h4 a {
-      color: #f7bd7f;
+    &.blue {
+      color: #4b92ff;
+    }
+
+    &.gray {
+      color: #888888;
+    }
+
+    &.yellow {
+      color: #f3bb02;
     }
   }
 
-  .dialog-showlist {
-    .ant-modal-body {
-      background-color: #09102c;
-    }
+  font-size: 0px;
+  margin-top: 30px;
+}
 
-    .checktitle {
-      color: #d3d6df;
-      text-align: center;
-    }
+.conduct-remarks {
+  color: #bee8fb;
+  text-align: center;
+  margin-top: 30px;
+}
 
-    .item {
-      height: 60px;
-      color: #d3d6df;
-      border-bottom: 1px solid #1b2445;
-      position: relative;
-    }
+.clock {
+  border-radius: 60px;
+  border: 3px solid #fff;
+  height: 80px;
+  width: 80px;
+  position: relative;
+}
 
-    .checktitle-index {
-      display: inline-block;
-      width: 40px;
-      height: 60px;
-      line-height: 60px;
-      position: absolute;
-      top: 0;
-      left: 0;
-      font-size: 16px;
-      text-align: center;
-    }
+.clock:after {
+  content: '';
+  position: absolute;
+  background-color: #fff;
+  top: 2px;
+  left: 48%;
+  height: 38px;
+  width: 4px;
+  border-radius: 5px;
+  transform-origin: 50% 97%;
+  animation: grdAiguille 2s linear infinite;
+}
 
-    .checktitle-name {
-      display: inline-block;
-      width: 400px;
-      height: 24px;
-      line-height: 24px;
-      position: absolute;
-      top: 6px;
-      left: 50px;
-      font-size: 16px;
-      text-align: left;
-    }
+@keyframes grdAiguille {
+  0% {
+    transform: rotate(0deg);
+  }
 
-    .checktitle-size {
-      display: inline-block;
-      width: 400px;
-      height: 24px;
-      line-height: 24px;
-      position: absolute;
-      top: 30px;
-      left: 50px;
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.clock:before {
+  content: '';
+  position: absolute;
+  background-color: #fff;
+  top: 6px;
+  left: 48%;
+  height: 35px;
+  width: 4px;
+  border-radius: 5px;
+  transform-origin: 50% 94%;
+  animation: ptAiguille 12s linear infinite;
+}
+
+@keyframes ptAiguille {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-regin {
+  .loading1 {
+    width: 148px;
+    height: 148px;
+    color: #fff;
+    font-size: 18px;
+    text-align: center;
+    line-height: 148px;
+    border-radius: 124px;
+    margin: 16px 16px;
+    background-color: rgba(17, 62, 169, 0.4);
+    background-image: url(../assets/index/water.png);
+    background-repeat: repeat-x;
+    background-position-y: 138px;
+    animation: water 2s linear infinite;
+    transition: all 1s linear;
+    display: inline-block;
+  }
+
+  .loading2 {
+    top: 0px;
+    width: 180px;
+    height: 180px;
+    overflow: hidden;
+    position: absolute;
+    animation: rotate 1s linear infinite;
+  }
+
+  .loading3 {
+    top: 0px;
+    width: 180px;
+    height: 180px;
+    overflow: hidden;
+    position: absolute;
+    animation: rotate 1.5s linear infinite;
+  }
+
+  .loading4 {
+    top: 0px;
+    width: 180px;
+    height: 180px;
+    overflow: hidden;
+    position: absolute;
+    animation: rotate 2s linear infinite;
+  }
+
+  width: 180px;
+  height: 180px;
+  position: relative;
+  margin: 0px auto;
+}
+
+@keyframes water {
+  from {
+    background-position-x: 0;
+  }
+
+  to {
+    background-position-x: -180px;
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// 多文件上传弹窗
+/deep/ .dialog-batch {
+  .ant-modal-wrap {
+    z-index: 2000;
+  }
+  .ant-modal-header {
+    background-color: #09102c;
+    border-bottom: none;
+  }
+  .ant-modal-content {
+    border: 1px solid #273b87;
+    background-color: #09102c;
+    box-shadow: 0px 0px 5px #273b87;
+    .ant-modal-close-x {
       font-size: 14px;
-      text-align: left;
-      color: #848daa;;
+      color: #909399;
     }
-
-    .checktitle-status {
-      display: inline-block;
-      width: 100px;
-      height: 60px;
-      line-height: 60px;
+  }
+  .ant-modal-title {
+    text-align: center;
+    span {
+      color: #cde1fa;
+      font-size: 20px;
+    }
+    .anticon-close {
       position: absolute;
-      top: 0;
-      right: 8px;
-      font-size: 12px;
-      text-align: right;
-
-      &.red {
-        color: #be2537;
+      top: 20px;
+      right: 20px;
+      padding: 0;
+      background: 0 0;
+      border: none;
+      outline: 0;
+      cursor: pointer;
+      font-size: 14px;
+    }
+  }
+  .ant-modal-body {
+    min-height: 400px;
+    .file-select {
+      height: 60px;
+      color: #cde1fa;
+      .list1 {
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        line-height: 60px;
+      }
+      .list2 {
+        padding-top: 10px;
+        h3 {
+          height: 20px;
+          font-size: 16px;
+          font-weight: normal;
+          line-height: 20px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          color: #cde1fa;
+        }
+        p {
+          color: #8996a6;
+          font-size: 12px;
+          margin-top: 3px;
+        }
+      }
+      .list3 {
+        padding-top: 20px;
+        text-align: right;
+        /deep/ label {
+          margin-left: 10px;
+          color: rgb(137, 150, 166);
+        }
+        i {
+          margin-left: 15px;
+          cursor: pointer;
+        }
+        /deep/ .el-icon-success {
+          color: #027fff;
+          margin-left: 10px;
+        }
+        /deep/ .el-icon-loading {
+          margin-right: 6px;
+        }
       }
     }
-
-    .item-cantainer {
-      max-height: 400px;
-      overflow-y: auto;
-      min-height: 200px;
+    .ant-progress-inner {
+      background-color: #16214d;
     }
-
-    .uploadBtn {
-      width: 140px;
-      height: 36px;
-      background-color: #283b87;
-      line-height: 36px;
-      color: #cde1fa;
-      font-size: 14px;
-      cursor: pointer;
-      margin: 65px auto 0px;
-      text-align: center;
-      display: block;
+    .add-file {
+      text-align: right;
+      margin-top: 20px;
+      padding: 0px 20px;
+      .ant-btn-primary {
+        color: #6f8cff;
+        border-color: #283b87;
+        background-color: transparent;
+      }
     }
-
-    .continueAdd {
-      position: relative;
-      bottom: 95px;
-      float: right;
-      right: 40px;
-      width: 100px;
-      height: 32px;
-      border: solid 1px #283b87;
-      display: block;
-      line-height: 31px;
-      text-align: center;
-      color: #6f8cff;
+    .upload-file {
       margin-top: 15px;
-      cursor: pointer;
+      text-align: center;
+      p {
+        color: #4a568a;
+        margin-top: 20px;
+      }
+      .ant-btn-primary {
+        color: #cde1fa;
+        padding: 0 40px;
+        border-color: #283b87;
+        background-color: #283b87;
+        height: 36px;
+        line-height: 36px;
+        text-align: center;
+      }
     }
-
-    .easy_upload-container p, .easy_upload-container ul {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      color: #fff;
-    }
   }
-
-  .formelem {
-    position: absolute;
-    top: 0;
-    left: 0;
+  .ant-modal-footer {
+    border-top: none;
+    display: none;
   }
-
-  .easy_upload-container .easy_upload_queue .easy_upload_queue_item .queue_item-section {
-    display: inline-block;
-    margin-right: 15px;
+  .vue-scroll {
+    max-height: 360px;
+    overflow-y: scroll;
+    padding-right: 20px;
   }
-
-  .dialog-showlist .ant-modal-body {
-    padding: 30px 20px 10px 20px;
-  }
-
-  .easy_upload-container .easy_upload_queue .easy_upload_queue_item {
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-    position: relative;
-    border-bottom: 1px solid #16214d;
-    width: 97%;
-  }
-
-  .easy_upload-container .easy_upload_queue .easy_upload_queue_item .easy_upload_preview {
-    width: 15%;
-    height: 65px;
-    line-height: 65px;
-    position: absolute;
-    overflow-y: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-left: -32px;
-    top: 0;
-  }
-
-  .easy_upload-container p, .easy_upload-container ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    color: #fff;
-  }
-
-  .easy_upload-container .easy_upload_queue .easy_upload_queue_item .easy_upload_file1 .easy_upload_filename {
-    font-size: 16px;
-    width: 150px;
-    margin-bottom: 15px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    position: absolute;
-    margin-top: -10px;
-    margin-left: 70px;
-    color: #cde1fa;
-  }
-
-  .easy_upload-container p, .easy_upload-container ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    color: #fff;
-  }
-
-  .easy_upload-container .easy_upload_queue .easy_upload_queue_item .easy_upload_file1 .easy_upload_fiesize {
-    width: 150px;
-    position: absolute;
-    margin-top: 12px;
-    margin-left: 70px;
-    color: #8996a6;
-    font-size: 12px;
-  }
-
-  .easy_upload-container p, .easy_upload-container ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    color: #fff;
-  }
-
-  .easy_upload-container .easy_upload_queue .easy_upload_queue_item .easy_upload_file1 .easy_upload_progress {
-    width: 100%;
-    height: 65px;
-    border-bottom: 1px solid #16214d;
-    display: flex;
-    align-items: center;
-  }
-
-  .easy_upload-container .easy_upload_queue .easy_upload_queue_item .easy_upload_file1 .easy_upload_progress .easy_upload_bar {
-    position: relative;
-    display: inline-block;
-    width: 0%;
-    height: 1px;
-    margin-top: 64px;
-    background: #273b87;
-    opacity: .5;
-    border-radius: 5px;
-    margin-left: 10px;
-  }
-
-  .easy_upload-container .easy_upload_queue .easy_upload_queue_item .easy_upload_file1 .easy_upload_progress .easy_upload_bar_guang {
-    position: absolute;
-    top: -1px;
-    right: -8px;
-    width: 30px;
-    height: 14px;
-    background: url(../assets/index/guang.png) no-repeat -2px -1px;
-  }
-
-  .easy_upload-container .easy_upload_queue .easy_upload_queue_item .easy_upload_file2 {
-    width: 34px;
-    position: absolute;
-    right: 15px;
-    margin: 5px 0;
-    color: #8996a6;
-  }
-
-  .easy_upload-container .easy_upload_queue .easy_upload_queue_item .easy_upload_status {
-    display: flex;
-    font-size: 12px;
-    /*position: absolute;*/
-    right: 39px;
-    margin: 0px 3px;
-  }
-
-  .easy_upload-container .easy_upload_queue .easy_upload_queue_item .easy_upload_status .status1 {
-    display: block;
-    color: #cde1fa;
-  }
-
-  .easy_upload-container .easy_upload_queue .easy_upload_queue_item .easy_upload_status .status {
-    width: 70px;
-    text-align: center;
-    white-space: nowrap;
-  }
-
-  .easy_upload-container .easy_upload_queue .easy_upload_queue_item .easy_upload_status .status2, .easy_upload-container .easy_upload_queue .easy_upload_queue_item .easy_upload_status .status3 {
-    /*display: none;*/
-    color: #bee8fb;
-  }
-
-  .easy_upload-container .easy_upload_queue .easy_upload_queue_item .easy_upload_status .status4 {
-    /*display: none;*/
-    color: red;
-  }
-
-  .easy_upload-container .easy_upload_queue .easy_upload_queue_item .easy_upload_status .status5 {
-    /*display: none;*/
-    color: #bee8fb;
-  }
-
-  .easy_upload-container .easy_upload_queue .easy_upload_queue_item .easy_upload_status .status7 {
-    /*display: none;*/
-    color: #bee8fb;
-  }
-
-  .easy_upload_delbtn {
-    color: #98abcf;
-    font-weight: 700;
-  }
-
-  .easy_upload-container .easy_upload_queue .easy_upload_queue_item .easy_upload_btn {
-    margin-right: 10px;
-  }
-
-  .easy_upload-container .easy_upload_queue .easy_upload_queue_item .easy_upload_file1 {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    line-height: 65px;
-    width: 100%;
-  }
-
-  .item-cantainer::-webkit-scrollbar {
+  ::-webkit-scrollbar {
     width: 5px;
-    /* height: 10px; */
   }
-
-  .item-cantainer::-webkit-scrollbar-button {
+  ::-webkit-scrollbar-button {
     background-color: #0e1c54;
   }
-
-  .item-cantainer::-webkit-scrollbar-thumb {
+  ::-webkit-scrollbar-track {
+    background: #0e1c54;
+  }
+  ::-webkit-scrollbar-thumb {
     background: #273b87;
     border-radius: 4px;
   }
+  @keyframes rotate {
+    from {
+      transform: rotate(0deg);
+    }
 
-  .item-cantainer::-webkit-scrollbar-track {
-    background: #0e1c54;
+    to {
+      transform: rotate(360deg);
+    }
   }
-
-  .ant-modal-close-x {
-    color: #ffffff;
+  .ant-progress-success-bg {
+    background-color: #409eff;
   }
-
-  .notice-pop-up {
-    width: 456px;
-    height: 278px;
-    box-sizing: border-box;
-    padding: 69px 64px 45px 70px;
-    background-color: #09102C;
-    border: 1px solid #273B87;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    border-radius: 5px;
-    -webkit-transform: translate(-50%, -50%);
-    -moz-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
-    z-index: 100000;
+  .ant-progress-status-success .ant-progress-text {
+    color: #409eff;
   }
-
-  .notice-pop-up p {
-    font-size: 16px;
-    color: #fefefe;
-    font-weight: bold;
+}
+// 立即上传弹窗
+/deep/.dialog-confirm {
+  .ant-modal-content {
+    border: 1px solid #273b87;
+    background-color: #09102c;
+    box-shadow: 0px 0px 5px #273b87;
+  }
+  .ant-modal-body {
     text-align: center;
+    padding: 50px 20px 50px;
+    p {
+      color: #fefefe;
+      font-size: 16px;
+      line-height: 28px;
+      padding-bottom: 50px;
+    }
+    .ant-btn {
+      color: #cde1fa;
+      margin: 0px 20px;
+      padding: 0 40px;
+      border-color: #283b87;
+      background-color: #283b87;
+      height: 36px;
+      line-height: 36px;
+      text-align: center;
+    }
   }
-
-  .notice-pop-up button {
-    width: 124px;
-    height: 44px;
-    text-align: center;
-    background-color: #273B87;
-    color: #fff;
-    outline: none;
-    margin-top: 60px;
-    margin-right: 17px;
-    font-size: 16px;
-    margin-left: 15px;
-    border: none;
-    cursor: pointer;
+  .ant-modal-footer {
+    display: none;
   }
-
-  .notice-pop-up button {
-    width: 124px;
-    height: 44px;
-    text-align: center;
-    background-color: #273B87;
-    color: #fff;
-    outline: none;
-    margin-top: 60px;
-    margin-right: 17px;
-    font-size: 16px;
-    margin-left: 15px;
-    border: none;
-    cursor: pointer;
-  }
-
-  .empty .file-box .file-butt-select.backgrounde5 {
-    background-color: #e5e5e5;
-    color: #333;
-  }
+}
 </style>

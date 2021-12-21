@@ -1,6 +1,6 @@
 <template>
   <div class="tools">
-      <span class="online-service">
+      <span class="online-service" v-if="siteInfo.browserRightDisplay">
       <a-popover
         placement="left"
         trigger="hover"
@@ -24,7 +24,7 @@
               </h3>
                 <p>{{siteInfo.businessCode}}</p></li>
               <li style="text-align:center;"><img
-                :src="siteInfo.wechatQrcode" alt="微信二维码">
+                :src="downloadDomain + siteInfo.wechatQrcode" alt="微信二维码">
                 <div>微信扫描二维码进行咨询</div>
               </li>
             </ul>

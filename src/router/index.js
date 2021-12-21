@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
-import {getSessionStorage} from '../utils'
+import { getSessionStorage } from '../utils'
 import indexComponent from '../views/Index.vue'
 import productComponent from '../pages/product.vue'
 import productdetailsComponent from '../pages/productdetails.vue'
@@ -15,6 +15,9 @@ import businessComponent from '../pages/business.vue'
 import rechargeComponent from '../pages/recharge.vue'
 import accountComponent from '../pages/account.vue'
 import emptyComponent from '../pages/empty.vue'
+import realtimeComponent from '../pages/realtime.vue'
+import emptyapiComponent from '../pages/emptyapi.vue'
+import realtimeapiComponent from '../pages/realtimeapi.vue'
 import testrecordComponent from '../pages/testrecord.vue'
 import messageComponent from '../pages/message.vue'
 import NotFound from '../views/404.vue'
@@ -22,8 +25,10 @@ import phonematchComponent from '../pages/phonematch'
 
 var originalPush = VueRouter.prototype.push
 VueRouter.prototype.push = function push (location, onResolve, onReject) {
-  if (onResolve || onReject) return originalPush.call(this, location, onResolve, onReject)
-  return originalPush.call(this, location).catch(err => err)
+  if (onResolve || onReject) {
+    return originalPush.call(this, location, onResolve, onReject)
+  }
+  return originalPush.call(this, location).catch((err) => err)
 }
 Vue.use(VueRouter)
 
@@ -101,6 +106,21 @@ var routes = [
         component: emptyComponent
       },
       {
+        path: '/realtime',
+        name: 'realtime',
+        component: realtimeComponent
+      },
+      {
+        path: '/emptyapi',
+        name: 'emptyapi',
+        component: emptyapiComponent
+      },
+      {
+        path: '/realtimeapi',
+        name: 'realtimeapi',
+        component: realtimeapiComponent
+      },
+      {
         path: '/testrecord',
         name: 'testrecord',
         component: testrecordComponent
@@ -134,8 +154,16 @@ var router = new VueRouter({
   routes
 })
 router.beforeEach((to, from, next) => {
-  console.log(to.path)
-  var path = ['/message', '/testrecord', '/empty', '/account', '/recharge', '/business', 'phonematch']
+  // console.log(to.path)
+  var path = [
+    '/message',
+    '/testrecord',
+    '/empty',
+    '/account',
+    '/recharge',
+    '/business',
+    'phonematch'
+  ]
   if (path.indexOf(to.path) > -1) {
     if (!getSessionStorage('token')) {
       next('/')
