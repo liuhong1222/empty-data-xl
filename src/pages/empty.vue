@@ -57,7 +57,7 @@
             2、支持最低3001—300W条号码(40M)上传，并支持批量上传，最多上传30个文件
           </p>
           <p class="form-remark1">
-            3、检测完成后，请点击右上角<strong>【个人中心】>【历史检测】</strong>查看检测报告
+            3、检测完成后，请点击右上角<strong>【个人中心】>【历史检测】</strong>查看检测报告（检测记录仅保存一年）
           </p>
           <div v-if="isSingleFile" if="stepIndex > 0" class="handle-regin">
             <!-- <a-button v-if='stepIndex == 1' @click='clickSingleUpload'>点击上传</a-button> -->
@@ -894,6 +894,7 @@ export default {
         error: (e) => {
           console.log('分片上传失败' + e)
           this.isUploadShow = false
+          this.$refs.singlefile.value = ''
           formDatass = formData.map((v, i) => {
             if (index === i) {
               v.status = '4'
