@@ -2,6 +2,7 @@
   <a-modal
     class="agreement"
     :width="800"
+    :zIndex="9999"
     :title="`${siteInfo.agentName}-空号检测服务协议`"
     :visible="showAgreement"
     :closable="false"

@@ -106,6 +106,7 @@
     <!-- 单文件上传 -->
     <a-modal
       width="300px"
+      :zIndex="9999"
       wrapClassName="dialog-reset dialog-loading"
       :destroyOnClose="true"
       :maskClosable="false"
@@ -117,6 +118,7 @@
     </a-modal>
     <a-modal
       width="880px"
+      :zIndex="9999"
       wrapClassName="dialog-reset dialog-conduct"
       :destroyOnClose="true"
       :maskClosable="false"
@@ -179,6 +181,7 @@
     </a-modal>
     <a-modal
       width="450px"
+      :zIndex="9999"
       wrapClassName="dialog-reset dialog-suspend"
       :destroyOnClose="true"
       :maskClosable="false"
@@ -201,6 +204,7 @@
     </a-modal>
     <a-modal
       width="450px"
+      :zIndex="9999"
       wrapClassName="dialog-reset dialog-success"
       :destroyOnClose="true"
       :dialogStyle="dialogStyle"
@@ -223,6 +227,7 @@
     <!-- 多文件上传 -->
     <a-modal
       width="860px"
+      :zIndex="9999"
       wrapClassName="dialog-batch"
       :destroyOnClose="true"
       :maskClosable="false"
@@ -290,6 +295,7 @@
     </a-modal>
     <a-modal
       width="450px"
+      :zIndex="9999"
       wrapClassName="dialog-confirm"
       :destroyOnClose="true"
       :closable="false"
