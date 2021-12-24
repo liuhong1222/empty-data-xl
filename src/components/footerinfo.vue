@@ -14,7 +14,7 @@
           }}
           &nbsp;</label
         ><a
-          href="http://www.beian.miit.gov.cn"
+          href="http://beian.miit.gov.cn"
           target="_blank"
           style="color: #939599"
           >{{ siteInfo.icp }} &nbsp;</a
