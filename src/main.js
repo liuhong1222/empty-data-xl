@@ -84,9 +84,19 @@ server
       var siteInfo = data.data || {}
       Vue.prototype.siteInfo = siteInfo
       document.title = siteInfo.siteName || ''
-      document.querySelector("link[rel*='icon']").href =
+      // document.querySelector("link[rel*='icon']").href =
+      //   Vue.prototype.downloadDomain + siteInfo?.agentIcon || ''
+      // icon
+      const agentIconUrl =
         Vue.prototype.downloadDomain + siteInfo?.agentIcon || ''
-      // console.log(Vue.prototype.downloadDomain + siteInfo?.agentIcon)
+      const link =
+        document.querySelector("link[rel*='icon']") ||
+        document.createElement('link')
+      link.type = 'image/x-icon'
+      link.rel = 'shortcut icon'
+      link.href = agentIconUrl
+      document.getElementsByTagName('head')[0].appendChild(link)
+
       document.querySelector("meta[name='description']").content =
         siteInfo?.seoDescription || ''
       document.querySelector("meta[name='keywords']").content =
