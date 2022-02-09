@@ -959,7 +959,7 @@ export default {
           itemobj.checkval = 1
           itemobj.stateDesc = '<span style="color: #F56C6C">文件上传失败</span>'
           // debugger
-          this.mulBeginUpload(index)
+          // this.mulBeginUpload(index)
         }
       })
     },
