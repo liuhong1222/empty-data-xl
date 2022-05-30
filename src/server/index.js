@@ -239,7 +239,16 @@ export var serverConfig = {
   aboutus: {
     url: '/front/aboutUs',
     method: 'post',
-    baseURL: mockURL
+    baseURL: mockURL,
+    headers: {
+      fetchtype: 'file',
+      'Content-Type': 'multipart/form-data'
+    },
+    transformRequest: [
+      function (params) {
+        return params
+      }
+    ]
   },
   unzipPassword: {
     url: '/front/personal/unzipPassword/{customerId}/{password}',
