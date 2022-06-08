@@ -1,7 +1,7 @@
 <template>
   <div class="account">
     <div class="default-width info-regin">
-      <div class="account-list" style="width: 35%">
+      <div class="account-list" style="width: 40%">
         <h2>账号信息</h2>
         <ul>
           <li>
@@ -55,7 +55,7 @@
           </li>
         </ul>
       </div>
-      <div class="balance-list" style="width: 12%">
+      <!-- <div class="balance-list" style="width: 12%">
         <h2>空号检测</h2>
         <p>当前余额（条）</p>
         <ul>
@@ -66,8 +66,8 @@
             <strong>{{ userInfo.remainNumberTotal / 10000 }}W</strong>
           </li>
         </ul>
-      </div>
-      <div class="balance-list" style="width: 12%">
+      </div> -->
+      <!-- <div class="balance-list" style="width: 12%">
         <h2>实时检测</h2>
         <p>当前余额（条）</p>
         <ul>
@@ -84,29 +84,46 @@
             >
           </li>
         </ul>
-      </div>
-      <div class="data-list" style="width: 40%">
-        <h2>数据中心</h2>
-        <ul>
-          <li class="first" style="width: 50%">
-            <button
-              type="button"
-              class="el-button el-button--primary"
-              @click="goto('/testrecord')"
-            >
-              <span>检测记录</span>
-            </button>
-          </li>
-          <li class="last">
-            <button
-              type="button"
-              class="el-button el-button--danger"
-              @click="goto('/recharge')"
-            >
-              <span>充值</span>
-            </button>
-          </li>
-        </ul>
+      </div> -->
+
+      <div
+        class="balance-list"
+        style="width: 20%"
+        v-for="(item, index) in allTestInfo"
+        :key="item.title"
+      >
+        <h2>{{ item.title }}</h2>
+        <div class="grey-border">
+          <p>当前余额（条）</p>
+          <ul>
+            <li>
+              <strong>{{ item.balance | thousandbit }}</strong>
+            </li>
+            <li>
+              <strong
+                >{{ item.balance > 0 ? item.balance / 10000 : 0 }}W</strong
+              >
+            </li>
+            <li class="first">
+              <button
+                type="button"
+                class="el-button el-button--primary"
+                @click="goto('testrecord', index)"
+              >
+                <span>检测记录</span>
+              </button>
+            </li>
+            <li class="last">
+              <button
+                type="button"
+                class="el-button el-button--danger"
+                @click="goto('recharge', index)"
+              >
+                <span>充值</span>
+              </button>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
     <div class="default-width order-regin">
@@ -292,10 +309,29 @@ export default {
           {
             id: 1,
             name: '实时检测产品'
+          },
+          {
+            id: 2, // ?
+            name: '国际检测产品'
           }
         ]
       },
-      category: ''
+      category: '',
+      allTestInfo: [
+        // 所有检测类别数据
+        {
+          title: '空号检测',
+          balance: 0
+        },
+        {
+          title: '实时检测',
+          balance: 0
+        },
+        {
+          title: '国际号码检测',
+          balance: 0
+        }
+      ]
     }
   },
   async mounted () {
@@ -362,8 +398,9 @@ export default {
     // forgetUserPwd () {
     //   this.$refs.forgetUserPwd.setModal1Visible(true)
     // },
-    goto (path) {
-      this.$router.push(path)
+    goto (name, index) {
+      // this.$router.push(path)
+      this.$router.push({ name: name, params: { index: index } })
     },
     async getPersonalInfo () {
       var params = {}
@@ -371,6 +408,10 @@ export default {
       if (data.code === 200) {
         this.userInfo = data.data
         // console.log(this.userInfo)
+        if (this.userInfo) {
+          this.allTestInfo[0].balance = this.userInfo.remainNumberTotal
+          this.allTestInfo[1].balance = this.userInfo.realtimeBalance
+        }
       } else {
         this.$message.error(data.msg)
       }
@@ -441,6 +482,13 @@ export default {
     border-radius: 4px;
   }
 
+  h2 {
+    font-size: 16px;
+    font-family: PingFangSC-Semibold, PingFang SC;
+    font-weight: 600;
+    color: #595f68;
+  }
+
   .swiper-regin {
     li {
       height: 530px;
@@ -464,7 +512,7 @@ export default {
     min-height: 215px;
     padding: 20px 30px;
     margin-top: 35px;
-    margin-bottom: 35px;
+    margin-bottom: 90px;
     background-color: #fff;
     color: #585f68;
 
@@ -486,32 +534,23 @@ export default {
       }
     }
 
-    .data-list,
-    .data-list ul li {
-      float: left;
-      vertical-align: top;
-    }
-
-    .data-list {
-      width: 40%;
-      padding-left: 40px;
-    }
-
     h2 {
-      font-size: 14px;
-      font-weight: 400;
       padding-bottom: 30px;
     }
 
     .account-list ul {
       padding-right: 40px;
-      border-right: 1px solid #dcdcdc;
+      border-right: 1px solid #dcdfe6;
+      min-height: 210px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
     .account-list ul li {
       height: 28px;
       line-height: 28px;
-      margin-bottom: 20px;
+      // margin-bottom: 20px;
     }
 
     .el-button--mini,
@@ -544,9 +583,12 @@ export default {
       display: inline-block;
     }
 
-    .balance-list ul {
-      height: 80px;
-      border-right: 1px solid #dcdcdc;
+    .balance-list .grey-border {
+      border-right: 1px solid #dcdfe6;
+      min-height: 172px;
+    }
+    .balance-list:last-child .grey-border {
+      border-right: none;
     }
 
     .balance-list ul li {
@@ -555,34 +597,17 @@ export default {
       margin-bottom: 20px;
     }
 
-    .data-list {
-      width: 40%;
-      padding-left: 40px;
-    }
-
-    .data-list,
-    .data-list ul li {
-      float: left;
-      vertical-align: top;
-    }
-
-    .data-list ul li {
-      width: 50%;
-      padding-top: 15px;
+    .balance-list .el-button {
+      width: 80px;
+      height: 32px;
+      padding: 0;
       text-align: center;
-    }
-
-    .data-list ul li.first {
-      height: 80px;
-    }
-
-    .data-list ul li.last {
-      border-left: 1px solid #dcdcdc;
-    }
-
-    .data-list ul .el-button {
-      width: 120px;
-      border-radius: 0;
+      span {
+        font-size: 12px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #ffffff;
+      }
     }
 
     .el-button--primary {
@@ -596,16 +621,6 @@ export default {
       background-color: #f56c6c;
       border-color: #f56c6c;
     }
-
-    .data-list ul .el-button {
-      width: 120px;
-      border-radius: 0;
-    }
-
-    .data-list ul li p {
-      font-size: 14px;
-      margin-top: 5px;
-    }
   }
 
   .order-regin {
@@ -614,9 +629,7 @@ export default {
     background-color: #fff;
 
     h2 {
-      font-size: 14px;
-      font-weight: 400;
-      padding-bottom: 15px;
+      padding: 15px 0;
     }
   }
 
