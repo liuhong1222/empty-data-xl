@@ -34,6 +34,13 @@
         </li>
         <li>
           <a
+            :class="{ active: path.indexOf('international') > -1 }"
+            @click="goto('/international')"
+            >国际号码检测</a
+          >
+        </li>
+        <li>
+          <a
             :class="{ active: path.indexOf('prolist') > -1 }"
             @click="goto('/prolist')"
             >产品大全</a

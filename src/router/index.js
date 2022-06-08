@@ -16,6 +16,7 @@ import rechargeComponent from '../pages/recharge.vue'
 import accountComponent from '../pages/account.vue'
 import emptyComponent from '../pages/empty.vue'
 import realtimeComponent from '../pages/realtime.vue'
+import internationalComponent from '../pages/international.vue'
 import emptyapiComponent from '../pages/emptyapi.vue'
 import realtimeapiComponent from '../pages/realtimeapi.vue'
 import testrecordComponent from '../pages/testrecord.vue'
@@ -109,6 +110,11 @@ var routes = [
         path: '/realtime',
         name: 'realtime',
         component: realtimeComponent
+      },
+      {
+        path: '/international',
+        name: 'international',
+        component: internationalComponent
       },
       {
         path: '/emptyapi',
