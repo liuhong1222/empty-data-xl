@@ -10,6 +10,9 @@
           <li :class="{ active: tabsindex === 1 }" @click="tabsChange(1)">
             实时检测
           </li>
+          <li :class="{ active: tabsindex === 2 }" @click="tabsChange(2)">
+            国际号码检测
+          </li>
         </ul>
         <div
           style="margin-top: 10px; padding-left: 40px"
@@ -70,6 +73,7 @@
             }}元，必须为整数）</span
           >
         </div>
+        <!-- 实时检测 -->
         <div class="el-row" v-if="tabsindex === 1">
           <div
             class="el-col el-col-8"
@@ -120,6 +124,61 @@
           <span v-if="realtimeCus.minPayAmount"
             >（{{ changeToWAN(realtimeCus.unitPrice) }}元/万，最低充值{{
               realtimeCus.minPayAmount
+            }}元，必须为整数）</span
+          >
+        </div>
+
+        <!-- 国际号码检测 -->
+        <div class="el-row" v-if="tabsindex === 2">
+          <div
+            class="el-col el-col-8"
+            style="margin-top: 16px"
+            v-for="(item, index) in internationalGoodsList"
+            :key="index"
+            v-show="item.type !== 1"
+          >
+            <div
+              class="grid-content bg-purple"
+              :class="{ active: select === item.id }"
+              @click="selectTar(item)"
+            >
+              <ul>
+                <li :class="{ active: select === item.id }">
+                  <h3>{{ item.name }}</h3>
+                </li>
+                <li>
+                  <span>￥</span><span>{{ item.minPayAmount }}</span
+                  >/<span>{{ item.specifications / 10000 }}万条</span>
+                </li>
+                <li style="color: #f44336">{{ item.remark }}</li>
+                <li></li>
+                <li class="choose" v-if="select === item.id"></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="custom-reg" v-if="tabsindex === 2 && internationalCus">
+          <span><strong>自定义充值</strong></span>
+          <div class="el-input el-input--suffix">
+            <input
+              v-model="cusPay"
+              type="text"
+              autocomplete="off"
+              placeholder="请输入自定义充值金额（元）"
+              maxlength="10"
+              class="el-input__inner"
+            />
+          </div>
+          <button
+            type="button"
+            class="el-button el-button--primary"
+            @click="gotoCz(internationalCus)"
+          >
+            <span>确认</span>
+          </button>
+          <span v-if="internationalCus.minPayAmount"
+            >（{{ changeToWAN(internationalCus.unitPrice) }}元/万，最低充值{{
+              internationalCus.minPayAmount
             }}元，必须为整数）</span
           >
         </div>
@@ -184,12 +243,14 @@ export default {
       goodsList: [],
       emptyGoodsList: [],
       realtimeGoodsList: [],
+      internationalGoodsList: [],
       select: '',
       cusPay: '',
       selectPay: 0,
       qrcode: null,
       emptyCus: {}, // 自定义充值-空号
       realtimeCus: {}, // 自定义充值-实时
+      internationalCus: {}, // 自定义充值-国际
       timer: null,
       tabsindex: 0
     }
