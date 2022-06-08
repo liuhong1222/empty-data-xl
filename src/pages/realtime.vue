@@ -521,7 +521,7 @@ export default {
       this.$router.push({
         path: path,
         name: 'testrecord',
-        params: { fromRealTime: true }
+        params: { index: 1 }
       })
     },
     // 重置文件选择

@@ -9,17 +9,19 @@
     </ul>
     <!-- 检测结果 -->
     <div class="default-width test-record-wrap">
-      <!-- 空号检测/实时检测tab切换 -->
+      <!-- 空号/实时/国际检测tab切换 -->
       <ul class="tab-record">
-        <li @click="tabRecord(true)" :class="{ active: emptyTestShow }">
-          空号检测
-        </li>
-        <li @click="tabRecord(false)" :class="{ active: !emptyTestShow }">
-          实时检测
+        <li
+          v-for="(item, index) in tabRecordList"
+          :key="item.title"
+          @click="tabRecord(index)"
+          :class="{ active: testPageShow === index }"
+        >
+          {{ item.title }}
         </li>
       </ul>
       <!-- 空号检测结果 -->
-      <div class="empty-test-record" v-if="emptyTestShow">
+      <div class="empty-test-record" v-if="testPageShow === 0">
         <div class="default-width result-regin" v-if="isTestResultShow">
           <h2>检测结果</h2>
           <ul>
@@ -180,7 +182,7 @@
             />
             <button
               type="button"
-              class="el-button el-button--default"
+              class="el-button el-button--primary"
               @click="handleChangeQuery"
             >
               <span>查询</span>
@@ -296,8 +298,12 @@
         </div>
       </div>
       <!-- 实时检测结果 -->
-      <div class="realtime-test-record" v-else>
+      <div class="realtime-test-record" v-if="testPageShow === 1">
         <realtime-record :personalInfo="personalInfo" />
+      </div>
+      <!-- 国际检测结果 -->
+      <div class="international-test-record" v-if="testPageShow === 2">
+        <international-record :personalInfo="personalInfo" />
       </div>
     </div>
   </div>
@@ -311,6 +317,7 @@ import axios from 'axios'
 import JSZip from 'jszip'
 import FileSaver from 'file-saver'
 import RealtimeRecord from './realtime_record'
+import InternationalRecord from './international_record'
 // import TestingOption from '../utils/testingoption'
 
 var columns = [
@@ -389,7 +396,7 @@ const getFile = (url) => {
 
 export default {
   name: 'testrecord',
-  components: { RealtimeRecord },
+  components: { RealtimeRecord, InternationalRecord },
   data () {
     return {
       testResult: {},
@@ -426,6 +433,18 @@ export default {
       startDate: this.moment().format('YYYY-MM-DDT00:00:00.000') + 'Z',
       echartsData: null,
       emptyTestShow: true, // 显示空号检测结果/实时检测结果
+      testPageShow: 0, // 显示空号/实时/国际检测结果页面
+      tabRecordList: [
+        {
+          title: '空号检测'
+        },
+        {
+          title: '实时检测'
+        },
+        {
+          title: '国际号码检测'
+        }
+      ],
       searchTimeVal: [
         this.moment(this.moment().format('YYYY-MM-DD')),
         this.moment(this.moment().format('YYYY-MM-DD'))
@@ -437,13 +456,8 @@ export default {
   },
   created () {
     console.log(this.$route)
-    console.log(this.$route.params.emptyTestShow)
-    // 实时检测页面直接跳转
-    if (this.$route.params.fromRealTime) {
-      this.emptyTestShow = false
-    } else {
-      this.emptyTestShow = true
-    }
+    console.log(this.$route.params)
+    this.testPageShow = this.$route.params.index || 0
   },
   async mounted () {
     this.getTestHistoryReport()
@@ -478,9 +492,9 @@ export default {
         this.$message.error(data.msg)
       }
     },
-    tabRecord (bool) {
-      this.emptyTestShow = bool
-      if (this.emptyTestShow) {
+    tabRecord (index) {
+      this.testPageShow = index
+      if (this.testPageShow === 0) {
         this.getTestHistoryReport()
         this.getPageByMobile()
         this.getLatestEmpty()
@@ -879,7 +893,7 @@ export default {
     .tab-record {
       position: absolute;
       top: 0;
-      left: -96px;
+      left: -124px;
       background: #fff;
       li {
         height: 50px;

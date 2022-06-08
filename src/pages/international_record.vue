@@ -15,8 +15,8 @@
           <li>
             <span>
               <a-popover overlayClassName="testrecordpop">
-                <template slot="content"> 正常用户 </template>
-                <strong style="border-color: rgb(73, 146, 255)">正常</strong>
+                <template slot="content"> 已激活 </template>
+                <strong style="border-color: rgb(73, 146, 255)">已激活</strong>
                 <h3>{{ testResult.normal || 0 }}</h3>
               </a-popover>
             </span>
@@ -25,7 +25,7 @@
                 'pointer-events': !testResult.normal ? 'none' : 'auto'
               }"
               style="cursor: pointer"
-              @click="downloadTxt(testResult, '正常.txt', 'normalFilePath')"
+              @click="downloadTxt(testResult, '已激活.txt', 'normalFilePath')"
             >
               <a
                 :style="{
@@ -39,10 +39,8 @@
           <li>
             <span>
               <a-popover overlayClassName="testrecordpop">
-                <template slot="content"> 正常(携号转网) </template>
-                <strong style="border-color: rgb(246, 179, 127)"
-                  >正常(携号转网)</strong
-                >
+                <template slot="content"> 未注册 </template>
+                <strong style="border-color: rgb(246, 179, 127)">未注册</strong>
                 <h3>{{ testResult.numberPortability || 0 }}</h3>
               </a-popover>
             </span>
@@ -53,173 +51,7 @@
                   : 'auto'
               }"
               style="cursor: pointer"
-              @click="downloadTxt(testResult, '携号转网.txt', 'mnpFilePath')"
-            >
-              <a class="download-btn">下载</a>
-            </p>
-          </li>
-          <li>
-            <span>
-              <a-popover overlayClassName="testrecordpop">
-                <template slot="content">
-                  近一个月内出现过空号、停机状态的号码
-                </template>
-                <strong style="border-color: rgb(162, 162, 160)">空号</strong>
-                <h3>{{ testResult.empty || 0 }}</h3>
-              </a-popover>
-            </span>
-            <p
-              :style="{ 'pointer-events': !testResult.empty ? 'none' : 'auto' }"
-              style="cursor: pointer"
-              @click="downloadTxt(testResult, '空号.txt', 'emptyFilePath')"
-            >
-              <a class="download-btn">下载</a>
-            </p>
-          </li>
-          <li>
-            <span>
-              <a-popover overlayClassName="testrecordpop">
-                <template slot="content"> 通话中 </template>
-                <strong style="border-color: rgb(0 241 255)">通话中</strong>
-                <h3>{{ testResult.onCall || 0 }}</h3>
-              </a-popover>
-            </span>
-            <p
-              :style="{
-                'pointer-events': !testResult.onCall ? 'none' : 'auto'
-              }"
-              style="cursor: pointer"
-              @click="downloadTxt(testResult, '通话中.txt', 'oncallFilePath')"
-            >
-              <a class="download-btn">下载</a>
-            </p>
-          </li>
-          <li>
-            <span>
-              <a-popover overlayClassName="testrecordpop">
-                <template slot="content"> 不在网(空号) </template>
-                <strong style="border-color: rgb(124 120 120)"
-                  >不在网(空号)</strong
-                >
-                <h3>{{ testResult.onlineButNotAvailable || 0 }}</h3>
-              </a-popover>
-            </span>
-            <p
-              :style="{
-                'pointer-events': !testResult.onlineButNotAvailable
-                  ? 'none'
-                  : 'auto'
-              }"
-              style="cursor: pointer"
-              @click="
-                downloadTxt(testResult, '不在网(空号).txt', 'notOnlineFilePath')
-              "
-            >
-              <a class="download-btn">下载</a>
-            </p>
-          </li>
-          <li>
-            <span>
-              <a-popover overlayClassName="testrecordpop">
-                <template slot="content"> 关机号码 </template>
-                <strong style="border-color: rgb(255 132 0)">关机</strong>
-                <h3>{{ testResult.shutdown || 0 }}</h3>
-              </a-popover>
-            </span>
-            <p
-              :style="{
-                'pointer-events': !testResult.shutdown ? 'none' : 'auto'
-              }"
-              style="cursor: pointer"
-              @click="downloadTxt(testResult, '关机.txt', 'shutdownFilePath')"
-            >
-              <a class="download-btn">下载</a>
-            </p>
-          </li>
-          <li>
-            <span>
-              <a-popover overlayClassName="testrecordpop">
-                <template slot="content"> 长时间关机的用户 </template>
-                <strong style="border-color: rgb(255 190 0)">疑似关机</strong>
-                <h3>{{ testResult.suspectedShutdown || 0 }}</h3>
-              </a-popover>
-            </span>
-            <p
-              :style="{
-                'pointer-events': !testResult.suspectedShutdown
-                  ? 'none'
-                  : 'auto'
-              }"
-              style="cursor: pointer"
-              @click="
-                downloadTxt(testResult, '疑似关机.txt', 'likeShutdownFilePath')
-              "
-            >
-              <a class="download-btn">下载</a>
-            </p>
-          </li>
-          <li>
-            <span>
-              <a-popover overlayClassName="testrecordpop">
-                <template slot="content"> 停机 </template>
-                <strong style="border-color: rgb(218 0 255)">停机</strong>
-                <h3>{{ testResult.serviceSuspended || 0 }}</h3>
-              </a-popover>
-            </span>
-            <p
-              :style="{
-                'pointer-events': !testResult.serviceSuspended ? 'none' : 'auto'
-              }"
-              style="cursor: pointer"
-              @click="downloadTxt(testResult, '停机.txt', 'tingjiFilePath')"
-            >
-              <a class="download-btn">下载</a>
-            </p>
-          </li>
-          <li>
-            <span>
-              <a-popover overlayClassName="testrecordpop">
-                <template slot="content"> 号码错误 </template>
-                <strong style="border-color: rgb(255, 0, 0)">号码错误</strong>
-                <h3>{{ testResult.unknown || 0 }}</h3>
-              </a-popover>
-            </span>
-            <p
-              :style="{
-                'pointer-events': !testResult.unknown ? 'none' : 'auto'
-              }"
-              style="cursor: pointer"
-              @click="
-                downloadTxt(testResult, '号码错误.txt', 'unknownFilePath')
-              "
-            >
-              <a class="download-btn">下载</a>
-            </p>
-          </li>
-          <li>
-            <span>
-              <a-popover overlayClassName="testrecordpop">
-                <template slot="content">
-                  号码状态未知(不计费), 可下载重新检测
-                </template>
-                <strong style="border-color: rgb(255 0 210)">未知</strong>
-                <h3>{{ testResult.exceptionFailCount || 0 }}</h3>
-              </a-popover>
-            </span>
-            <p
-              :style="{
-                'pointer-events': !testResult.exceptionFailCount
-                  ? 'none'
-                  : 'auto'
-              }"
-              style="cursor: pointer"
-              @click="
-                downloadTxt(
-                  testResult,
-                  '未知.txt',
-                  'exceptionFailCountFilePath'
-                )
-              "
+              @click="downloadTxt(testResult, '未注册.txt', 'mnpFilePath')"
             >
               <a class="download-btn">下载</a>
             </p>
@@ -273,6 +105,8 @@
             :allowClear="false"
             @change="onDatePickerChange"
           />
+          <span style="margin-left: 10px">文件名称：</span>
+          <a-input size="large" v-model="fileName" style="width: 220px" />
           <button
             type="button"
             class="el-button el-button--primary"
@@ -325,7 +159,7 @@
                 'pointer-events':
                   !record.normal || record.normal == '0' ? 'none' : 'auto'
               }"
-              @click="downloadTxt(record, '正常.txt', 'normalFilePath')"
+              @click="downloadTxt(record, '已激活.txt', 'normalFilePath')"
               >{{ record.normal || 0 }}</a
             >
           </span>
@@ -337,105 +171,11 @@
                     ? 'none'
                     : 'auto'
               }"
-              @click="downloadTxt(record, '携号转网.txt', 'mnpFilePath')"
+              @click="downloadTxt(record, '未注册.txt', 'mnpFilePath')"
               >{{ record.numberPortability || 0 }}</a
             >
           </span>
-          <span slot="empty" slot-scope="text, record">
-            <a
-              :style="{
-                'pointer-events':
-                  !record.empty || record.empty == '0' ? 'none' : 'auto'
-              }"
-              @click="downloadTxt(record, '空号.txt', 'emptyFilePath')"
-              >{{ record.empty || 0 }}</a
-            >
-          </span>
-          <span slot="onCall" slot-scope="text, record">
-            <a
-              :style="{
-                'pointer-events':
-                  !record.onCall || record.onCall == '0' ? 'none' : 'auto'
-              }"
-              @click="downloadTxt(record, '通话中.txt', 'oncallFilePath')"
-              >{{ record.onCall || 0 }}</a
-            >
-          </span>
-          <span slot="onlineButNotAvailable" slot-scope="text, record">
-            <a
-              :style="{
-                'pointer-events':
-                  !record.onlineButNotAvailable ||
-                  record.onlineButNotAvailable == '0'
-                    ? 'none'
-                    : 'auto'
-              }"
-              @click="
-                downloadTxt(record, '不在网(空号).txt', 'notOnlineFilePath')
-              "
-              >{{ record.onlineButNotAvailable || 0 }}</a
-            >
-          </span>
-          <span slot="shutdown" slot-scope="text, record">
-            <a
-              :style="{
-                'pointer-events':
-                  !record.shutdown || record.shutdown == '0' ? 'none' : 'auto'
-              }"
-              @click="downloadTxt(record, '关机.txt', 'shutdownFilePath')"
-              >{{ record.shutdown || 0 }}</a
-            >
-          </span>
-          <span slot="suspectedShutdown" slot-scope="text, record">
-            <a
-              :style="{
-                'pointer-events':
-                  !record.suspectedShutdown || record.suspectedShutdown == '0'
-                    ? 'none'
-                    : 'auto'
-              }"
-              @click="
-                downloadTxt(record, '疑似关机.txt', 'likeShutdownFilePath')
-              "
-              >{{ record.suspectedShutdown || 0 }}</a
-            >
-          </span>
-          <span slot="serviceSuspended" slot-scope="text, record">
-            <a
-              :style="{
-                'pointer-events':
-                  !record.serviceSuspended || record.serviceSuspended == '0'
-                    ? 'none'
-                    : 'auto'
-              }"
-              @click="downloadTxt(record, '停机.txt', 'tingjiFilePath')"
-              >{{ record.serviceSuspended || 0 }}</a
-            >
-          </span>
-          <span slot="unknown" slot-scope="text, record">
-            <a
-              :style="{
-                'pointer-events':
-                  !record.unknown || record.unknown == '0' ? 'none' : 'auto'
-              }"
-              @click="downloadTxt(record, '号码错误.txt', 'unknownFilePath')"
-              >{{ record.unknown || 0 }}</a
-            >
-          </span>
-          <span slot="exceptionFailCount" slot-scope="text, record">
-            <a
-              :style="{
-                'pointer-events':
-                  !record.exceptionFailCount || record.exceptionFailCount == '0'
-                    ? 'none'
-                    : 'auto'
-              }"
-              @click="
-                downloadTxt(record, '未知.txt', 'exceptionFailCountFilePath')
-              "
-              >{{ record.exceptionFailCount || 0 }}</a
-            >
-          </span>
+
           <span slot="totalNumber" slot-scope="text, record">
             {{ Number(record.totalNumber) }}
           </span>
@@ -490,64 +230,22 @@ var columns = [
     width: '180px'
   },
   {
-    title: '正常',
+    title: '已激活',
     dataIndex: 'normal',
     width: '100px',
     scopedSlots: { customRender: 'normal' }
   },
   {
-    title: '正常(携号转网)',
+    title: '未注册',
     dataIndex: 'numberPortability',
     width: '150px',
     scopedSlots: { customRender: 'numberPortability' }
   },
   {
-    title: '空号',
-    dataIndex: 'empty',
+    title: '筛查条数',
+    dataIndex: 'number',
     width: '100px',
-    scopedSlots: { customRender: 'empty' }
-  },
-  {
-    title: '通话中',
-    dataIndex: 'onCall',
-    width: '100px',
-    scopedSlots: { customRender: 'onCall' }
-  },
-  {
-    title: '不在网(空号)',
-    dataIndex: 'onlineButNotAvailable',
-    width: '150px',
-    scopedSlots: { customRender: 'onlineButNotAvailable' }
-  },
-  {
-    title: '关机',
-    dataIndex: 'shutdown',
-    width: '100px',
-    scopedSlots: { customRender: 'shutdown' }
-  },
-  {
-    title: '疑似关机',
-    dataIndex: 'suspectedShutdown',
-    width: '100px',
-    scopedSlots: { customRender: 'suspectedShutdown' }
-  },
-  {
-    title: '停机',
-    dataIndex: 'serviceSuspended',
-    width: '100px',
-    scopedSlots: { customRender: 'serviceSuspended' }
-  },
-  {
-    title: '号码错误',
-    dataIndex: 'unknown',
-    width: '100px',
-    scopedSlots: { customRender: 'unknown' }
-  },
-  {
-    title: '未知',
-    dataIndex: 'exceptionFailCount',
-    width: '100px',
-    scopedSlots: { customRender: 'exceptionFailCount' }
+    scopedSlots: { customRender: 'number' }
   },
   {
     title: '总条数',
@@ -621,6 +319,7 @@ export default {
         this.moment(this.moment().format('YYYY-MM-DD')),
         this.moment(this.moment().format('YYYY-MM-DD'))
       ],
+      fileName: '', // 查询参数-文件名称
       isDownloadAll: false,
       computeFileSize
     }
@@ -874,7 +573,8 @@ export default {
             column: ''
           }
         ],
-        size: this.pagination.pageSize
+        size: this.pagination.pageSize,
+        fileName: this.fileName
       }
       var { data } = await server.getRealtimePageList(params)
       if (data.code === 200) {
@@ -1290,16 +990,13 @@ export default {
     }
 
     ul li {
-      width: 20%;
+      width: 50%;
       font-size: 14px;
       text-align: center;
       vertical-align: top;
       padding-bottom: 30px;
       display: inline-block;
       border-left: 1px solid #e7e7e7;
-      &:nth-child(6) {
-        border-left: none;
-      }
     }
 
     ul strong {
