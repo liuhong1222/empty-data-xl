@@ -13,7 +13,9 @@
               {{
                 this.fileObj['name'] ||
                 ('请上传文件进行检测（当前可用余额：' +
-                  (userInfo.remainNumberTotal || 0) +
+                  (userInfo.remainNumberTotal > 0
+                    ? userInfo.remainNumberTota
+                    : 0) +
                   '条）')
                   | formatName
               }}
@@ -530,7 +532,8 @@ export default {
         // 判断是否有余额
         if (
           !this.userInfo.remainNumberTotal ||
-          this.userInfo.remainNumberTotal === '0'
+          this.userInfo.remainNumberTotal === '0' ||
+          this.userInfo.remainNumberTotal < 0
         ) {
           event.preventDefault()
           this.$message.error('余额不足')

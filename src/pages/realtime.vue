@@ -13,7 +13,9 @@
               {{
                 this.fileObj['name'] ||
                 ('请上传文件进行检测（当前可用余额：' +
-                  (userInfo.realtimeBalance || 0) +
+                  (userInfo.realtimeBalance > 0
+                    ? userInfo.realtimeBalance
+                    : 0) +
                   '条）')
                   | formatName
               }}
@@ -339,7 +341,8 @@ export default {
         // 判断是否有余额
         if (
           !this.userInfo.realtimeBalance ||
-          this.userInfo.realtimeBalance === '0'
+          this.userInfo.realtimeBalance === '0' ||
+          this.userInfo.realtimeBalance < 0
         ) {
           event.preventDefault()
           this.$message.error('余额不足')
