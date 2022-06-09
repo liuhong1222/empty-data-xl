@@ -278,6 +278,8 @@ export const uploadByPieces = ({
       statusForm.append('productCode', 0) // 空号
     } else if (productCodeType === 'realtime') {
       statusForm.append('productCode', 1) // 实时
+    } else if (productCodeType === 'international') {
+      statusForm.append('productCode', 2) // 国际
     }
     console.log(statusForm)
     mergeFile(statusForm)

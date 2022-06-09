@@ -10,7 +10,12 @@
       ></div>
       <router-view class="routerPage" />
     </div>
-    <div class="main-footer" v-if="path !== '/empty' && path !== '/realtime'">
+    <div
+      class="main-footer"
+      v-if="
+        path !== '/empty' && path !== '/realtime' && path !== '/international'
+      "
+    >
       <ul class="default-width menu-navig">
         <li>
           <h3>帮助中心</h3>
