@@ -3,7 +3,7 @@
 ## 启动项目，使用 ip 端口号访问
 
 1.vue.config.js 文件，连接后台 ip，设置访问 port
-2.\server\axios\index.js 请求头设置 domain，设置为固定 domain
+2.\server\axios\index.js 请求头设置 domain，设置为固定 domain（test.xunlong.com）
 3.main.js 文件设置统一下载域名为：http://test.haifou.com:8088/  
 4.启动服务后访问 ip+port 即可
 
