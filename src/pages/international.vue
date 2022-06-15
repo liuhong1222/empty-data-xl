@@ -16,7 +16,7 @@
               :disabled="countryCodeDisabled"
             >
               <a-select-option
-                :key="item.countryCode"
+                :key="item.id"
                 v-for="item in countryCodeList"
                 :value="item.code"
                 >+{{ item.code }} - {{ item.name }} -
