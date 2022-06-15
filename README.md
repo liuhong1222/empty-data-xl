@@ -19,7 +19,8 @@
 
 1.\server\axios\index.js 请求头设置 domain，设置为动态 domain：window.location.hostname
 2.main.js 文件设置统一下载域名为：http://test.haifou.com:8088/  
-3.npm run build 打包
+3.npm run build 打包  
+4.访问 stable 环境：本地 hosts 配置 172.16.43.37（stable ip） test.xunlong.com，访问 test.xunlong.com 即可
 
 # 线上环境-发版
 
