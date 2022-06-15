@@ -14,7 +14,7 @@
                 this.fileObj['name'] ||
                 ('请上传文件进行检测（当前可用余额：' +
                   (userInfo.remainNumberTotal > 0
-                    ? userInfo.remainNumberTota
+                    ? userInfo.remainNumberTotal
                     : 0) +
                   '条）')
                   | formatName

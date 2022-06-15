@@ -411,6 +411,7 @@ export default {
         if (this.userInfo) {
           this.allTestInfo[0].balance = this.userInfo.remainNumberTotal
           this.allTestInfo[1].balance = this.userInfo.realtimeBalance
+          this.allTestInfo[2].balance = this.userInfo.internationalBalance
         }
       } else {
         this.$message.error(data.msg)

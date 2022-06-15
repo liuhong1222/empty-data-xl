@@ -56,23 +56,6 @@ export const uploadByPieces = ({
       batchUpload(0)
     }
   }
-  // const getChunkInfo = (file, currentChunk, chunkSize) => {
-  //   const start = currentChunk * chunkSize
-  //   const end = Math.min(file.size, start + chunkSize)
-  //   const chunk = file.slice(start, end)
-  //   return { start, end, chunk }
-  // }
-  // 针对每个文件进行chunk处理
-  // const readChunkMD5 = () => {
-  //   // 针对单个文件进行chunk上传
-  //   for (var i = 0; i < chunkCount; i++) {
-  //     const { chunk } = getChunkInfo(file, i, chunkSize)
-  //     console.log('总片数' + chunkCount)
-  //     console.log('分片后的数据---：' + i)
-  //     console.log(chunk)
-  //     uploadChunk({ chunk, currentChunk: i, chunkCount })
-  //   }
-  // }
 
   const fileChunkList = []
   let fileChunkLength = 0
@@ -137,21 +120,15 @@ export const uploadByPieces = ({
       fetchForm.append('file', chunkInfo.chunk)
       fetchForm.append('identifier', fileMD5)
       fetchForm.append('fileRealName', file.name)
-
-      // new Promise((resolve, reject) => { // 分片上传失败模拟请求
-      //   setTimeout(() => {
-      //     if (index === 0) {
-      //       // eslint-disable-next-line prefer-promise-reject-errors
-      //       reject('父分片首次上传失败')
-      //     } else {
-      //       resolve({
-      //         data: {
-      //           code: 200
-      //         }
-      //       })
-      //     }
-      //   }, 3000)
-      // })
+      // 区分空号检测/实时检测/国际检测
+      if (productCodeType === 'empty') {
+        fetchForm.append('fileType ', 0) // 空号
+      } else if (productCodeType === 'realtime') {
+        fetchForm.append('fileType ', 1) // 实时
+      } else if (productCodeType === 'international') {
+        fetchForm.append('fileType ', 2) // 国际
+      }
+      console.log(fetchForm)
       fileUpload(fetchForm)
         .then((res) => {
           console.log('分片上传返回信息：' + res.data)
@@ -186,22 +163,15 @@ export const uploadByPieces = ({
       fetchForm.append('file', chunkInfo.chunk)
       fetchForm.append('identifier', fileMD5)
       fetchForm.append('fileRealName', file.name)
-
-      // new Promise((resolve, reject) => { // 分片上传失败模拟请求
-      //   setTimeout(() => {
-      //     if (tryCount === sliceCount) {
-      //       // eslint-disable-next-line prefer-promise-reject-errors
-      //       resolve({
-      //         data: {
-      //           code: 200
-      //         }
-      //       })
-      //     } else {
-      //       // eslint-disable-next-line prefer-promise-reject-errors
-      //       reject('子分片失败')
-      //     }
-      //   }, 3000)
-      // })
+      // 区分空号检测/实时检测/国际检测
+      if (productCodeType === 'empty') {
+        fetchForm.append('fileType ', 0) // 空号
+      } else if (productCodeType === 'realtime') {
+        fetchForm.append('fileType ', 1) // 实时
+      } else if (productCodeType === 'international') {
+        fetchForm.append('fileType ', 2) // 国际
+      }
+      console.log(fetchForm)
       fileUpload(fetchForm)
         .then((res) => {
           console.log('分片上传返回信息：' + res.data)
@@ -228,58 +198,22 @@ export const uploadByPieces = ({
       })
   }
 
-  // const uploadChunk = (chunkInfo) => {
-  //   const fetchForm = new FormData()
-  //   fetchForm.append('customerId', customerId)
-  //   fetchForm.append('chunkNumber', chunkInfo.currentChunk)
-  //   fetchForm.append('chunkSize', chunkSize)
-  //   fetchForm.append('totalChunks', chunkInfo.chunkCount)
-  //   fetchForm.append('file', chunkInfo.chunk)
-  //   fetchForm.append('identifier', fileMD5)
-  //   fetchForm.append('fileRealName', file.name)
-  //   fileUpload(fetchForm)
-  //     .then((res) => {
-  //       console.log('分片上传返回信息：' + res.data)
-  //       if (res.data.code === 200) {
-  //         console.log(chunkInfo)
-  //         console.log(file.size)
-  //         const completed = Number(
-  //           (chunkInfo.currentChunk / chunkInfo.chunkCount) * 100
-  //         ).toFixed(2)
-  //         console.log(completed)
-  //         progress && progress(completed)
-  //         if (chunkInfo.currentChunk < chunkInfo.chunkCount - 1) {
-  //           console.log('分片上传成功' + chunkInfo.currentChunk)
-  //         } else {
-  //           // 当总数大于等于分片个数的时候
-  //           if (chunkInfo.currentChunk >= chunkInfo.chunkCount - 1) {
-  //             progress && progress(100)
-  //             uploadStatus()
-  //           }
-  //         }
-  //       } else {
-  //         error && error(res.data.msg)
-  //         console.log(res.data.msg)
-  //       }
-  //     })
-  //     .catch((e) => {
-  //       error && error(e)
-  //     })
-  // }
-
   const uploadStatus = () => {
     const statusForm = new FormData()
     statusForm.append('md5', fileMD5)
     statusForm.append('chunks', chunkCount)
     statusForm.append('fileName', file.name)
     statusForm.append('fileSize', file.size)
-    // 区分空号检测/实时检测
+    // 区分空号检测/实时检测/国际检测
     if (productCodeType === 'empty') {
       statusForm.append('productCode', 0) // 空号
+      statusForm.append('fileType ', 0)
     } else if (productCodeType === 'realtime') {
       statusForm.append('productCode', 1) // 实时
+      statusForm.append('fileType ', 1)
     } else if (productCodeType === 'international') {
       statusForm.append('productCode', 2) // 国际
+      statusForm.append('fileType ', 2)
     }
     console.log(statusForm)
     mergeFile(statusForm)

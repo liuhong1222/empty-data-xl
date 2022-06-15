@@ -134,6 +134,12 @@ export var serverConfig = {
     method: 'post',
     baseURL: mockURL
   },
+  // 国际号码检测-所有国码
+  getCountryCode: {
+    url: '/front/country/codeList',
+    method: 'post',
+    baseURL: mockURL
+  },
   // 上传
   fileUploadMatching: {
     url: '/front/customer/uploadMatching',
@@ -421,6 +427,34 @@ export var serverConfig = {
       }
     ]
   },
+  // 国际检测-执行国际检测
+  internationalCheckFile: {
+    url: '/front/international/checkByFile',
+    method: 'post',
+    headers: {
+      // fetchtype: 'file',
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    transformRequest: [
+      function (params) {
+        return params
+      }
+    ]
+  },
+  // 国际检测-获取国际检测进度
+  internationalCheckFileProgress: {
+    url: '/front/international/getTestProcessMobile',
+    method: 'post',
+    headers: {
+      // fetchtype: 'file',
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    transformRequest: [
+      function (params) {
+        return params
+      }
+    ]
+  },
   // 获取api接口账密
   apiSettings: {
     url: '/front/apiSettings/info/{customerId}',
@@ -474,7 +508,7 @@ export var serverConfig = {
     method: 'GET',
     baseURL: mockURL
   },
-  // 分页列表
+  // 实时检测-分页列表
   getRealtimePageList: {
     url: '/front/realtime/getRealtimePageList',
     method: 'post',
@@ -499,6 +533,30 @@ export var serverConfig = {
   updateZipPassword: {
     url: '/front/personal/updateUnzipPassword',
     method: 'post',
+    baseURL: mockURL
+  },
+  // 历史记录-国际号码检测
+  getInternationalPageList: {
+    url: '/front/international/getInternationalPageList',
+    method: 'post',
+    baseURL: mockURL
+  },
+  // 历史记录-国际号码检测-删除
+  deleteInternationalById: {
+    url: '/front/international/delete/{id}',
+    method: 'post',
+    baseURL: mockURL
+  },
+  // 历史记录-国际号码检测-获取最新的一条检测记录
+  getLatestInternational: {
+    url: '/front/international/getLatestInternational',
+    method: 'GET',
+    baseURL: mockURL
+  },
+  // 历史记录-国际号码检测-统计
+  internationalStatistics: {
+    url: '/front/international/statistics/{year}/{month}',
+    method: 'get',
     baseURL: mockURL
   },
   // 忘记密码-修改密码

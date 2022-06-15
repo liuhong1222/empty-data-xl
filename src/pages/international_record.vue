@@ -1,15 +1,11 @@
 <template>
   <div class="testrecord">
-    <!-- <ul class="mini-width swiper-regin">
-      <li class="mini-width">
-        <div class="default-width swiper-button">
-          <a-button @click="$router.push('/realtime')">立即接入</a-button>
-        </div>
-      </li>
-    </ul> -->
     <!-- 空号检测结果 -->
     <div class="empty-test-record">
-      <div class="default-width realtime-result-regin" v-if="isTestResultShow">
+      <div
+        class="default-width international-result-regin"
+        v-if="isTestResultShow"
+      >
         <h2>检测结果</h2>
         <ul>
           <li>
@@ -17,19 +13,19 @@
               <a-popover overlayClassName="testrecordpop">
                 <template slot="content"> 已激活 </template>
                 <strong style="border-color: rgb(73, 146, 255)">已激活</strong>
-                <h3>{{ testResult.normal || 0 }}</h3>
+                <h3>{{ testResult.activeNumber || 0 }}</h3>
               </a-popover>
             </span>
             <p
               :style="{
-                'pointer-events': !testResult.normal ? 'none' : 'auto'
+                'pointer-events': !testResult.activeNumber ? 'none' : 'auto'
               }"
               style="cursor: pointer"
-              @click="downloadTxt(testResult, '已激活.txt', 'normalFilePath')"
+              @click="downloadTxt(testResult, '已激活.txt', 'activeFilePath')"
             >
               <a
                 :style="{
-                  'pointer-events': !testResult.normal ? 'none' : 'auto'
+                  'pointer-events': !testResult.activeNumber ? 'none' : 'auto'
                 }"
                 class="download-btn"
                 >下载</a
@@ -41,17 +37,17 @@
               <a-popover overlayClassName="testrecordpop">
                 <template slot="content"> 未注册 </template>
                 <strong style="border-color: rgb(246, 179, 127)">未注册</strong>
-                <h3>{{ testResult.numberPortability || 0 }}</h3>
+                <h3>{{ testResult.noRegisterNumber || 0 }}</h3>
               </a-popover>
             </span>
             <p
               :style="{
-                'pointer-events': !testResult.numberPortability
-                  ? 'none'
-                  : 'auto'
+                'pointer-events': !testResult.noRegisterNumber ? 'none' : 'auto'
               }"
               style="cursor: pointer"
-              @click="downloadTxt(testResult, '未注册.txt', 'mnpFilePath')"
+              @click="
+                downloadTxt(testResult, '未注册.txt', 'noRegisterFilePath')
+              "
             >
               <a class="download-btn">下载</a>
             </p>
@@ -92,7 +88,7 @@
           {{ moment(month).format('YYYY-MM') }}月检测结果展示
         </div>
         <div v-if="echartsData">
-          <div id="realtimeMainMore"></div>
+          <div id="internationalMainMore"></div>
         </div>
         <div class="month-nodata" v-else>此月无检测数据!</div>
       </div>
@@ -105,8 +101,8 @@
             :allowClear="false"
             @change="onDatePickerChange"
           />
-          <span style="margin-left: 10px">文件名称：</span>
-          <a-input size="large" v-model="fileName" style="width: 220px" />
+          <!-- <span style="margin-left: 10px">文件名称：</span> -->
+          <!-- <a-input size="large" v-model="fileName" style="width: 220px" /> -->
           <button
             type="button"
             class="el-button el-button--primary"
@@ -153,26 +149,28 @@
                 : computeFileSize(record.zipSize)
             }}
           </span>
-          <span slot="normal" slot-scope="text, record">
+          <span slot="activeNumber" slot-scope="text, record">
             <a
               :style="{
                 'pointer-events':
-                  !record.normal || record.normal == '0' ? 'none' : 'auto'
-              }"
-              @click="downloadTxt(record, '已激活.txt', 'normalFilePath')"
-              >{{ record.normal || 0 }}</a
-            >
-          </span>
-          <span slot="numberPortability" slot-scope="text, record">
-            <a
-              :style="{
-                'pointer-events':
-                  !record.numberPortability || record.numberPortability == '0'
+                  !record.activeNumber || record.activeNumber == '0'
                     ? 'none'
                     : 'auto'
               }"
-              @click="downloadTxt(record, '未注册.txt', 'mnpFilePath')"
-              >{{ record.numberPortability || 0 }}</a
+              @click="downloadTxt(record, '已激活.txt', 'activeFilePath')"
+              >{{ record.activeNumber || 0 }}</a
+            >
+          </span>
+          <span slot="noRegisterNumber" slot-scope="text, record">
+            <a
+              :style="{
+                'pointer-events':
+                  !record.noRegisterNumber || record.noRegisterNumber == '0'
+                    ? 'none'
+                    : 'auto'
+              }"
+              @click="downloadTxt(record, '未注册.txt', 'noRegisterFilePath')"
+              >{{ record.noRegisterNumber || 0 }}</a
             >
           </span>
 
@@ -181,7 +179,9 @@
           </span>
           <span slot="action" slot-scope="text, record">
             <a @click="downloadZip(record)">下载</a>
-            <a style="margin-left: 16px" @click="deleteRealtimeById(record)"
+            <a
+              style="margin-left: 16px"
+              @click="deleteInternationalById(record)"
               >删除</a
             >
           </span>
@@ -231,21 +231,15 @@ var columns = [
   },
   {
     title: '已激活',
-    dataIndex: 'normal',
+    dataIndex: 'activeNumber',
     width: '100px',
-    scopedSlots: { customRender: 'normal' }
+    scopedSlots: { customRender: 'activeNumber' }
   },
   {
     title: '未注册',
-    dataIndex: 'numberPortability',
+    dataIndex: 'noRegisterNumber',
     width: '150px',
-    scopedSlots: { customRender: 'numberPortability' }
-  },
-  {
-    title: '筛查条数',
-    dataIndex: 'number',
-    width: '100px',
-    scopedSlots: { customRender: 'number' }
+    scopedSlots: { customRender: 'noRegisterNumber' }
   },
   {
     title: '总条数',
@@ -278,7 +272,7 @@ const getFile = (url) => {
 }
 
 export default {
-  name: 'RealtimeRecord',
+  name: 'InternationalRecord',
   components: {},
   data () {
     return {
@@ -334,9 +328,9 @@ export default {
   },
   created () {},
   async mounted () {
-    this.getRealtimePageList()
+    this.getInternationalPageList()
     this.getPageByMobile()
-    this.getLatestRealtime()
+    this.getLatestInternational()
   },
   mixins: [getUserData],
   computed: {
@@ -362,7 +356,7 @@ export default {
   methods: {
     // 批量下载
     downloadBatch () {
-      if (this.selectedRows !== null) {
+      if (this.selectedRows !== null && this.selectedRows.length !== 0) {
         if (this.selectedRows.length === 1) {
           this.downloadZip(this.selectedRows[0])
         } else {
@@ -374,11 +368,11 @@ export default {
             var customerId = userInfo.id
             let url
             if (item.isOldData) {
-              url = `${this.batchDownload}/realtime/${customerId}/${item.id}/${
-                item.name + '.zip'
-              }`
+              url = `${this.batchDownload}/international/${customerId}/${
+                item.id
+              }/${item.name + '.zip'}`
             } else {
-              url = `${this.batchDownload}/actual/${item.zipPath}`
+              url = `${this.batchDownload}/international/${item.zipPath}`
             }
             const promise = getFile(encodeURI(url)).then((data) => {
               let fileName = (item.name || item.zipName) + '.zip'
@@ -398,6 +392,8 @@ export default {
             })
           })
         }
+      } else {
+        this.$message.error('请先勾选文件')
       }
     },
     // 下载单个压缩包
@@ -409,15 +405,15 @@ export default {
         // console.log('老数据')
         if (rows.zip_url) {
           // 检测结果会直接返回这个URL
-          url = `${this.downloadDomain}/actual/${rows.zip_url}`
+          url = `${this.downloadDomain}international/${rows.zip_url}`
         } else {
-          url = `${this.downloadDomain}/realtime/${
+          url = `${this.downloadDomain}international/${
             customerId || this.getUserInfo().id
           }/${id}/${name + '.zip'}`
         }
       } else {
         // console.log('新数据')
-        url = `${this.downloadDomain}/actual/${zipPath}`
+        url = `${this.downloadDomain}international/${zipPath}`
       }
       this.downloadfunc(url)
     },
@@ -432,14 +428,14 @@ export default {
       let url = ''
       if (isOldData) {
         // console.log('老数据')
-        url = `${this.downloadDomain}/realtime/${
+        url = `${this.downloadDomain}international/${
           customerId || this.getUserInfo().id
         }/${id}/${names}`
       } else {
         // console.log('新数据')
-        url = `${this.downloadDomain}/actual/${rows[newUrl]}`
+        url = `${this.downloadDomain}international/${rows[newUrl]}`
       }
-      // console.log(url)
+      console.log(url)
 
       this.downloadfunc(url)
     },
@@ -457,7 +453,7 @@ export default {
     },
     onMounthChange (date) {
       this.month = date
-      this.getRealtimePageList()
+      this.getInternationalPageList()
     },
     onDatePickerChange (date, dateString) {
       this.endDate = dateString[1]
@@ -482,7 +478,7 @@ export default {
     handleChange () {
       this.getPageByMobile()
     },
-    deleteRealtimeById (record) {
+    deleteInternationalById (record) {
       var that = this
       this.$confirm({
         title: '删除',
@@ -490,12 +486,12 @@ export default {
         onOk () {
           return new Promise((resolve, reject) => {
             var params = {
-              id: record.id,
-              isOldData: record.isOldData
+              id: record.id
             }
-            server.deleteRealtimeById(params).then(({ data }) => {
+            server.deleteInternationalById(params).then(({ data }) => {
               if (data.code === 200) {
                 that.getPageByMobile()
+                that.$message.success('操作成功')
               } else {
                 that.$message.error(data.msg)
               }
@@ -506,9 +502,9 @@ export default {
         onCancel () {}
       })
     },
-    async getLatestRealtime () {
+    async getLatestInternational () {
       var params = {}
-      var { data } = await server.getLatestRealtime(params)
+      var { data } = await server.getLatestInternational(params)
       // debugger
       if (data.code === 200) {
         this.testResult = data.data || {}
@@ -519,12 +515,12 @@ export default {
         this.$message.error(data.msg)
       }
     },
-    async getRealtimePageList () {
+    async getInternationalPageList () {
       var params = {
         year: this.moment(this.month).format('YYYY'),
         month: parseInt(this.moment(this.month).format('MM'))
       }
-      var { data } = await server.realtimeStatistics(params)
+      var { data } = await server.internationalStatistics(params)
       if (data.code === 200) {
         this.echartsData = null
         if (data.data && data.data.length > 0) {
@@ -539,7 +535,7 @@ export default {
           this.$nextTick(() => {
             // 基于准备好的dom，初始化echarts实例
             var myChart = echarts.init(
-              document.getElementById('realtimeMainMore')
+              document.getElementById('internationalMainMore')
             )
             // 使用刚指定的配置项和数据显示图表。
             myChart.clear()
@@ -559,10 +555,10 @@ export default {
       }
       var params = {
         createTimeEnd: this.endDate
-          ? this.moment(this.endDate).format('YYYY-MM-DDT23:59:59.000') + 'Z'
+          ? this.moment(this.endDate).format('YYYY-MM-DD')
           : '',
         createTimeFrom: this.startDate
-          ? this.moment(this.startDate).format('YYYY-MM-DDT00:00:00.000') + 'Z'
+          ? this.moment(this.startDate).format('YYYY-MM-DD')
           : '',
         page: this.pagination.current,
         customerId: userInfo.id,
@@ -573,10 +569,11 @@ export default {
             column: ''
           }
         ],
-        size: this.pagination.pageSize,
-        fileName: this.fileName
+        size: this.pagination.pageSize
+        // fileName: this.fileName
       }
-      var { data } = await server.getRealtimePageList(params)
+      console.log(params)
+      var { data } = await server.getInternationalPageList(params)
       if (data.code === 200) {
         this.orderlist = data.data.list
         this.pagination.total = parseInt(data.data.total)
@@ -587,16 +584,8 @@ export default {
     },
     formatData (t, len, y, m) {
       var e = []
-      var zc = []
-      var xhzw = []
-      var kh = []
-      var thz = []
-      var bzw = []
-      var gj = []
-      var ysgj = []
-      var tj = []
-      var cw = []
-      var wz = []
+      var yjh = []
+      var wzc = []
       var total = []
 
       var tt = {}
@@ -606,25 +595,14 @@ export default {
       for (let h = 1; h <= len; h++) {
         if (!tt[h]) {
           e.push(`${y}-${m}-${h}`)
-          zc.push(0)
-          xhzw.push(0)
-          kh.push(0)
-          thz.push(0)
-          bzw.push(0)
-          gj.push(0)
-          ysgj.push(0)
-          tj.push(0)
-          cw.push(0)
-          wz.push(0)
+          yjh.push(0)
+          wzc.push(0)
           total.push(0)
           continue
         }
         e.push(tt[h].day)
-        zc.push(tt[h].normal)
-        xhzw.push(tt[h].numberPortability)
-        kh.push(tt[h].empty)
-        thz.push(tt[h].onCall)
-        bzw.push(tt[h].onlineButNotAvailable)
+        yjh.push(tt[h].activeNumber)
+        wzc.push(tt[h].noRegisterNumber)
         total.push(tt[h].totalNumber)
       }
 
@@ -636,34 +614,10 @@ export default {
         tooltip: {
           trigger: 'axis'
         },
-        color: [
-          'rgb(73, 146, 255)',
-          'rgb(246, 179, 127)',
-          'rgb(162, 162, 160)',
-          'rgb(0 241 255)',
-          'rgb(124 120 120)',
-          'rgb(255 132 0)',
-          'rgb(255 190 0)',
-          'rgb(218 0 255)',
-          'rgb(255, 0, 0)',
-          'rgb(255 0 210)',
-          '#67C23A'
-        ],
+        color: ['rgb(73, 146, 255)', 'rgb(246, 179, 127)', '#67C23A'],
         legend: {
           top: '10',
-          data: [
-            '正常',
-            '正常(携号转网)',
-            '空号',
-            '通话中',
-            '不在网(空号)',
-            '关机',
-            '疑似关机',
-            '停机',
-            '号码错误',
-            '未知',
-            '总条数'
-          ]
+          data: ['已激活', '未注册', '总条数']
         },
         toolbox: {
           feature: {
@@ -675,40 +629,24 @@ export default {
               readOnly: !0,
               optionToContent: (t) => {
                 var e = t.xAxis[0].data
-                var zc = t.series
+                var yjh = t.series
                 let table = `<table class="el-table">
                   <thead class="is-group">
                     <tr>
                       <th><div class="cell">日期</div></th>
-                      <th><div class="cell">${zc[0].name}</div></th>
-                      <th><div class="cell">${zc[1].name}</div></th>
-                      <th><div class="cell">${zc[2].name}</div></th>
-                      <th><div class="cell">${zc[3].name}</div></th>
-                      <th><div class="cell">${zc[4].name}</div></th>
-                      <th><div class="cell">${zc[5].name}</div></th>
-                      <th><div class="cell">${zc[6].name}</div></th>
-                      <th><div class="cell">${zc[7].name}</div></th>
-                      <th><div class="cell">${zc[8].name}</div></th>
-                      <th><div class="cell">${zc[9].name}</div></th>
-                      <th><div class="cell">${zc[10].name}</div></th>
+                      <th><div class="cell">${yjh[0].name}</div></th>
+                      <th><div class="cell">${yjh[1].name}</div></th>
+                      <th><div class="cell">${yjh[2].name}</div></th>
                     </tr>
                   </thead>
                 <tbody>`
-                for (let i = 0, xhzw = e.length; i < xhzw; i++) {
-                  console.log(zc)
+                for (let i = 0, wzc = e.length; i < wzc; i++) {
+                  console.log(yjh)
                   table += `<tr class="el-table__row">
                     <td><div class="cell">${e[i]}</div></td>
-                    <td><div class="cell">${zc[0].data[i]}</div></td>
-                    <td><div class="cell">${zc[1].data[i]}</div></td>
-                    <td><div class="cell">${zc[2].data[i]}</div></td>
-                    <td><div class="cell">${zc[3].data[i]}</div></td>
-                    <td><div class="cell">${zc[4].data[i]}</div></td>
-                    <td><div class="cell">${zc[5].data[i]}</div></td>
-                    <td><div class="cell">${zc[6].data[i]}</div></td>
-                    <td><div class="cell">${zc[7].data[i]}</div></td>
-                    <td><div class="cell">${zc[8].data[i]}</div></td>
-                    <td><div class="cell">${zc[9].data[i]}</div></td>
-                    <td><div class="cell">${zc[10].data[i]}</div></td>
+                    <td><div class="cell">${yjh[0].data[i]}</div></td>
+                    <td><div class="cell">${yjh[1].data[i]}</div></td>
+                    <td><div class="cell">${yjh[2].data[i]}</div></td>
                   </tr>`
                 }
                 table = table += '</tbody></table>'
@@ -744,54 +682,14 @@ export default {
         },
         series: [
           {
-            name: '正常',
+            name: '已激活',
             type: 'line',
-            data: zc
+            data: yjh
           },
           {
-            name: '正常(携号转网)',
+            name: '未注册',
             type: 'line',
-            data: xhzw
-          },
-          {
-            name: '空号',
-            type: 'line',
-            data: kh
-          },
-          {
-            name: '通话中',
-            type: 'line',
-            data: thz
-          },
-          {
-            name: '不在网(空号)',
-            type: 'line',
-            data: bzw
-          },
-          {
-            name: '关机',
-            type: 'line',
-            data: gj
-          },
-          {
-            name: '疑似关机',
-            type: 'line',
-            data: ysgj
-          },
-          {
-            name: '停机',
-            type: 'line',
-            data: tj
-          },
-          {
-            name: '号码错误',
-            type: 'line',
-            data: cw
-          },
-          {
-            name: '未知',
-            type: 'line',
-            data: wz
+            data: wzc
           },
           {
             name: '总条数',
@@ -965,7 +863,7 @@ export default {
     height: 40px;
   }
 
-  .realtime-result-regin {
+  .international-result-regin {
     margin-top: 35px;
     padding: 20px 30px 0;
     background-color: #fff;
@@ -1086,7 +984,7 @@ export default {
   max-width: 200px;
 }
 
-#realtimeMainMore {
+#internationalMainMore {
   width: 1140px;
   height: 450px;
 

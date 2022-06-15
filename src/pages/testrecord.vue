@@ -378,8 +378,6 @@ var columns = [
 
 const getFile = (url) => {
   return new Promise((resolve, reject) => {
-    // console.log(server)
-    // console.log(withAxios)
     axios({
       method: 'get',
       url,
