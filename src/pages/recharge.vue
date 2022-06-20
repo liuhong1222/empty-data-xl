@@ -14,6 +14,21 @@
             国际号码检测
           </li>
         </ul>
+        <div class="payType-wrap">
+          <p class="payType-title">选择支付方式</p>
+          <div class="payType-main">
+            <div
+              class="payType-section"
+              v-for="item in payTypeList"
+              :key="item.id"
+              @click="selectPayType(item)"
+              :class="{ active: payTypeVal === item.id }"
+            >
+              <img :src="item.imgUrl" alt="" />
+              <span class="choose" v-if="payTypeVal === item.id"></span>
+            </div>
+          </div>
+        </div>
         <!-- 空号检测 -->
         <div class="recharge-section empty-recharge-wrap">
           <div class="el-row recharge-content" v-if="tabsindex === 0">
@@ -212,9 +227,10 @@
       </div> -->
       <div class="recharge-bottom" v-show="qrCodeString">
         <div class="close">
-          <a href="javascript:void(0)" @click="close">关闭</a>
+          <a href="javascript:void(0)" @click="closeQrCode">关闭</a>
         </div>
-        <h2>支付宝扫一扫付款</h2>
+        <h2 v-if="payTypeVal === 1">支付宝扫一扫付款</h2>
+        <h2 v-if="payTypeVal === 8">微信扫一扫付款</h2>
         <div>
           应付金额：<span>{{ selectPay }}</span
           >元
@@ -226,7 +242,8 @@
             style="width: 175px; height: 175px; margin-top: 15px"
           ></div>
         </div>
-        <div class="aliPay">支付宝支付</div>
+        <div class="aliPay" v-if="payTypeVal === 1">支付宝支付</div>
+        <div class="aliPay wxPay" v-if="payTypeVal === 8">微信支付</div>
         <div>
           如需其他充值方式，或充值过程中遇到任何问题，请与<label
             style="color: rgb(41, 131, 248)"
@@ -258,7 +275,12 @@ export default {
       realtimeCus: {}, // 自定义充值-实时
       internationalCus: {}, // 自定义充值-国际
       timer: null,
-      tabsindex: 0
+      tabsindex: 0,
+      payTypeList: [
+        { imgUrl: require('@/assets/index/recharge_zfb.png'), id: 1 },
+        { imgUrl: require('@/assets/index/recharge_wx.png'), id: 8 }
+      ],
+      payTypeVal: 1
     }
   },
   created () {
@@ -275,16 +297,23 @@ export default {
     clearTimeout(this.timer)
   },
   methods: {
-    close () {
+    closeQrCode () {
       this.qrCodeString = ''
+      this.select = ''
     },
     // 切换空号检测/实时检测
     tabsChange (keys) {
       this.tabsindex = keys
+      this.payTypeVal = 1
+      this.closeQrCode()
       this.getGoodsList()
     },
     selectTar ({ id, minPayAmount }) {
       this.getQrCodeString(id, minPayAmount)
+    },
+    selectPayType (item) {
+      this.closeQrCode()
+      this.payTypeVal = item.id
     },
     gotoCz (cus) {
       if (!cus.id) {
@@ -348,7 +377,8 @@ export default {
       this.select = id
       var params = {
         id,
-        amount
+        amount,
+        payType: this.payTypeVal
       }
       var { data } = await server.qrCodeString(params)
       if (data.code === 200) {
@@ -565,6 +595,47 @@ export default {
     width: 30% !important;
   }
 
+  .payType-wrap {
+    padding-left: 28px;
+    margin-bottom: 20px;
+    .payType-title {
+      border-bottom: none;
+      font-size: 14px;
+      font-family: PingFangSC-Semibold, PingFang SC;
+      font-weight: 600;
+      color: #595f68;
+      margin-top: 10px;
+    }
+    .payType-main {
+      display: flex;
+      flex-direction: row;
+    }
+    .payType-section {
+      width: 200px;
+      height: 60px;
+      border-radius: 2px;
+      border: 1px solid #dcdfe6;
+      text-align: center;
+      line-height: 55px;
+      cursor: pointer;
+      &:first-child {
+        margin-right: 24px;
+      }
+      &.active {
+        border: 1px solid #f3bb02;
+        position: relative;
+      }
+      .choose {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 29px;
+        height: 29px;
+        background: url(../assets/index/choose.png) 50% no-repeat;
+      }
+    }
+  }
+
   .el-input__inner {
     -webkit-appearance: none;
     background-color: #fff;
@@ -717,6 +788,10 @@ export default {
     text-align: center;
     margin: 0 auto;
     color: #fff;
+  }
+
+  .recharge-bottom .wxPay {
+    background-color: #4baf4e;
   }
 
   .recharge-bottom div {
