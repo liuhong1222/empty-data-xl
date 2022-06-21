@@ -299,7 +299,6 @@ export default {
   methods: {
     closeQrCode () {
       this.qrCodeString = ''
-      this.select = ''
     },
     // 切换空号检测/实时检测
     tabsChange (keys) {
@@ -314,6 +313,7 @@ export default {
     selectPayType (item) {
       this.closeQrCode()
       this.payTypeVal = item.id
+      this.getQrCodeString(this.select, this.selectPay)
     },
     gotoCz (cus) {
       if (!cus.id) {
