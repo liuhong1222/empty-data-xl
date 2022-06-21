@@ -27,7 +27,7 @@ Vue.prototype.bus = new Vue()
 
 // 统一下载域名
 Vue.prototype.downloadDomain = 'http://test.haifou.com:8088/' // stable 43.37
-// Vue.prototype.downloadDomain = 'http://tp.xlhmjc.com/' // 正式上线 tp.xlhmjc.com
+// Vue.prototype.downloadDomain = 'http://tp.xlhmjc.com/' // sit环境发版/正式上线 tp.xlhmjc.com
 // 批量下载前缀
 Vue.prototype.batchDownload = 'batch_download' // nginx配置批量下载前缀
 

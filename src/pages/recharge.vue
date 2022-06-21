@@ -304,6 +304,8 @@ export default {
     tabsChange (keys) {
       this.tabsindex = keys
       this.payTypeVal = 1
+      this.select = ''
+      this.selectPay = ''
       this.closeQrCode()
       this.getGoodsList()
     },
@@ -313,7 +315,9 @@ export default {
     selectPayType (item) {
       this.closeQrCode()
       this.payTypeVal = item.id
-      this.getQrCodeString(this.select, this.selectPay)
+      if (this.select && this.selectPay) {
+        this.getQrCodeString(this.select, this.selectPay)
+      }
     },
     gotoCz (cus) {
       if (!cus.id) {
