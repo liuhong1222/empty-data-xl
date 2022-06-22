@@ -310,6 +310,7 @@ export default {
       this.getGoodsList()
     },
     selectTar ({ id, minPayAmount }) {
+      this.cusPay = ''
       this.getQrCodeString(id, minPayAmount)
     },
     selectPayType (item) {
@@ -333,6 +334,7 @@ export default {
         return
       }
       this.select = ''
+      this.closeQrCode()
       this.getQrCodeString(cus.id, this.cusPay)
     },
     async getGoodsList () {
