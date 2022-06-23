@@ -935,6 +935,7 @@ export default {
         mergeFile: server.uploadStatus,
         customerId: userInfo.id,
         pieceSize: 0.25,
+        productCodeType: 'empty', // 0-空号检测  1-实时检测
         success: (data) => {
           console.log('文件上传成功--------' + data.data)
           if (data.code === 200) {
