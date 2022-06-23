@@ -1210,7 +1210,7 @@ export default {
 
 .form-remark1 {
   margin-top: 10px;
-  text-indent: 2em;
+  text-indent: 1.5em;
 }
 
 .handle-regin {

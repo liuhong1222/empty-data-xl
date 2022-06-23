@@ -54,15 +54,15 @@
             </div>
           </div>
           <p class="form-remark">
-            注: 1、号码文件中号码不管有没有带国码都<strong>必须选择国码</strong>
+            注:
+            1、号码文件中号码不管有没有带国码都<strong>必须选择国码</strong>；每批上传的号码只能同一个国家的号码，不支持一次性筛查多个国家的号
+            <span style="margin-left: 36px"
+              >码；筛查完下载的号码系统都已带上了国码</span
+            >
           </p>
           <p class="form-remark1">
-            2、每批上传的号码只能同一个国家的号码，不支持一次性筛查多个国家的号码
-          </p>
-          <p class="form-remark1">3、筛查完下载的号码系统都已带上了国码</p>
-          <p class="form-remark1">
-            4、文件格式仅<strong
-              >支持TXT格式文件/每行一个手机号/支持最低2000条-200W条号码包上传/文件小于30MB</strong
+            <strong
+              >2、文件格式仅支持TXT格式文件/每行一个手机号/支持最低2000条-200W条号码包上传/txt文件小于30MB</strong
             >
           </p>
           <div if="stepIndex > 0" class="handle-regin">
@@ -837,7 +837,7 @@ export default {
 
 .form-remark1 {
   margin-top: 10px;
-  text-indent: 2em;
+  text-indent: 1.5em;
 }
 
 .handle-regin {
