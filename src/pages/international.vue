@@ -90,7 +90,7 @@
           @change="singlefilePreview($event)"
         />
       </form>
-      <footerinfo></footerinfo>
+      <!-- <footerinfo></footerinfo> -->
     </div>
     <!-- 单文件分片上传弹窗 -->
     <!-- <a-modal width='300px' wrapClassName='dialog-reset dialog-loading' :destroyOnClose='true' :maskClosable='false' :closable='false' :visible='isUploadShow'>
@@ -216,11 +216,11 @@
 
 <script>
 import server from '../server/index'
-import footerinfo from '../components/footerinfo'
+// import footerinfo from '../components/footerinfo'
 import { uploadByPieces } from '../utils/uploadByPieces'
 export default {
   components: {
-    footerinfo
+    // footerinfo
   },
   data () {
     return {
