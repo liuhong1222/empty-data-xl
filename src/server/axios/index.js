@@ -67,9 +67,21 @@ server.interceptors.request.use(
   function (config) {
     // debugger
     // 统一为get请求URL，添加
+    const time = new Date().getTime()
     if (config.method === 'get') {
-      const time = new Date().getTime()
-      config.url += '?time=' + time
+      if (config.url.indexOf('?') > -1) {
+        config.url += '&time=' + time
+      } else {
+        config.url += '?time=' + time
+      }
+    } else if (config.method === 'post') {
+      if (config.data) {
+        if (config.data instanceof FormData) {
+          config.data.append('time', time)
+        } else {
+          config.data.time = time
+        }
+      }
     }
     return config
   },
