@@ -1,5 +1,6 @@
 const internalIp = require('internal-ip')
 const lIP = internalIp.v4.sync()
+const time = new Date().getTime()
 
 module.exports = {
   publicPath: '',
@@ -11,6 +12,15 @@ module.exports = {
     /[/\\]node_modules[/\\]test[/\\]/,
     /[/\\]node_modules[/\\][@\\]test2[/\\]test3[/\\]/
   ],
+  // 修改打包后js文件名
+  configureWebpack: {
+    // webpack 配置
+    output: {
+      // 输出重构  打包编译后的 文件名称  【模块名称.版本号.js】
+      filename: `js/[name].${time}.js`,
+      chunkFilename: `js/[name].${time}.js`
+    }
+  },
   // chainWebpack: config => {
   //   if (process.env.NODE_ENV === 'production') {
   //     config.module.rule('images').use('url-loader').loader('url-loader').tap(options => {
