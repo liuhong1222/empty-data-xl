@@ -340,6 +340,7 @@ export default {
     async getGoodsList () {
       this.emptyGoodsList = []
       this.realtimeGoodsList = []
+      this.internationalGoodsList = []
       var params = {}
       var { data } = await server.getGoodsList(params)
       if (data.code === 200) {
