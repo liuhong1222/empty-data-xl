@@ -500,65 +500,63 @@ export default {
     //  200进行中，999979已完成
     getTestProcessMobile (type) {
       const testForm = new FormData()
-      testForm.append(
-        'fileId',
-        this.checkId || sessionStorage.getItem('internationalTestingID')
-      )
-      testForm.append(
-        'sendID',
-        this.sendID || sessionStorage.getItem('internationalTestingsendID')
-      )
-      server
-        .internationalCheckFileProgress(testForm)
-        .then((res) => {
-          console.log(res)
-          // debugger
-          if (res.data.code === 200) {
-            // 检测中
-            const { testCounts = '36', fileCounts } = res.data.data || {}
-            if (testCounts === '36') {
-              this.mobileObj = {
-                ...res.data.data,
-                testCounts: '0',
-                stateDesc: '准备检测'
-              }
-            } else {
-              if (testCounts === fileCounts) {
-                this.mobileObj = { ...res.data.data, stateDesc: '文件解析中' }
+      const fileId = this.checkId || sessionStorage.getItem('internationalTestingID')
+      const sendID = this.sendID || sessionStorage.getItem('internationalTestingsendID')
+      testForm.append('fileId', fileId)
+      testForm.append('sendID', sendID)
+      if (fileId && sendID) {
+        server
+          .internationalCheckFileProgress(testForm)
+          .then((res) => {
+            console.log(res)
+            // debugger
+            if (res.data.code === 200) {
+              // 检测中
+              const { testCounts = '36', fileCounts } = res.data.data || {}
+              if (testCounts === '36') {
+                this.mobileObj = {
+                  ...res.data.data,
+                  testCounts: '0',
+                  stateDesc: '准备检测'
+                }
               } else {
-                this.mobileObj = { ...res.data.data, stateDesc: '正在检测' }
+                if (testCounts === fileCounts) {
+                  this.mobileObj = { ...res.data.data, stateDesc: '文件解析中' }
+                } else {
+                  this.mobileObj = { ...res.data.data, stateDesc: '正在检测' }
+                }
               }
+              if (type === 'fromMounted') {
+                this.dialogIndex = 2
+              }
+              this.fileRows = res.data.data.fileCounts
+              this.loopTestProcess(4000)
+            } else if (res.data.code === 999979) {
+              // 检测完成
+              this.fileInfObj = {}
+              this.dialogIndex = 4
+              this.countryCodeDisabled = false
+              sessionStorage.removeItem('internationalTestingID')
+              sessionStorage.removeItem('internationalTestingsendID')
+              sessionStorage.removeItem('countryCodeValue')
+              sessionStorage.removeItem('internationalTestingRows')
+              this.handleDoneDown()
+            } else {
+              // 检测失败
+              this.dialogIndex = 0
+              this.$message.warning(res.data.msg)
+              this.countryCodeDisabled = false
+              sessionStorage.removeItem('internationalTestingID')
+              sessionStorage.removeItem('internationalTestingsendID')
+              sessionStorage.removeItem('countryCodeValue')
+              sessionStorage.removeItem('internationalTestingRows')
             }
-            if (type === 'fromMounted') {
-              this.dialogIndex = 2
-            }
-            this.fileRows = res.data.data.fileCounts
-            this.loopTestProcess(4000)
-          } else if (res.data.code === 999979) {
-            // 检测完成
+          })
+          .catch(() => {
             this.fileInfObj = {}
-            this.dialogIndex = 4
-            this.countryCodeDisabled = false
-            sessionStorage.removeItem('internationalTestingID')
-            sessionStorage.removeItem('internationalTestingsendID')
-            sessionStorage.removeItem('countryCodeValue')
-            sessionStorage.removeItem('internationalTestingRows')
-            this.handleDoneDown()
-          } else {
-            // 检测失败
-            this.dialogIndex = 0
-            this.$message.warning(res.data.msg)
-            this.countryCodeDisabled = false
-            sessionStorage.removeItem('internationalTestingID')
-            sessionStorage.removeItem('internationalTestingsendID')
-            sessionStorage.removeItem('countryCodeValue')
-            sessionStorage.removeItem('internationalTestingRows')
-          }
-        })
-        .catch(() => {
-          this.fileInfObj = {}
-          this.loopTestProcess(4000)
-        })
+            this.loopTestProcess(4000)
+          })
+      }
     },
     // 循环数据检测进度
     loopTestProcess (times) {
