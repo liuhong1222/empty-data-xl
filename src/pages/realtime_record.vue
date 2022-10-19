@@ -1125,26 +1125,6 @@ export default {
     }
   }
 
-  .test-record-wrap {
-    position: relative;
-    .tab-record {
-      position: absolute;
-      top: 0;
-      left: -96px;
-      background: #fff;
-      li {
-        height: 50px;
-        line-height: 50px;
-        padding: 0 20px;
-        cursor: pointer;
-        font-weight: bold;
-        &:first-child {
-          border-bottom: 1px solid #d9d9d9;
-        }
-      }
-    }
-  }
-
   .download-btn {
     border: 1px solid #dcdfe6;
     color: #606266;
@@ -1266,7 +1246,6 @@ export default {
   }
 
   .realtime-result-regin {
-    margin-top: 35px;
     padding: 20px 30px 0;
     background-color: #fff;
 

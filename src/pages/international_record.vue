@@ -35,6 +35,30 @@
           <li>
             <span>
               <a-popover overlayClassName="testrecordpop">
+                <template slot="content"> 未激活 </template>
+                <strong style="border-color: rgb(73, 146, 255)">未激活</strong>
+                <h3>{{ testResult.notActiveNumber || 0 }}</h3>
+              </a-popover>
+            </span>
+            <p
+              :style="{
+                'pointer-events': !testResult.notActiveNumber ? 'none' : 'auto'
+              }"
+              style="cursor: pointer"
+              @click="downloadTxt(testResult, '未激活.txt', 'notActiveFilePath')"
+            >
+              <a
+                :style="{
+                  'pointer-events': !testResult.notActiveNumber ? 'none' : 'auto'
+                }"
+                class="download-btn"
+                >下载</a
+              >
+            </p>
+          </li>
+          <li>
+            <span>
+              <a-popover overlayClassName="testrecordpop">
                 <template slot="content"> 未注册 </template>
                 <strong style="border-color: rgb(246, 179, 127)">未注册</strong>
                 <h3>{{ testResult.noRegisterNumber || 0 }}</h3>
@@ -161,6 +185,18 @@
               >{{ record.activeNumber || 0 }}</a
             >
           </span>
+          <span slot="notActiveNumber" slot-scope="text, record">
+            <a
+              :style="{
+                'pointer-events':
+                  !record.notActiveNumber || record.notActiveNumber == '0'
+                    ? 'none'
+                    : 'auto'
+              }"
+              @click="downloadTxt(record, '未激活.txt', 'notActiveFilePath')"
+              >{{ record.notActiveNumber || 0 }}</a
+            >
+          </span>
           <span slot="noRegisterNumber" slot-scope="text, record">
             <a
               :style="{
@@ -232,13 +268,19 @@ var columns = [
   {
     title: '已激活',
     dataIndex: 'activeNumber',
-    width: '100px',
+    width: '120px',
     scopedSlots: { customRender: 'activeNumber' }
+  },
+  {
+    title: '未激活',
+    dataIndex: 'notActiveNumber',
+    width: '120px',
+    scopedSlots: { customRender: 'notActiveNumber' }
   },
   {
     title: '未注册',
     dataIndex: 'noRegisterNumber',
-    width: '150px',
+    width: '120px',
     scopedSlots: { customRender: 'noRegisterNumber' }
   },
   {
@@ -585,6 +627,7 @@ export default {
     formatData (t, len, y, m) {
       var e = []
       var yjh = []
+      var wjh = []
       var wzc = []
       var total = []
 
@@ -596,12 +639,14 @@ export default {
         if (!tt[h]) {
           e.push(`${y}-${m}-${h}`)
           yjh.push(0)
+          wjh.push(0)
           wzc.push(0)
           total.push(0)
           continue
         }
         e.push(tt[h].day)
         yjh.push(tt[h].activeNumber)
+        wjh.push(tt[h].notActiveNumber)
         wzc.push(tt[h].noRegisterNumber)
         total.push(tt[h].totalNumber)
       }
@@ -641,7 +686,6 @@ export default {
                   </thead>
                 <tbody>`
                 for (let i = 0, wzc = e.length; i < wzc; i++) {
-                  console.log(yjh)
                   table += `<tr class="el-table__row">
                     <td><div class="cell">${e[i]}</div></td>
                     <td><div class="cell">${yjh[0].data[i]}</div></td>
@@ -687,6 +731,11 @@ export default {
             data: yjh
           },
           {
+            name: '未激活',
+            type: 'line',
+            data: wjh
+          },
+          {
             name: '未注册',
             type: 'line',
             data: wzc
@@ -720,26 +769,6 @@ export default {
     li {
       height: 530px;
       background: url('../assets/index/bg4.jpg') no-repeat center;
-    }
-  }
-
-  .test-record-wrap {
-    position: relative;
-    .tab-record {
-      position: absolute;
-      top: 0;
-      left: -96px;
-      background: #fff;
-      li {
-        height: 50px;
-        line-height: 50px;
-        padding: 0 20px;
-        cursor: pointer;
-        font-weight: bold;
-        &:first-child {
-          border-bottom: 1px solid #d9d9d9;
-        }
-      }
     }
   }
 
@@ -864,7 +893,6 @@ export default {
   }
 
   .international-result-regin {
-    margin-top: 35px;
     padding: 20px 30px 0;
     background-color: #fff;
 
@@ -888,7 +916,7 @@ export default {
     }
 
     ul li {
-      width: 50%;
+      width: 33%;
       font-size: 14px;
       text-align: center;
       vertical-align: top;
