@@ -13,6 +13,12 @@
           <li :class="{ active: tabsindex === 2 }" @click="tabsChange(2)">
             国际号码检测
           </li>
+          <li :class="{ active: tabsindex === 3 }" @click="tabsChange(3)">
+            定向检测通用
+          </li>
+          <li :class="{ active: tabsindex === 4 }" @click="tabsChange(4)">
+            line定向检测
+          </li>
         </ul>
         <div class="payType-wrap">
           <p class="payType-title">选择支付方式</p>
