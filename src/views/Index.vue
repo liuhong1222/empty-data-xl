@@ -13,7 +13,7 @@
     <div
       class="main-footer"
       v-if="
-        path !== '/empty' && path !== '/realtime' && path !== '/international'
+        path !== '/empty' && path !== '/realtime' && path !== '/international' && path !== '/direct'
       "
     >
       <ul class="default-width menu-navig">

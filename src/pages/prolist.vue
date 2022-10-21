@@ -73,6 +73,14 @@ export default {
               path: '/international',
               img: require('../assets/index/international_test.png'),
               description:
+                '根据客户提供的手机号，分类筛选出其中的已激活、未激活和未注册'
+            },
+            {
+              key: 'direct_test',
+              name: '定向检测',
+              path: '/direct',
+              img: require('../assets/index/international_test.png'),
+              description:
                 '根据客户提供的手机号，分类筛选出其中的已激活和未注册'
             }
           ]
@@ -129,6 +137,20 @@ export default {
               key: 'international_test',
               name: '国际号码检测',
               path: '/international',
+              img: require('../assets/index/international_test.png'),
+              description:
+                '根据客户提供的手机号，分类筛选出其中的已激活、未激活和未注册'
+            }
+          ]
+        },
+        {
+          key: 'direct',
+          name: '定向检测',
+          children: [
+            {
+              key: 'direct_test',
+              name: '定向检测',
+              path: '/direct',
               img: require('../assets/index/international_test.png'),
               description:
                 '根据客户提供的手机号，分类筛选出其中的已激活和未注册'

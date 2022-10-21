@@ -17,6 +17,7 @@ import accountComponent from '../pages/account.vue'
 import emptyComponent from '../pages/empty.vue'
 import realtimeComponent from '../pages/realtime.vue'
 import internationalComponent from '../pages/international.vue'
+import directComponent from '../pages/direct.vue'
 import emptyapiComponent from '../pages/emptyapi.vue'
 import realtimeapiComponent from '../pages/realtimeapi.vue'
 import testrecordComponent from '../pages/testrecord.vue'
@@ -115,6 +116,11 @@ var routes = [
         path: '/international',
         name: 'international',
         component: internationalComponent
+      },
+      {
+        path: '/direct',
+        name: 'direct',
+        component: directComponent
       },
       {
         path: '/emptyapi',
