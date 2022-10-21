@@ -1,6 +1,6 @@
 <template>
   <div class="account">
-    <div class="default-width info-regin">
+    <div class="default-width info-regin account-info">
       <div class="account-list" style="width: 40%">
         <h2>账号信息</h2>
         <ul>
@@ -55,75 +55,36 @@
           </li>
         </ul>
       </div>
-      <!-- <div class="balance-list" style="width: 12%">
-        <h2>空号检测</h2>
-        <p>当前余额（条）</p>
-        <ul>
-          <li>
-            <strong>{{ userInfo.remainNumberTotal | thousandbit }}</strong>
-          </li>
-          <li>
-            <strong>{{ userInfo.remainNumberTotal / 10000 }}W</strong>
-          </li>
-        </ul>
-      </div> -->
-      <!-- <div class="balance-list" style="width: 12%">
-        <h2>实时检测</h2>
-        <p>当前余额（条）</p>
-        <ul>
-          <li>
-            <strong>{{ userInfo.realtimeBalance | thousandbit }}</strong>
-          </li>
-          <li>
-            <strong
-              >{{
-                userInfo.realtimeBalance > 0
-                  ? userInfo.realtimeBalance / 10000
-                  : 0
-              }}W</strong
+      <div class="balance-table">
+        <a-table
+          :columns="balanceColumns"
+          :rowKey="(record) => record.productType"
+          :dataSource="balanceList"
+          :scroll="{ y: yScroll }"
+        >
+          <span slot="balance" slot-scope="text">
+            {{ text | thousandbit }}
+          </span>
+          <span slot="number" slot-scope="text">
+            <strong>{{ text > 0 ? text / 10000 : 0 }}W</strong>
+          </span>
+          <span slot="operate" slot-scope="text, record">
+            <button
+              type="button"
+              class="el-button el-button--primary balance-btn"
+              @click="goto('testrecord', record.recordIndex)"
             >
-          </li>
-        </ul>
-      </div> -->
-
-      <div
-        class="balance-list"
-        style="width: 20%"
-        v-for="(item, index) in allTestInfo"
-        :key="item.title"
-      >
-        <h2>{{ item.title }}</h2>
-        <div class="grey-border">
-          <p>当前余额（条）</p>
-          <ul>
-            <li>
-              <strong>{{ item.balance | thousandbit }}</strong>
-            </li>
-            <li>
-              <strong
-                >{{ item.balance > 0 ? item.balance / 10000 : 0 }}W</strong
-              >
-            </li>
-            <li class="first">
-              <button
-                type="button"
-                class="el-button el-button--primary"
-                @click="goto('testrecord', index)"
-              >
-                <span>检测记录</span>
-              </button>
-            </li>
-            <li class="last">
-              <button
-                type="button"
-                class="el-button el-button--danger"
-                @click="goto('recharge', index)"
-              >
-                <span>充值</span>
-              </button>
-            </li>
-          </ul>
-        </div>
+              <span>检测记录</span>
+            </button>
+            <button
+              type="button"
+              class="el-button el-button--danger balance-btn"
+              @click="goto('recharge', record.rechargeIndex)"
+            >
+              <span>充值</span>
+            </button>
+          </span>
+        </a-table>
       </div>
     </div>
     <div class="default-width order-regin">
@@ -271,6 +232,32 @@ var columns = [
   }
 ]
 
+var balanceColumns = [
+  {
+    title: '产品类别',
+    dataIndex: 'productType',
+    width: '130px'
+  },
+  {
+    title: '当前余额(元)',
+    dataIndex: 'balance',
+    width: '150px',
+    scopedSlots: { customRender: 'balance' }
+  },
+  {
+    title: '可用条数',
+    dataIndex: 'number',
+    width: '150px',
+    scopedSlots: { customRender: 'number' }
+  },
+  {
+    title: '操作',
+    dataIndex: 'operate',
+    width: '200px',
+    scopedSlots: { customRender: 'operate' }
+  }
+]
+
 export default {
   name: 'account',
   data () {
@@ -294,6 +281,8 @@ export default {
         current: 1,
         pageSize: 10
       },
+      balanceColumns,
+      balanceList: [],
       userInfo: {},
       searchOptions: {
         // select搜索框
@@ -325,22 +314,7 @@ export default {
           }
         ]
       },
-      category: '',
-      allTestInfo: [
-        // 所有检测类别数据
-        {
-          title: '空号检测',
-          balance: 0
-        },
-        {
-          title: '实时检测',
-          balance: 0
-        },
-        {
-          title: '国际号码检测',
-          balance: 0
-        }
-      ]
+      category: ''
     }
   },
   async mounted () {
@@ -368,6 +342,11 @@ export default {
     xScroll: () => {
       return columns.reduce((pre, curr) => {
         return pre + curr.width
+      }, 0)
+    },
+    yScroll: () => {
+      return columns.reduce((pre, curr) => {
+        return pre + curr.height
       }, 0)
     }
   },
@@ -408,7 +387,6 @@ export default {
     //   this.$refs.forgetUserPwd.setModal1Visible(true)
     // },
     goto (name, index) {
-      // this.$router.push(path)
       this.$router.push({ name: name, params: { index: index } })
     },
     async getPersonalInfo () {
@@ -416,15 +394,51 @@ export default {
       var { data } = await server.getPersonalInfo(params)
       if (data.code === 200) {
         this.userInfo = data.data
-        // console.log(this.userInfo)
         if (this.userInfo) {
-          this.allTestInfo[0].balance = this.userInfo.remainNumberTotal
-          this.allTestInfo[1].balance = this.userInfo.realtimeBalance
-          this.allTestInfo[2].balance = this.userInfo.internationalBalance
+          this.handleBalanceList(this.userInfo)
         }
       } else {
         this.$message.error(data.msg)
       }
+    },
+    handleBalanceList (data) {
+      this.balanceList = [
+        {
+          productType: '空号检测',
+          balance: this.userInfo.remainNumberTotal,
+          number: this.userInfo.remainNumberTotal,
+          recordIndex: 0,
+          rechargeIndex: 0
+        },
+        {
+          productType: '实时检测',
+          balance: this.userInfo.realtimeBalance,
+          number: this.userInfo.realtimeBalance,
+          recordIndex: 1,
+          rechargeIndex: 1
+        },
+        {
+          productType: '国际号码检测',
+          balance: this.userInfo.internationalBalance,
+          number: this.userInfo.internationalBalance,
+          recordIndex: 2,
+          rechargeIndex: 2
+        },
+        {
+          productType: '定向通用检测',
+          balance: this.userInfo.directCommonBalance,
+          number: this.userInfo.directCommonBalance,
+          recordIndex: 3,
+          rechargeIndex: 3
+        },
+        {
+          productType: 'line定向检测',
+          balance: this.userInfo.lineDirectBalance,
+          number: this.userInfo.lineDirectBalance,
+          recordIndex: 3,
+          rechargeIndex: 4
+        }
+      ]
     },
     onShowSizeChange (current, pageSize) {
       this.pagination.current = current
@@ -450,7 +464,6 @@ export default {
       }
     },
     handleSearch (val) {
-      // console.log(val)
       this.category = val
       this.pageFindTrdOrderByCreUserId()
     }
@@ -522,7 +535,7 @@ export default {
     min-height: 215px;
     padding: 20px 30px;
     margin-top: 35px;
-    margin-bottom: 90px;
+    // margin-bottom: 90px;
     background-color: #fff;
     color: #585f68;
 
@@ -530,18 +543,6 @@ export default {
       width: 35%;
       float: left;
       vertical-align: top;
-    }
-
-    .balance-list {
-      width: 25%;
-      float: left;
-      vertical-align: top;
-      text-align: left;
-      h2,
-      p,
-      ul {
-        text-align: center;
-      }
     }
 
     h2 {
@@ -552,9 +553,10 @@ export default {
       padding-right: 40px;
       border-right: 1px solid #dcdfe6;
       min-height: 210px;
+      height: 300px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: space-around;
     }
 
     .account-list ul li {
@@ -592,44 +594,36 @@ export default {
       font-size: 14px;
       display: inline-block;
     }
+  }
 
-    .balance-list .grey-border {
-      border-right: 1px solid #dcdfe6;
-      min-height: 172px;
-    }
-    .balance-list:last-child .grey-border {
-      border-right: none;
-    }
-
-    .balance-list ul li {
-      font-size: 18px;
-      line-height: 28px;
-      margin-bottom: 20px;
-    }
-
-    .balance-list .el-button {
-      width: 80px;
-      height: 32px;
-      padding: 0;
-      text-align: center;
-      span {
-        font-size: 12px;
-        font-family: PingFangSC-Regular, PingFang SC;
-        font-weight: 400;
-        color: #ffffff;
+  .account-info {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    .balance-table {
+      .balance-btn {
+        width: 70px;
+        height: 32px;
+        padding: 0;
+        text-align: center;
+        span {
+          font-size: 12px;
+          font-family: PingFangSC-Regular, PingFang SC;
+          font-weight: 400;
+          color: #ffffff;
+        }
       }
-    }
-
-    .el-button--primary {
-      color: #fff;
-      background-color: #409eff;
-      border-color: #409eff;
-    }
-
-    .el-button--danger {
-      color: #fff;
-      background-color: #f56c6c;
-      border-color: #f56c6c;
+      .el-button--primary {
+        color: #fff;
+        background-color: #409eff;
+        border-color: #409eff;
+      }
+      .el-button--danger {
+        color: #fff;
+        background-color: #f56c6c;
+        border-color: #f56c6c;
+        margin-left: 8px;
+      }
     }
   }
 
