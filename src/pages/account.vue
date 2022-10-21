@@ -94,7 +94,7 @@
         <a-select
           :default-value="searchOptions.defaultSearch"
           style="width: 160px"
-          @change="handleSearch"
+          @change="handleProductSearch"
         >
           <a-select-option
             :key="item.id"
@@ -305,11 +305,11 @@ export default {
             name: '国际检测产品'
           },
           {
-            id: 3, // ?
-            name: '定向检测通用产品'
+            id: 4,
+            name: '定向通用检测产品'
           },
           {
-            id: 4, // ?
+            id: 5,
             name: 'line定向检测产品'
           }
         ]
@@ -463,7 +463,7 @@ export default {
         this.$message.error(data.msg)
       }
     },
-    handleSearch (val) {
+    handleProductSearch (val) {
       this.category = val
       this.pageFindTrdOrderByCreUserId()
     }
