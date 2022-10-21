@@ -307,7 +307,7 @@
       </div>
       <!-- 定向检测结果 -->
       <div class="direct-test-record" v-if="testPageShow === 3">
-        <direct-record :personalInfo="personalInfo" />
+        <direct-record :personalInfo="personalInfo" :directPosition="directPosition" />
       </div>
     </div>
   </div>
@@ -457,13 +457,15 @@ export default {
       ],
       computeFileSize,
       personalInfo: {},
-      isDownloadAll: false
+      isDownloadAll: false,
+      directPosition: ''
     }
   },
   created () {
     console.log(this.$route)
     console.log(this.$route.params)
     this.testPageShow = this.$route.params.index || 0
+    this.directPosition = this.$route.params.position || ''
   },
   async mounted () {
     this.getTestHistoryReport()

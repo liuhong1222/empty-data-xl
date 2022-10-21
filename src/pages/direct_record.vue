@@ -96,9 +96,9 @@
         </div>
         <div class="month-nodata" v-else>此月无检测数据!</div>
       </div>
-      <div class="default-width order-regin">
+      <div class="default-width order-regin" id="fromDirectTest">
         <h2>历史检测记录</h2>
-        <div class="history-handle">
+        <div class="history-handle history-record-search">
           <div class="search-wrap">
             <span>产品类型：</span>
             <a-select
@@ -150,7 +150,7 @@
         </div>
         <a-table
           :columns="columns"
-          :rowKey="(record) => record.id"
+          :rowKey="(record, index) => index"
           :dataSource="orderlist"
           :loading="loading"
           :pagination="false"
@@ -176,7 +176,7 @@
                     : 'auto'
               }"
               @click="downloadTxt(record, '已激活.txt', 'activeFilePath')"
-              >{{ record.activeNumber || 0 }}</a
+              >{{ record.checkStatus === 0 ? '-' : (record.activeNumber || 0) }}</a
             >
           </span>
           <span slot="noRegisterNumber" slot-scope="text, record">
@@ -188,14 +188,23 @@
                     : 'auto'
               }"
               @click="downloadTxt(record, '未注册.txt', 'noRegisterFilePath')"
-              >{{ record.noRegisterNumber || 0 }}</a
+              >{{ record.checkStatus === 0 ? '-' : (record.noRegisterNumber || 0) }}</a
             >
           </span>
 
           <span slot="totalNumber" slot-scope="text, record">
             {{ Number(record.totalNumber) }}
           </span>
-          <span slot="action" slot-scope="text, record">
+
+          <span slot="checkStatus" slot-scope="text">
+            <span :style="{'color': text === 0  ? '#FFAC2E' : '#34C38B'}">{{text === 0 ? '正在检测中' : '检测完成'}}</span>
+          </span>
+
+          <span slot="checkProcess" slot-scope="text, record">
+            <span :style="{'color': record.checkStatus === 0  ? '#FFAC2E' : 'rgba(0, 0, 0, 0.65)'}">{{text}}</span>
+          </span>
+
+          <span slot="action" slot-scope="text, record" v-if="record.checkStatus === 1">
             <a @click="downloadZip(record)">下载</a>
             <a
               style="margin-left: 16px"
@@ -272,6 +281,18 @@ var columns = [
     scopedSlots: { customRender: 'totalNumber' }
   },
   {
+    title: '检测状态',
+    dataIndex: 'checkStatus',
+    width: '110px',
+    scopedSlots: { customRender: 'checkStatus' }
+  },
+  {
+    title: '检测进度',
+    dataIndex: 'checkProcess',
+    width: '100px',
+    scopedSlots: { customRender: 'checkProcess' }
+  },
+  {
     title: '操作',
     dataIndex: 'action',
     width: '220px',
@@ -328,7 +349,12 @@ export default {
         onSelectAll: (selected, selectedRows, changeRows) => {
           console.log(selected, selectedRows, changeRows)
           this.selectedRows = selectedRows
-        }
+        },
+        getCheckboxProps: record => ({
+          props: { // 正在检测中，不允许勾选
+            disabled: record.checkStatus === 0
+          }
+        })
       },
       endDate: this.moment().format('YYYY-MM-DDT00:00:00.000') + 'Z',
       startDate: this.moment().format('YYYY-MM-DDT00:00:00.000') + 'Z',
@@ -371,6 +397,12 @@ export default {
       default: () => {
         return {}
       }
+    },
+    directPosition: {
+      type: String,
+      default: () => {
+        return ''
+      }
     }
   },
   created () {},
@@ -378,6 +410,13 @@ export default {
     this.getDirectPageList()
     this.getPageByMobile()
     this.getLatestDirect()
+    if (this.directPosition && this.directPosition === 'table') {
+      // 定向检测-立即检测接口成功-锚点跳转到表格模块
+      const anchorEle = document.querySelector('#fromDirectTest')
+      if (anchorEle) {
+        anchorEle.scrollIntoView(true)
+      }
+    }
   },
   mixins: [getUserData],
   computed: {
@@ -620,7 +659,7 @@ export default {
           }
         ],
         size: this.pagination.pageSize,
-        productType: this.productType
+        productType: this.productType ? this.productType : undefined
       }
       console.log(params)
       var { data } = await server.getDirectPageList(params)
@@ -883,6 +922,12 @@ export default {
     .el-button {
       margin-left: 16px;
     }
+  }
+
+  .history-record-search {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
   }
 
   .ant-dropdown-trigger {

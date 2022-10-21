@@ -120,13 +120,15 @@ export const uploadByPieces = ({
       fetchForm.append('file', chunkInfo.chunk)
       fetchForm.append('identifier', fileMD5)
       fetchForm.append('fileRealName', file.name)
-      // 区分空号检测/实时检测/国际检测
+      // 区分空号检测/实时检测/国际检测/定向检测
       if (productCodeType === 'empty') {
         fetchForm.append('fileType ', 0) // 空号
       } else if (productCodeType === 'realtime') {
         fetchForm.append('fileType ', 1) // 实时
       } else if (productCodeType === 'international') {
         fetchForm.append('fileType ', 2) // 国际
+      } else if (productCodeType === 'direct') {
+        fetchForm.append('fileType ', 3) // 定向
       }
       console.log(fetchForm)
       fileUpload(fetchForm)
@@ -163,13 +165,15 @@ export const uploadByPieces = ({
       fetchForm.append('file', chunkInfo.chunk)
       fetchForm.append('identifier', fileMD5)
       fetchForm.append('fileRealName', file.name)
-      // 区分空号检测/实时检测/国际检测
+      // 区分空号检测/实时检测/国际检测/定向检测
       if (productCodeType === 'empty') {
         fetchForm.append('fileType ', 0) // 空号
       } else if (productCodeType === 'realtime') {
         fetchForm.append('fileType ', 1) // 实时
       } else if (productCodeType === 'international') {
         fetchForm.append('fileType ', 2) // 国际
+      } else if (productCodeType === 'direct') {
+        fetchForm.append('fileType ', 3) // 定向
       }
       console.log(fetchForm)
       fileUpload(fetchForm)
@@ -204,7 +208,7 @@ export const uploadByPieces = ({
     statusForm.append('chunks', chunkCount)
     statusForm.append('fileName', file.name)
     statusForm.append('fileSize', file.size)
-    // 区分空号检测/实时检测/国际检测
+    // 区分空号检测/实时检测/国际检测/定向检测
     if (productCodeType === 'empty') {
       statusForm.append('productCode', 0) // 空号
       statusForm.append('fileType ', 0)
@@ -214,6 +218,9 @@ export const uploadByPieces = ({
     } else if (productCodeType === 'international') {
       statusForm.append('productCode', 2) // 国际
       statusForm.append('fileType ', 2)
+    } else if (productCodeType === 'direct') {
+      statusForm.append('productCode', 3) // 定向
+      statusForm.append('fileType ', 3)
     }
     console.log(statusForm)
     mergeFile(statusForm)

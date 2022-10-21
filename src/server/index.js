@@ -455,6 +455,34 @@ export var serverConfig = {
       }
     ]
   },
+  // 定向检测-执行定向检测
+  directCheckFile: {
+    url: '/front/intDirect/checkByFile',
+    method: 'post',
+    headers: {
+      // fetchtype: 'file',
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    transformRequest: [
+      function (params) {
+        return params
+      }
+    ]
+  },
+  // 定向检测-获取定向检测进度
+  directCheckFileProgress: {
+    url: '/front/intDirect/getTestProcessMobile',
+    method: 'post',
+    headers: {
+      // fetchtype: 'file',
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    transformRequest: [
+      function (params) {
+        return params
+      }
+    ]
+  },
   // 获取api接口账密
   apiSettings: {
     url: '/front/apiSettings/info/{customerId}',
