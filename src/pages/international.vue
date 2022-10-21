@@ -504,7 +504,8 @@ export default {
       const sendID = this.sendID || sessionStorage.getItem('internationalTestingsendID')
       testForm.append('fileId', fileId)
       testForm.append('sendID', sendID)
-      if (fileId && sendID) {
+      // sendID改为非必须
+      if (fileId) {
         server
           .internationalCheckFileProgress(testForm)
           .then((res) => {
