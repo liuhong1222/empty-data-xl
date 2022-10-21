@@ -14,7 +14,7 @@
             国际号码检测
           </li>
           <li :class="{ active: tabsindex === 3 }" @click="tabsChange(3)">
-            定向检测通用
+            定向通用检测
           </li>
           <li :class="{ active: tabsindex === 4 }" @click="tabsChange(4)">
             line定向检测
@@ -209,6 +209,126 @@
             >
           </div>
         </div>
+
+        <!-- 定向通用检测 -->
+        <div class="recharge-section international-recharge-wrap">
+          <div class="el-row recharge-content" v-if="tabsindex === 3">
+            <p class="section-title" v-if="directGoodsList.length > 0">
+              选择套餐扫码充值
+            </p>
+            <div
+              class="el-col el-col-8"
+              style="margin-top: 16px"
+              v-for="(item, index) in directGoodsList"
+              :key="index"
+              v-show="item.type !== 1"
+            >
+              <div
+                class="grid-content bg-purple"
+                :class="{ active: select === item.id }"
+                @click="selectTar(item)"
+              >
+                <ul>
+                  <li :class="{ active: select === item.id }">
+                    <h3>{{ item.name }}</h3>
+                  </li>
+                  <li>
+                    <span>￥</span><span>{{ item.minPayAmount }}</span
+                    >/<span>{{ item.specifications / 10000 }}万条</span>
+                  </li>
+                  <li style="color: #f44336">{{ item.remark }}</li>
+                  <li></li>
+                  <li class="choose" v-if="select === item.id"></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="custom-reg" v-if="tabsindex === 3 && directCus">
+            <span><strong>自定义充值</strong></span>
+            <div class="el-input el-input--suffix">
+              <input
+                v-model="cusPay"
+                type="text"
+                autocomplete="off"
+                placeholder="请输入自定义充值金额（元）"
+                maxlength="10"
+                class="el-input__inner"
+              />
+            </div>
+            <button
+              type="button"
+              class="el-button el-button--primary"
+              @click="gotoCz(directCus)"
+            >
+              <span>确认</span>
+            </button>
+            <span v-if="directCus.minPayAmount"
+              >（{{ changeToWAN(directCus.unitPrice) }}元/万，最低充值{{
+                directCus.minPayAmount
+              }}元，必须为整数）</span
+            >
+          </div>
+        </div>
+
+        <!-- line定向检测 -->
+        <div class="recharge-section international-recharge-wrap">
+          <div class="el-row recharge-content" v-if="tabsindex === 4">
+            <p class="section-title" v-if="lineDirectGoodsList.length > 0">
+              选择套餐扫码充值
+            </p>
+            <div
+              class="el-col el-col-8"
+              style="margin-top: 16px"
+              v-for="(item, index) in lineDirectGoodsList"
+              :key="index"
+              v-show="item.type !== 1"
+            >
+              <div
+                class="grid-content bg-purple"
+                :class="{ active: select === item.id }"
+                @click="selectTar(item)"
+              >
+                <ul>
+                  <li :class="{ active: select === item.id }">
+                    <h3>{{ item.name }}</h3>
+                  </li>
+                  <li>
+                    <span>￥</span><span>{{ item.minPayAmount }}</span
+                    >/<span>{{ item.specifications / 10000 }}万条</span>
+                  </li>
+                  <li style="color: #f44336">{{ item.remark }}</li>
+                  <li></li>
+                  <li class="choose" v-if="select === item.id"></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="custom-reg" v-if="tabsindex === 4 && lineDirectCus">
+            <span><strong>自定义充值</strong></span>
+            <div class="el-input el-input--suffix">
+              <input
+                v-model="cusPay"
+                type="text"
+                autocomplete="off"
+                placeholder="请输入自定义充值金额（元）"
+                maxlength="10"
+                class="el-input__inner"
+              />
+            </div>
+            <button
+              type="button"
+              class="el-button el-button--primary"
+              @click="gotoCz(lineDirectCus)"
+            >
+              <span>确认</span>
+            </button>
+            <span v-if="lineDirectCus.minPayAmount"
+              >（{{ changeToWAN(lineDirectCus.unitPrice) }}元/万，最低充值{{
+                lineDirectCus.minPayAmount
+              }}元，必须为整数）</span
+            >
+          </div>
+        </div>
       </div>
       <!-- <div class="recharge-bottom" v-show="qrCodeString">
         <h3>充值页面</h3>
@@ -273,6 +393,8 @@ export default {
       emptyGoodsList: [],
       realtimeGoodsList: [],
       internationalGoodsList: [],
+      directGoodsList: [],
+      lineDirectGoodsList: [],
       select: '',
       cusPay: '',
       selectPay: 0,
@@ -280,6 +402,8 @@ export default {
       emptyCus: {}, // 自定义充值-空号
       realtimeCus: {}, // 自定义充值-实时
       internationalCus: {}, // 自定义充值-国际
+      directCus: {}, // 自定义充值-定向
+      lineDirectCus: {}, // 自定义充值-line定向
       timer: null,
       tabsindex: 0,
       payTypeList: [
@@ -347,6 +471,8 @@ export default {
       this.emptyGoodsList = []
       this.realtimeGoodsList = []
       this.internationalGoodsList = []
+      this.directGoodsList = []
+      this.lineDirectGoodsList = []
       var params = {}
       var { data } = await server.getGoodsList(params)
       if (data.code === 200) {
@@ -360,6 +486,12 @@ export default {
         this.internationalCus = this.goodsList.find(
           (v) => v.type === 1 && v.category === 2
         )
+        this.directCus = this.goodsList.find(
+          (v) => v.type === 1 && v.category === 4
+        )
+        this.lineDirectCus = this.goodsList.find(
+          (v) => v.type === 1 && v.category === 5
+        )
         for (let i = 0; i < this.goodsList.length; i++) {
           const item = this.goodsList[i]
           if (item.category === 0) {
@@ -368,19 +500,12 @@ export default {
             this.realtimeGoodsList.push(item)
           } else if (item.category === 2) {
             this.internationalGoodsList.push(item)
+          } else if (item.category === 4) {
+            this.directGoodsList.push(item)
+          } else if (item.category === 5) {
+            this.lineDirectGoodsList.push(item)
           }
         }
-        // if (this.tabsindex === 0) {
-        //   this.getQrCodeString(
-        //     this.emptyGoodsList[0].id,
-        //     this.emptyGoodsList[0].minPayAmount
-        //   )
-        // } else if (this.tabsindex === 1) {
-        //   this.getQrCodeString(
-        //     this.realtimeGoodsList[0].id,
-        //     this.realtimeGoodsList[0].minPayAmount
-        //   )
-        // }
       } else {
         this.$message.error(data.msg)
       }
