@@ -37,19 +37,19 @@
               <a-popover overlayClassName="testrecordpop">
                 <template slot="content"> 未激活 </template>
                 <strong style="border-color: rgb(73, 146, 255)">未激活</strong>
-                <h3>{{ testResult.notActiveNumber || 0 }}</h3>
+                <h3>{{ testResult.noRegisterNumber || 0 }}</h3>
               </a-popover>
             </span>
             <p
               :style="{
-                'pointer-events': !testResult.notActiveNumber ? 'none' : 'auto'
+                'pointer-events': !testResult.noRegisterNumber ? 'none' : 'auto'
               }"
               style="cursor: pointer"
-              @click="downloadTxt(testResult, '未激活.txt', 'notActiveFilePath')"
+              @click="downloadTxt(testResult, '未激活.txt', 'noRegisterFilePath')"
             >
               <a
                 :style="{
-                  'pointer-events': !testResult.notActiveNumber ? 'none' : 'auto'
+                  'pointer-events': !testResult.noRegisterNumber ? 'none' : 'auto'
                 }"
                 class="download-btn"
                 >下载</a
@@ -61,19 +61,23 @@
               <a-popover overlayClassName="testrecordpop">
                 <template slot="content"> 未注册 </template>
                 <strong style="border-color: rgb(246, 179, 127)">未注册</strong>
-                <h3>{{ testResult.noRegisterNumber || 0 }}</h3>
+                <h3>{{ testResult.unknownNumber || 0 }}</h3>
               </a-popover>
             </span>
             <p
               :style="{
-                'pointer-events': !testResult.noRegisterNumber ? 'none' : 'auto'
+                'pointer-events': !testResult.unknownNumber ? 'none' : 'auto'
               }"
               style="cursor: pointer"
               @click="
-                downloadTxt(testResult, '未注册.txt', 'noRegisterFilePath')
+                downloadTxt(testResult, '未注册.txt', 'unknownFilePath')
               "
             >
-              <a class="download-btn">下载</a>
+              <a
+                :style="{
+                  'pointer-events': !testResult.unknownNumber ? 'none' : 'auto'
+                }"
+              class="download-btn">下载</a>
             </p>
           </li>
         </ul>
@@ -185,18 +189,6 @@
               >{{ record.activeNumber || 0 }}</a
             >
           </span>
-          <span slot="notActiveNumber" slot-scope="text, record">
-            <a
-              :style="{
-                'pointer-events':
-                  !record.notActiveNumber || record.notActiveNumber == '0'
-                    ? 'none'
-                    : 'auto'
-              }"
-              @click="downloadTxt(record, '未激活.txt', 'notActiveFilePath')"
-              >{{ record.notActiveNumber || 0 }}</a
-            >
-          </span>
           <span slot="noRegisterNumber" slot-scope="text, record">
             <a
               :style="{
@@ -205,8 +197,20 @@
                     ? 'none'
                     : 'auto'
               }"
-              @click="downloadTxt(record, '未注册.txt', 'noRegisterFilePath')"
+              @click="downloadTxt(record, '未激活.txt', 'noRegisterFilePath')"
               >{{ record.noRegisterNumber || 0 }}</a
+            >
+          </span>
+          <span slot="unknownNumber" slot-scope="text, record">
+            <a
+              :style="{
+                'pointer-events':
+                  !record.unknownNumber || record.unknownNumber == '0'
+                    ? 'none'
+                    : 'auto'
+              }"
+              @click="downloadTxt(record, '未注册.txt', 'unknownFilePath')"
+              >{{ record.unknownNumber || 0 }}</a
             >
           </span>
 
@@ -273,15 +277,15 @@ var columns = [
   },
   {
     title: '未激活',
-    dataIndex: 'notActiveNumber',
-    width: '120px',
-    scopedSlots: { customRender: 'notActiveNumber' }
-  },
-  {
-    title: '未注册',
     dataIndex: 'noRegisterNumber',
     width: '120px',
     scopedSlots: { customRender: 'noRegisterNumber' }
+  },
+  {
+    title: '未注册',
+    dataIndex: 'unknownNumber',
+    width: '120px',
+    scopedSlots: { customRender: 'unknownNumber' }
   },
   {
     title: '总条数',
@@ -646,8 +650,8 @@ export default {
         }
         e.push(tt[h].day)
         yjh.push(tt[h].activeNumber)
-        wjh.push(tt[h].notActiveNumber)
-        wzc.push(tt[h].noRegisterNumber)
+        wjh.push(tt[h].noRegisterNumber)
+        wzc.push(tt[h].unknownNumber)
         total.push(tt[h].totalNumber)
       }
 
