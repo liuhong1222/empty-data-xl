@@ -201,7 +201,7 @@
           </span>
 
           <span slot="checkProcess" slot-scope="text, record">
-            <span :style="{'color': record.checkStatus === 0  ? '#FFAC2E' : 'rgba(0, 0, 0, 0.65)'}">{{text}}</span>
+            <span :style="{'color': record.checkStatus === 0  ? '#FFAC2E' : 'rgba(0, 0, 0, 0.65)'}">{{text}}{{text ? '%' : ''}}</span>
           </span>
 
           <span slot="action" slot-scope="text, record" v-if="record.checkStatus === 1">
@@ -242,7 +242,7 @@ var columns = [
   {
     title: '产品类型',
     dataIndex: 'productType',
-    width: '120px',
+    width: '100px',
     scopedSlots: { customRender: 'productType' }
   },
   {
@@ -260,18 +260,18 @@ var columns = [
   {
     title: '日期',
     dataIndex: 'createTime',
-    width: '180px'
+    width: '170px'
   },
   {
     title: '已激活',
     dataIndex: 'activeNumber',
-    width: '120px',
+    width: '100px',
     scopedSlots: { customRender: 'activeNumber' }
   },
   {
     title: '未注册',
     dataIndex: 'noRegisterNumber',
-    width: '120px',
+    width: '100px',
     scopedSlots: { customRender: 'noRegisterNumber' }
   },
   {

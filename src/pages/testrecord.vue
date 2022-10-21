@@ -873,6 +873,10 @@ export default {
 }
 </script>
 <style lang="less">
+.ant-table-thead > tr > th,
+.ant-table-tbody > tr > td {
+  text-align: center !important;
+}
 .empty-test-record {
   padding-bottom: 35px;
 }
