@@ -19,7 +19,7 @@
       <ul class="default-width menu-navig">
         <li>
           <h3>帮助中心</h3>
-          <p><a @click="goto('/question')">常见问题</a></p>
+          <!-- <p><a @click="goto('/question')">常见问题</a></p> -->
           <p><a @click="goto('/howrecharge')">怎么充值</a></p>
         </li>
         <li>

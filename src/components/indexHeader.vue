@@ -41,18 +41,25 @@
         </li>
         <li>
           <a
+            :class="{ active: path.indexOf('direct') > -1 }"
+            @click="goto('/direct')"
+            >定向检测</a
+          >
+        </li>
+        <li>
+          <a
             :class="{ active: path.indexOf('prolist') > -1 }"
             @click="goto('/prolist')"
             >产品大全</a
           >
         </li>
-        <li>
+        <!-- <li>
           <a
             :class="{ active: path.indexOf('question') > -1 }"
             @click="goto('/question')"
             >常见问题</a
           >
-        </li>
+        </li> -->
         <li>
           <a
             :class="{ active: path.indexOf('news') > -1 }"
