@@ -1,179 +1,119 @@
 <template>
   <div class="testrecord">
-    <ul class="mini-width swiper-regin">
-      <li class="mini-width">
-        <div class="default-width swiper-button">
-          <a-button @click="$router.push('/empty')">立即接入</a-button>
-        </div>
-      </li>
-    </ul>
-    <!-- 检测结果 -->
-    <div class="default-width test-record-wrap">
-      <!-- 空号/实时/国际检测tab切换 -->
-      <ul class="tab-record">
-        <li
-          v-for="(item, index) in tabRecordList"
-          :key="item.title"
-          @click="tabRecord(index)"
-          :class="{ active: testPageShow === index }"
-        >
-          {{ item.title }}
-        </li>
-      </ul>
-      <!-- 空号检测结果 -->
-      <div class="empty-test-record" v-if="testPageShow === 0">
-        <div class="default-width result-regin" v-if="isTestResultShow">
-          <h2>检测结果</h2>
-          <ul>
-            <li>
-              <span>
-                <a-popover overlayClassName="testrecordpop">
-                  <template slot="content"> 活跃用户 </template>
-                  <strong style="border-color: rgb(73, 146, 255)"
-                    >实号包</strong
-                  >
-                  <h3>
-                    {{ testResult.realCount || testResult.realNumber || 0 }}
-                  </h3>
-                </a-popover>
-              </span>
-              <p
-                :style="{
-                  'pointer-events':
-                    !testResult.realCount && !testResult.realNumber
-                      ? 'none'
-                      : 'auto'
-                }"
-                style="cursor: pointer"
-                @click="
-                  downloadTxt(testResult, '活跃号(实号).txt', 'realFilePath')
-                "
-              >
-                <a class="download-btn">下载</a>
-              </p>
-            </li>
-            <li>
-              <span>
-                <a-popover overlayClassName="testrecordpop">
-                  <template slot="content">
-                    超过六个月未激活的空号，近三个月平均流量低于30M的用户，建议当成无效处理。
-                  </template>
-                  <strong style="border-color: rgb(246, 179, 127)"
-                    >沉默包</strong
-                  >
-                  <h3>
-                    {{ testResult.silentCount || testResult.silentNumber || 0 }}
-                  </h3>
-                </a-popover>
-              </span>
-              <p
-                :style="{
-                  'pointer-events':
-                    !testResult.silentCount && !testResult.silentNumber
-                      ? 'none'
-                      : 'auto'
-                }"
-                style="cursor: pointer"
-                @click="downloadTxt(testResult, '沉默号.txt', 'silentFilePath')"
-              >
-                <a class="download-btn">下载</a>
-              </p>
-            </li>
-            <li>
-              <span>
-                <a-popover overlayClassName="testrecordpop">
-                  <template slot="content">
-                    近一个月内出现过空号、停机状态的号码
-                  </template>
-                  <strong style="border-color: rgb(162, 162, 160)"
-                    >空号包</strong
-                  >
-                  <h3>
-                    {{ testResult.emptyCount || testResult.emptyNumber || 0 }}
-                  </h3>
-                </a-popover>
-              </span>
-              <p
-                :style="{
-                  'pointer-events':
-                    !testResult.emptyCount && !testResult.emptyNumber
-                      ? 'none'
-                      : 'auto'
-                }"
-                style="cursor: pointer"
-                @click="downloadTxt(testResult, '空号.txt', 'emptyFilePath')"
-              >
-                <a class="download-btn">下载</a>
-              </p>
-            </li>
-            <li>
-              <span>
-                <a-popover overlayClassName="testrecordpop">
-                  <template slot="content">
-                    长时间关机或未开通语音服务以及易投诉的用户
-                  </template>
-                  <strong style="border-color: rgb(255, 0, 0)">风险包</strong>
-                  <h3>
-                    {{ testResult.riskCount || testResult.riskNumber || 0 }}
-                  </h3>
-                </a-popover>
-              </span>
-              <p
-                :style="{
-                  'pointer-events':
-                    !testResult.riskCount && !testResult.riskNumber
-                      ? 'none'
-                      : 'auto'
-                }"
-                style="cursor: pointer"
-                @click="downloadTxt(testResult, '风险号.txt', 'riskFilePath')"
-              >
-                <a class="download-btn">下载</a>
-              </p>
-            </li>
-          </ul>
-        </div>
-
-        <div class="default-width download-regin">
-          <h3>一键下载全部状态</h3>
-          <a
-            v-if="isTestResultShow"
-            :disabled="!isDownloadAll"
-            @click="downloadZip(testResult)"
-            class="el-button el-button--default el-button--small"
-            >下载</a
-          >
-        </div>
-
-        <div class="default-width echart-regin">
-          <h2>历史检测/月</h2>
-          <div class="echart-handle">
-            <span>选择月份：</span>
-            <a-month-picker
-              placeholder="选择月份"
-              @change="onMounthChange"
-              v-model="month"
-              :allowClear="false"
-            />
-            <button
-              type="button"
-              class="el-button el-button--primary"
-              v-if="false"
+    <!-- 空号检测结果 -->
+    <div class="empty-test-record">
+      <div
+        class="default-width direct-result-regin"
+        v-if="isTestResultShow"
+      >
+        <h2>检测结果</h2>
+        <ul>
+          <li>
+            <span>
+              <a-popover overlayClassName="testrecordpop">
+                <template slot="content"> 已激活 </template>
+                <strong style="border-color: rgb(73, 146, 255)">已激活</strong>
+                <h3>{{ testResult.activeNumber || 0 }}</h3>
+              </a-popover>
+            </span>
+            <p
+              :style="{
+                'pointer-events': !testResult.activeNumber ? 'none' : 'auto'
+              }"
+              style="cursor: pointer"
+              @click="downloadTxt(testResult, '已激活.txt', 'activeFilePath')"
             >
-              <!----><i class="el-icon-download"></i><span>下载报表</span>
-            </button>
-          </div>
-          <div class="echart-title">
-            {{ moment(month).format('YYYY-MM') }}月检测结果展示
-          </div>
-          <div v-if="echartsData">
-            <div id="mainMore"></div>
-          </div>
-          <div class="month-nodata" v-else>此月无检测数据!</div>
+              <a
+                :style="{
+                  'pointer-events': !testResult.activeNumber ? 'none' : 'auto'
+                }"
+                class="download-btn"
+                >下载</a
+              >
+            </p>
+          </li>
+          <li>
+            <span>
+              <a-popover overlayClassName="testrecordpop">
+                <template slot="content"> 未注册 </template>
+                <strong style="border-color: rgb(246, 179, 127)">未注册</strong>
+                <h3>{{ testResult.unknownNumber || 0 }}</h3>
+              </a-popover>
+            </span>
+            <p
+              :style="{
+                'pointer-events': !testResult.unknownNumber ? 'none' : 'auto'
+              }"
+              style="cursor: pointer"
+              @click="
+                downloadTxt(testResult, '未注册.txt', 'unknownFilePath')
+              "
+            >
+              <a
+                :style="{
+                  'pointer-events': !testResult.unknownNumber ? 'none' : 'auto'
+                }"
+              class="download-btn">下载</a>
+            </p>
+          </li>
+        </ul>
+      </div>
+
+      <div class="default-width download-regin">
+        <h3>一键下载全部状态</h3>
+        <a
+          v-if="isTestResultShow"
+          :disabled="!isDownloadAll"
+          @click="downloadZip(testResult)"
+          class="el-button el-button--default el-button--small"
+          >下载</a
+        >
+      </div>
+
+      <div class="default-width echart-regin">
+        <h2>历史检测/月</h2>
+        <div class="echart-handle">
+          <span>选择月份：</span>
+          <a-month-picker
+            placeholder="选择月份"
+            @change="onMounthChange"
+            v-model="month"
+            :allowClear="false"
+          />
+          <button
+            type="button"
+            class="el-button el-button--primary"
+            v-if="false"
+          >
+            <!----><i class="el-icon-download"></i><span>下载报表</span>
+          </button>
         </div>
-        <div class="default-width order-regin">
-          <h2>历史检测记录</h2>
-          <div class="history-handle">
+        <div class="echart-title">
+          {{ moment(month).format('YYYY-MM') }}月检测结果展示
+        </div>
+        <div v-if="echartsData">
+          <div id="directMainMore"></div>
+        </div>
+        <div class="month-nodata" v-else>此月无检测数据!</div>
+      </div>
+      <div class="default-width order-regin">
+        <h2>历史检测记录</h2>
+        <div class="history-handle">
+          <div class="search-wrap">
+            <span>产品类型：</span>
+            <a-select
+              v-model="productType"
+              style="width: 160px; margin-right: 10px"
+              @change="onProductChange"
+            >
+              <a-select-option
+                :key="item.value"
+                v-for="item in productTypeList"
+                :value="item.value"
+              >
+                {{ item.label }}
+              </a-select-option>
+            </a-select>
             <span class="demonstration">日期：</span>
             <a-range-picker
               :default-value="searchTimeVal"
@@ -194,120 +134,88 @@
             >
               <span>导出</span>
             </button>
-            <a-dropdown placement="bottomLeft">
-              <a-button
-                >批量操作
-                <a-icon type="down" />
-              </a-button>
-              <a-menu slot="overlay">
-                <a-menu-item>
-                  <a @click="downloadBatch()">批量下载</a>
-                </a-menu-item>
-                <a-menu-item v-if="false"> 批量删除 </a-menu-item>
-              </a-menu>
-            </a-dropdown>
           </div>
-          <a-table
-            :columns="columns"
-            :rowKey="(record) => record.id"
-            :dataSource="orderlist"
-            :loading="loading"
-            :pagination="false"
-            :rowSelection="rowSelection"
-          >
-            <span slot="name" slot-scope="text, record">
-              {{ record.isOldData ? text : record.zipName }}
-            </span>
-            <span slot="size" slot-scope="text, record">
-              {{
-                record.isOldData
-                  ? computeFileSize(record.size)
-                  : computeFileSize(record.zipSize)
-              }}
-            </span>
-            <span slot="realNumber" slot-scope="text, record">
-              <a
-                :style="{
-                  'pointer-events':
-                    !record.realNumber || record.realNumber == '0'
-                      ? 'none'
-                      : 'auto'
-                }"
-                @click="downloadTxt(record, '活跃号(实号).txt', 'realFilePath')"
-                >{{ record.realNumber || 0 }}</a
-              >
-            </span>
-            <span slot="silentNumber" slot-scope="text, record">
-              <a
-                :style="{
-                  'pointer-events':
-                    !record.silentNumber || record.silentNumber == '0'
-                      ? 'none'
-                      : 'auto'
-                }"
-                @click="downloadTxt(record, '沉默号.txt', 'silentFilePath')"
-                >{{ record.silentNumber || 0 }}</a
-              >
-            </span>
-            <span slot="emptyNumber" slot-scope="text, record">
-              <a
-                :style="{
-                  'pointer-events':
-                    !record.emptyNumber || record.emptyNumber == '0'
-                      ? 'none'
-                      : 'auto'
-                }"
-                @click="downloadTxt(record, '空号.txt', 'emptyFilePath')"
-                >{{ record.emptyNumber || 0 }}</a
-              >
-            </span>
-            <span slot="riskNumber" slot-scope="text, record">
-              <a
-                :style="{
-                  'pointer-events':
-                    !record.riskNumber || record.riskNumber == '0'
-                      ? 'none'
-                      : 'auto'
-                }"
-                @click="downloadTxt(record, '风险号.txt', 'riskFilePath')"
-                >{{ record.riskNumber || 0 }}</a
-              >
-            </span>
-            <span slot="totalNumber" slot-scope="text, record">
-              {{ Number(record.totalNumber) }}
-            </span>
-            <span slot="action" slot-scope="text, record">
-              <a @click="downloadZip(record)">下载</a>
-              <a style="margin-left: 16px" @click="deleteEmptyById(record)"
-                >删除</a
-              >
-            </span>
-          </a-table>
-          <div class="pages-regin">
-            <a-pagination
-              :total="pagination.total"
-              :defaultCurrent="pagination.current"
-              :pageSize.sync="pagination.pageSize"
-              showSizeChanger
-              showQuickJumper
-              @showSizeChange="onShowSizeChange"
-              @change="onChange"
-              :showTotal="(total) => `共 ${total} 条`"
-            />
-          </div>
+          <a-dropdown placement="bottomLeft">
+            <a-button
+              >批量操作
+              <a-icon type="down" />
+            </a-button>
+            <a-menu slot="overlay">
+              <a-menu-item>
+                <a @click="downloadBatch()">批量下载</a>
+              </a-menu-item>
+              <a-menu-item v-if="false"> 批量删除 </a-menu-item>
+            </a-menu>
+          </a-dropdown>
         </div>
-      </div>
-      <!-- 实时检测结果 -->
-      <div class="realtime-test-record" v-if="testPageShow === 1">
-        <realtime-record :personalInfo="personalInfo" />
-      </div>
-      <!-- 国际检测结果 -->
-      <div class="international-test-record" v-if="testPageShow === 2">
-        <international-record :personalInfo="personalInfo" />
-      </div>
-      <!-- 定向检测结果 -->
-      <div class="direct-test-record" v-if="testPageShow === 3">
-        <direct-record :personalInfo="personalInfo" />
+        <a-table
+          :columns="columns"
+          :rowKey="(record) => record.id"
+          :dataSource="orderlist"
+          :loading="loading"
+          :pagination="false"
+          :rowSelection="rowSelection"
+          :scroll="{ x: xScroll }"
+        >
+          <span slot="name" slot-scope="text, record">
+            {{ record.isOldData ? text : record.zipName }}
+          </span>
+          <span slot="size" slot-scope="text, record">
+            {{
+              record.isOldData
+                ? computeFileSize(record.size)
+                : computeFileSize(record.zipSize)
+            }}
+          </span>
+          <span slot="activeNumber" slot-scope="text, record">
+            <a
+              :style="{
+                'pointer-events':
+                  !record.activeNumber || record.activeNumber == '0'
+                    ? 'none'
+                    : 'auto'
+              }"
+              @click="downloadTxt(record, '已激活.txt', 'activeFilePath')"
+              >{{ record.activeNumber || 0 }}</a
+            >
+          </span>
+          <span slot="unknownNumber" slot-scope="text, record">
+            <a
+              :style="{
+                'pointer-events':
+                  !record.unknownNumber || record.unknownNumber == '0'
+                    ? 'none'
+                    : 'auto'
+              }"
+              @click="downloadTxt(record, '未注册.txt', 'unknownFilePath')"
+              >{{ record.unknownNumber || 0 }}</a
+            >
+          </span>
+
+          <span slot="totalNumber" slot-scope="text, record">
+            {{ Number(record.totalNumber) }}
+          </span>
+          <span slot="action" slot-scope="text, record">
+            <a @click="downloadZip(record)">下载</a>
+            <a
+              style="margin-left: 16px"
+              @click="deleteDirectById(record)"
+              >删除</a
+            >
+          </span>
+        </a-table>
+        <div class="pages-regin">
+          <a-pagination
+            :total="pagination.total"
+            :defaultCurrent="pagination.current"
+            :pageSize.sync="pagination.pageSize"
+            showSizeChanger
+            showQuickJumper
+            @showSizeChange="onShowSizeChange"
+            @change="onChange"
+            :showTotal="(total) => `共 ${total} 条`"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -320,57 +228,47 @@ import getUserData from '../mixin/getUserData'
 import axios from 'axios'
 import JSZip from 'jszip'
 import FileSaver from 'file-saver'
-import RealtimeRecord from './realtime_record'
-import InternationalRecord from './international_record'
-import DirectRecord from './direct_record'
-// import TestingOption from '../utils/testingoption'
 
 var columns = [
   {
+    title: '产品类型',
+    dataIndex: 'productType',
+    width: '120px',
+    scopedSlots: { customRender: 'productType' }
+  },
+  {
     title: '名称',
     dataIndex: 'name',
-    width: '10%',
+    width: '200px',
     scopedSlots: { customRender: 'name' }
   },
   {
     title: '大小',
     dataIndex: 'size',
-    width: '10%',
+    width: '100px',
     scopedSlots: { customRender: 'size' }
   },
   {
     title: '日期',
     dataIndex: 'createTime',
-    width: '10%'
+    width: '180px'
   },
   {
-    title: '实号包（条）',
-    dataIndex: 'realNumber',
-    width: '10%',
-    scopedSlots: { customRender: 'realNumber' }
+    title: '已激活',
+    dataIndex: 'activeNumber',
+    width: '120px',
+    scopedSlots: { customRender: 'activeNumber' }
   },
   {
-    title: '沉默包（条）',
-    dataIndex: 'silentNumber',
-    width: '10%',
-    scopedSlots: { customRender: 'silentNumber' }
-  },
-  {
-    title: '空号包（条）',
-    dataIndex: 'emptyNumber',
-    width: '10%',
-    scopedSlots: { customRender: 'emptyNumber' }
-  },
-  {
-    title: '风险包（条）',
-    dataIndex: 'riskNumber',
-    width: '10%',
-    scopedSlots: { customRender: 'riskNumber' }
+    title: '未注册',
+    dataIndex: 'unknownNumber',
+    width: '120px',
+    scopedSlots: { customRender: 'unknownNumber' }
   },
   {
     title: '总条数',
     dataIndex: 'totalNumber',
-    width: '10%',
+    width: '100px',
     scopedSlots: { customRender: 'totalNumber' }
   },
   {
@@ -398,8 +296,8 @@ const getFile = (url) => {
 }
 
 export default {
-  name: 'testrecord',
-  components: { RealtimeRecord, InternationalRecord, DirectRecord },
+  name: 'DirectRecord',
+  components: {},
   data () {
     return {
       testResult: {},
@@ -435,48 +333,58 @@ export default {
       endDate: this.moment().format('YYYY-MM-DDT00:00:00.000') + 'Z',
       startDate: this.moment().format('YYYY-MM-DDT00:00:00.000') + 'Z',
       echartsData: null,
-      emptyTestShow: true, // 显示空号检测结果/实时检测结果
-      testPageShow: 0, // 显示空号/实时/国际检测结果页面
-      tabRecordList: [
-        {
-          title: '空号检测'
-        },
-        {
-          title: '实时检测'
-        },
-        {
-          title: '国际号码检测'
-        },
-        {
-          title: '定向检测'
-        }
-      ],
       searchTimeVal: [
         this.moment(this.moment().format('YYYY-MM-DD')),
         this.moment(this.moment().format('YYYY-MM-DD'))
       ],
+      fileName: '', // 查询参数-文件名称
+      isDownloadAll: false,
       computeFileSize,
-      personalInfo: {},
-      isDownloadAll: false
+      productType: '',
+      productTypeList: [ // 产品类型下拉框
+        {
+          value: '',
+          label: '全部'
+        },
+        {
+          value: 'viber',
+          label: 'viber'
+        },
+        {
+          value: 'zalo',
+          label: 'zalo'
+        },
+        {
+          value: 'botim',
+          label: 'botim'
+        },
+        {
+          value: 'line',
+          label: 'line'
+        }
+      ]
     }
   },
-  created () {
-    console.log(this.$route)
-    console.log(this.$route.params)
-    this.testPageShow = this.$route.params.index || 0
+  props: {
+    personalInfo: {
+      type: Object,
+      default: () => {
+        return {}
+      }
+    }
   },
+  created () {},
   async mounted () {
-    this.getTestHistoryReport()
+    this.getDirectPageList()
     this.getPageByMobile()
-    this.getLatestEmpty()
-    this.getPersonalInfo()
-    this.testingChart = echarts.init(document.getElementById('mainMore'))
+    this.getLatestDirect()
   },
   mixins: [getUserData],
   computed: {
     isTestResultShow () {
       // 老数据需要status为9才展示，新数据不需要
       if (this.testResult.isOldData) {
+        console.log(this.testResult)
         if (this.testResult.status === 9) {
           return true
         } else {
@@ -485,29 +393,17 @@ export default {
       } else {
         return true
       }
+    },
+    xScroll: () => {
+      return columns.reduce((pre, curr) => {
+        return pre + curr.width
+      }, 0)
     }
   },
   methods: {
-    async getPersonalInfo () {
-      var params = {}
-      var { data } = await server.getPersonalInfo(params)
-      if (data.code === 200) {
-        this.personalInfo = data.data
-        console.log(this.personalInfo)
-      } else {
-        this.$message.error(data.msg)
-      }
-    },
-    tabRecord (index) {
-      this.testPageShow = index
-      if (this.testPageShow === 0) {
-        this.getTestHistoryReport()
-        this.getPageByMobile()
-        this.getLatestEmpty()
-      }
-    },
+    // 批量下载
     downloadBatch () {
-      if (this.selectedRows !== null) {
+      if (this.selectedRows !== null && this.selectedRows.length !== 0) {
         if (this.selectedRows.length === 1) {
           this.downloadZip(this.selectedRows[0])
         } else {
@@ -518,13 +414,12 @@ export default {
             var userInfo = this.getUserInfo()
             var customerId = userInfo.id
             let url
-            // batch_download为统一跨域代理前缀
             if (item.isOldData) {
-              url = `${this.batchDownload}/${customerId}/${item.id}/${
-                item.name + '.zip'
-              }`
+              url = `${this.batchDownload}/direct/${customerId}/${
+                item.id
+              }/${item.name + '.zip'}`
             } else {
-              url = `${this.batchDownload}/unn/${item.zipPath}`
+              url = `${this.batchDownload}/direct/${item.zipPath}`
             }
             const promise = getFile(encodeURI(url)).then((data) => {
               let fileName = (item.name || item.zipName) + '.zip'
@@ -544,24 +439,31 @@ export default {
             })
           })
         }
+      } else {
+        this.$message.error('请先勾选文件')
       }
     },
     // 下载单个压缩包
     downloadZip (rows) {
       const { isOldData, customerId, id, name, zipPath } = rows
+      console.log(isOldData, customerId, id, name, zipPath)
       let url = ''
       if (isOldData) {
         // console.log('老数据')
-        url = `${this.downloadDomain}/${
-          customerId || this.getUserInfo().id
-        }/${id}/${name + '.zip'}`
+        if (rows.zip_url) {
+          // 检测结果会直接返回这个URL
+          url = `${this.downloadDomain}direct/${rows.zip_url}`
+        } else {
+          url = `${this.downloadDomain}direct/${
+            customerId || this.getUserInfo().id
+          }/${id}/${name + '.zip'}`
+        }
       } else {
         // console.log('新数据')
-        url = `${this.downloadDomain}/unn/${zipPath}`
+        url = `${this.downloadDomain}direct/${zipPath}`
       }
       this.downloadfunc(url)
     },
-    // 下载表格单个文件
     downloadTxt (rows, names = '', newUrl) {
       if (this.personalInfo.unzipPassword) {
         this.$message.warning('已设置解压密码，无法直接下载单个文件')
@@ -570,18 +472,17 @@ export default {
       const { customerId, id, name, isOldData } = rows
       console.log(id, name, isOldData, names)
       // 还需判断新数据/老数据，新数据直接使用返回的URL，老数据继续拼接
-      console.log(this.downloadDomain)
       let url = ''
       if (isOldData) {
         // console.log('老数据')
-        url = `${this.downloadDomain}/${
+        url = `${this.downloadDomain}direct/${
           customerId || this.getUserInfo().id
         }/${id}/${names}`
       } else {
         // console.log('新数据')
-        url = `${this.downloadDomain}/unn/${rows[newUrl]}`
+        url = `${this.downloadDomain}direct/${rows[newUrl]}`
       }
-      // console.log(url)
+      console.log(url)
 
       this.downloadfunc(url)
     },
@@ -599,7 +500,10 @@ export default {
     },
     onMounthChange (date) {
       this.month = date
-      this.getTestHistoryReport()
+      this.getDirectPageList()
+    },
+    onProductChange (value) {
+      this.productType = value
     },
     onDatePickerChange (date, dateString) {
       this.endDate = dateString[1]
@@ -624,7 +528,7 @@ export default {
     handleChange () {
       this.getPageByMobile()
     },
-    deleteEmptyById (record) {
+    deleteDirectById (record) {
       var that = this
       this.$confirm({
         title: '删除',
@@ -632,12 +536,12 @@ export default {
         onOk () {
           return new Promise((resolve, reject) => {
             var params = {
-              id: record.id,
-              isOldData: record.isOldData
+              id: record.id
             }
-            server.deleteEmptyById(params).then(({ data }) => {
+            server.deleteDirectById(params).then(({ data }) => {
               if (data.code === 200) {
                 that.getPageByMobile()
+                that.$message.success('操作成功')
               } else {
                 that.$message.error(data.msg)
               }
@@ -648,9 +552,10 @@ export default {
         onCancel () {}
       })
     },
-    async getLatestEmpty () {
+    async getLatestDirect () {
       var params = {}
-      var { data } = await server.getLatestEmpty(params)
+      var { data } = await server.getLatestDirect(params)
+      // debugger
       if (data.code === 200) {
         this.testResult = data.data || {}
         if (data.data) {
@@ -660,16 +565,15 @@ export default {
         this.$message.error(data.msg)
       }
     },
-    async getTestHistoryReport () {
+    async getDirectPageList () {
       var params = {
         year: this.moment(this.month).format('YYYY'),
         month: parseInt(this.moment(this.month).format('MM'))
       }
-      var { data } = await server.statistics(params)
+      var { data } = await server.directStatistics(params)
       if (data.code === 200) {
         this.echartsData = null
         if (data.data && data.data.length > 0) {
-          // debugger
           var day = new Date(params.year, params.month, 0)
           var len = day.getDate()
           this.echartsData = this.formatData(
@@ -678,10 +582,11 @@ export default {
             params.year,
             params.month
           )
-          // console.log('this.echartsData', this.echartsData)
           this.$nextTick(() => {
             // 基于准备好的dom，初始化echarts实例
-            var myChart = echarts.init(document.getElementById('mainMore'))
+            var myChart = echarts.init(
+              document.getElementById('directMainMore')
+            )
             // 使用刚指定的配置项和数据显示图表。
             myChart.clear()
             myChart.setOption(this.echartsData, true)
@@ -700,10 +605,10 @@ export default {
       }
       var params = {
         createTimeEnd: this.endDate
-          ? this.moment(this.endDate).format('YYYY-MM-DDT23:59:59.000') + 'Z'
+          ? this.moment(this.endDate).format('YYYY-MM-DD')
           : '',
         createTimeFrom: this.startDate
-          ? this.moment(this.startDate).format('YYYY-MM-DDT00:00:00.000') + 'Z'
+          ? this.moment(this.startDate).format('YYYY-MM-DD')
           : '',
         page: this.pagination.current,
         customerId: userInfo.id,
@@ -714,9 +619,11 @@ export default {
             column: ''
           }
         ],
-        size: this.pagination.pageSize
+        size: this.pagination.pageSize,
+        productType: this.productType
       }
-      var { data } = await server.getTestHistoryReport(params)
+      console.log(params)
+      var { data } = await server.getDirectPageList(params)
       if (data.code === 200) {
         this.orderlist = data.data.list
         this.pagination.total = parseInt(data.data.total)
@@ -727,11 +634,10 @@ export default {
     },
     formatData (t, len, y, m) {
       var e = []
-      var n = []
-      var o = []
-      var r = []
-      var l = []
-      var d = []
+      var yjh = []
+      var wzc = []
+      var total = []
+
       var tt = {}
       t.forEach((v) => {
         tt[new Date(v.day).getDate()] = v
@@ -739,19 +645,15 @@ export default {
       for (let h = 1; h <= len; h++) {
         if (!tt[h]) {
           e.push(`${y}-${m}-${h}`)
-          n.push(0)
-          o.push(0)
-          r.push(0)
-          l.push(0)
-          d.push(0)
+          yjh.push(0)
+          wzc.push(0)
+          total.push(0)
           continue
         }
         e.push(tt[h].day)
-        n.push(tt[h].emptyNumber)
-        o.push(tt[h].realNumber)
-        r.push(tt[h].silentNumber)
-        l.push(tt[h].riskNumber)
-        d.push(tt[h].totalNumber)
+        yjh.push(tt[h].activeNumber)
+        wzc.push(tt[h].unknownNumber)
+        total.push(tt[h].totalNumber)
       }
 
       return {
@@ -762,10 +664,10 @@ export default {
         tooltip: {
           trigger: 'axis'
         },
-        color: ['#4992ff', '#f6b37f', '#A2A2A0', '#ff0000', '#67C23A'],
+        color: ['rgb(73, 146, 255)', 'rgb(246, 179, 127)', '#67C23A'],
         legend: {
           top: '10',
-          data: ['实号包', '沉默包', '空号包', '风险包', '总条数']
+          data: ['已激活', '未注册', '总条数']
         },
         toolbox: {
           feature: {
@@ -776,36 +678,25 @@ export default {
               show: !0,
               readOnly: !0,
               optionToContent: (t) => {
-                // console.log(t)
                 var e = t.xAxis[0].data
-                var n = t.series
-                let table =
-                  '<table class="el-table"><thead class="is-group"><tr><th><div class="cell">日期</div></th><th><div class="cell">' +
-                  n[0].name +
-                  '</div></th><th><div class="cell">' +
-                  n[1].name +
-                  '</div></th><th><div class="cell">' +
-                  n[2].name +
-                  '</div></th><th><div class="cell">' +
-                  n[3].name +
-                  '</div></th><th><div class="cell">' +
-                  n[4].name +
-                  '</div></th></tr></thead><tbody>'
-                for (let i = 0, o = e.length; i < o; i++) {
-                  table +=
-                    '<tr class="el-table__row"><td><div class="cell">' +
-                    e[i] +
-                    '</div></td><td><div class="cell">' +
-                    n[0].data[i] +
-                    '</div></td><td><div class="cell">' +
-                    n[1].data[i] +
-                    '</div></td><td><div class="cell">' +
-                    n[2].data[i] +
-                    '</div></td><td><div class="cell">' +
-                    n[3].data[i] +
-                    '</div></td><td><div class="cell">' +
-                    n[4].data[i] +
-                    '</div></td></tr>'
+                var yjh = t.series
+                let table = `<table class="el-table">
+                  <thead class="is-group">
+                    <tr>
+                      <th><div class="cell">日期</div></th>
+                      <th><div class="cell">${yjh[0].name}</div></th>
+                      <th><div class="cell">${yjh[1].name}</div></th>
+                      <th><div class="cell">${yjh[2].name}</div></th>
+                    </tr>
+                  </thead>
+                <tbody>`
+                for (let i = 0, wzc = e.length; i < wzc; i++) {
+                  table += `<tr class="el-table__row">
+                    <td><div class="cell">${e[i]}</div></td>
+                    <td><div class="cell">${yjh[0].data[i]}</div></td>
+                    <td><div class="cell">${yjh[1].data[i]}</div></td>
+                    <td><div class="cell">${yjh[2].data[i]}</div></td>
+                  </tr>`
                 }
                 table = table += '</tbody></table>'
                 return table
@@ -840,29 +731,19 @@ export default {
         },
         series: [
           {
-            name: '实号包',
+            name: '已激活',
             type: 'line',
-            data: o
+            data: yjh
           },
           {
-            name: '沉默包',
+            name: '未注册',
             type: 'line',
-            data: r
-          },
-          {
-            name: '空号包',
-            type: 'line',
-            data: n
-          },
-          {
-            name: '风险包',
-            type: 'line',
-            data: l
+            data: wzc
           },
           {
             name: '总条数',
             type: 'line',
-            data: d
+            data: total
           }
         ]
       }
@@ -871,9 +752,6 @@ export default {
 }
 </script>
 <style lang="less">
-.empty-test-record {
-  padding-bottom: 35px;
-}
 .testrecord {
   background: #f1f1f1;
   .mini-width {
@@ -891,29 +769,6 @@ export default {
     li {
       height: 530px;
       background: url('../assets/index/bg4.jpg') no-repeat center;
-    }
-  }
-
-  .test-record-wrap {
-    .tab-record {
-      display: flex;
-      background: #f1f1f1;
-      margin-bottom: 0;
-      li {
-        height: 50px;
-        line-height: 50px;
-        padding: 0 20px;
-        cursor: pointer;
-        font-weight: 700;
-        background: #fff;
-        border-radius: 15px 15px 0 0;
-        width: 135px;
-        text-align: center;
-        &.active {
-          background-color: #233379;
-          color: white;
-        }
-      }
     }
   }
 
@@ -990,7 +845,7 @@ export default {
 
   .order-regin {
     padding: 20px 30px;
-    margin-bottom: 0px;
+    margin-bottom: 35px;
     background-color: #fff;
 
     h2 {
@@ -1000,8 +855,12 @@ export default {
     }
   }
 
-  .ant-calendar-picker-input {
+  .ant-calendar-picker-input, .ant-select-selection--single {
     height: 40px;
+  }
+
+  .ant-select-selection__rendered {
+    line-height: 38px;
   }
 
   .pages-regin {
@@ -1016,7 +875,11 @@ export default {
   }
 
   .history-handle {
-    margin-bottom: 20px;
+    .search-wrap {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
     .el-button {
       margin-left: 16px;
     }
@@ -1038,7 +901,7 @@ export default {
     height: 40px;
   }
 
-  .result-regin {
+  .direct-result-regin {
     padding: 20px 30px 0;
     background-color: #fff;
 
@@ -1062,7 +925,7 @@ export default {
     }
 
     ul li {
-      width: 25%;
+      width: 50%;
       font-size: 14px;
       text-align: center;
       vertical-align: top;
@@ -1158,7 +1021,7 @@ export default {
   max-width: 200px;
 }
 
-#mainMore {
+#directMainMore {
   width: 1140px;
   height: 450px;
 

@@ -559,6 +559,31 @@ export var serverConfig = {
     method: 'get',
     baseURL: mockURL
   },
+  // 定向检测
+  // 表格
+  getDirectPageList: {
+    url: '/front/intDirect/getIntDirectPageList',
+    method: 'post',
+    baseURL: mockURL
+  },
+  // 统计
+  directStatistics: {
+    url: '/front/intDirect/statistics/{year}/{month}',
+    method: 'get',
+    baseURL: mockURL
+  },
+  // 获取最新的一条检测记录
+  getLatestDirect: {
+    url: '/front/intDirect/getLatestIntDirect',
+    method: 'GET',
+    baseURL: mockURL
+  },
+  // 删除
+  deleteDirectById: {
+    url: '/front/intDirect/delete/{id}',
+    method: 'post',
+    baseURL: mockURL
+  },
   // 忘记密码-修改密码
   forgetZipPassword: {
     url: '/front/personal/updateUnzipPassword',
