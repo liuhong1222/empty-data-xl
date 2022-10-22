@@ -239,7 +239,7 @@ var balanceColumns = [
     width: '130px'
   },
   {
-    title: '当前余额(元)',
+    title: '当前余额(条)',
     dataIndex: 'balance',
     width: '150px',
     scopedSlots: { customRender: 'balance' }
