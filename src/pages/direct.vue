@@ -5,7 +5,7 @@
         <div class="center-box">
           <img
             height="100"
-            src="../assets/index/empty_gjjc.png"
+            src="../assets/index/empty_dxjc.png"
             alt="国际号码-高效检测"
           />
           <div class="select-input-wrap product-type">

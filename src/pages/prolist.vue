@@ -79,7 +79,7 @@ export default {
               key: 'direct_test',
               name: '定向检测',
               path: '/direct',
-              img: require('../assets/index/international_test.png'),
+              img: require('../assets/index/direct_test.png'),
               description:
                 '根据客户提供的手机号，分类筛选出其中的已激活和未注册'
             }
@@ -151,7 +151,7 @@ export default {
               key: 'direct_test',
               name: '定向检测',
               path: '/direct',
-              img: require('../assets/index/international_test.png'),
+              img: require('../assets/index/direct_test.png'),
               description:
                 '根据客户提供的手机号，分类筛选出其中的已激活和未注册'
             }
@@ -227,6 +227,7 @@ export default {
     float: left;
     margin-right: 30px;
     vertical-align: top;
+    width: 100px;
   }
 
   .list-box li h3 {
