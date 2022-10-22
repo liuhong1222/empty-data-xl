@@ -36,7 +36,7 @@
             <span>
               <a-popover overlayClassName="testrecordpop">
                 <template slot="content"> 未激活 </template>
-                <strong style="border-color: rgb(73, 146, 255)">未激活</strong>
+                <strong style="border-color: rgb(255, 190, 0)">未激活</strong>
                 <h3>{{ testResult.noRegisterNumber || 0 }}</h3>
               </a-popover>
             </span>
@@ -663,10 +663,10 @@ export default {
         tooltip: {
           trigger: 'axis'
         },
-        color: ['rgb(73, 146, 255)', 'rgb(246, 179, 127)', '#67C23A'],
+        color: ['rgb(73, 146, 255)', 'rgb(255, 190, 0)', 'rgb(246, 179, 127)', '#67C23A'],
         legend: {
           top: '10',
-          data: ['已激活', '未注册', '总条数']
+          data: ['已激活', '未激活', '未注册', '总条数']
         },
         toolbox: {
           feature: {
