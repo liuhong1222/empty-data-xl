@@ -1,7 +1,7 @@
 <template>
   <section>
     <div class="fixed-view" ref="fixedView">
-      <section class="body-regin">
+      <section class="body-regin direct-regin">
         <div class="center-box">
           <img
             height="100"
@@ -590,6 +590,10 @@ export default {
   padding-top: 60px;
   position: relative;
   z-index: 1250;
+}
+
+.direct-regin {
+  top: 13%;
 }
 
 .center-box {
