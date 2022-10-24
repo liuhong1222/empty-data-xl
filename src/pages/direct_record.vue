@@ -196,13 +196,13 @@
             {{ Number(record.totalNumber) }}
           </span>
 
-          <span slot="checkStatus" slot-scope="text">
-            <span :style="{'color': text === 0  ? '#FFAC2E' : '#34C38B'}">{{text === 0 ? '正在检测中' : '检测完成'}}</span>
+          <span slot="checkStatus" slot-scope="text, record">
+            <span :style="{'color': text === 0  ? '#FFAC2E' : '#34C38B'}">{{text === 0 ? '正在检测中' : '检测完成'}} {{record.checkProcess}}{{record.checkProcess ? '%' : ''}}</span>
           </span>
 
-          <span slot="checkProcess" slot-scope="text, record">
+          <!-- <span slot="checkProcess" slot-scope="text, record">
             <span :style="{'color': record.checkStatus === 0  ? '#FFAC2E' : 'rgba(0, 0, 0, 0.65)'}">{{text}}{{text ? '%' : ''}}</span>
-          </span>
+          </span> -->
 
           <span slot="action" slot-scope="text, record" v-if="record.checkStatus === 1">
             <a @click="downloadZip(record)">下载</a>
@@ -251,16 +251,16 @@ var columns = [
     width: '200px',
     scopedSlots: { customRender: 'name' }
   },
-  {
-    title: '大小',
-    dataIndex: 'size',
-    width: '100px',
-    scopedSlots: { customRender: 'size' }
-  },
+  // {
+  //   title: '大小',
+  //   dataIndex: 'size',
+  //   width: '100px',
+  //   scopedSlots: { customRender: 'size' }
+  // },
   {
     title: '日期',
     dataIndex: 'createTime',
-    width: '170px'
+    width: '160px'
   },
   {
     title: '已激活',
@@ -287,13 +287,13 @@ var columns = [
     scopedSlots: { customRender: 'checkStatus' },
     fixed: 'right'
   },
-  {
-    title: '检测进度',
-    dataIndex: 'checkProcess',
-    width: '90px',
-    scopedSlots: { customRender: 'checkProcess' },
-    fixed: 'right'
-  },
+  // {
+  //   title: '检测进度',
+  //   dataIndex: 'checkProcess',
+  //   width: '90px',
+  //   scopedSlots: { customRender: 'checkProcess' },
+  //   fixed: 'right'
+  // },
   {
     title: '操作',
     dataIndex: 'action',
