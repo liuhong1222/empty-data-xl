@@ -45,7 +45,12 @@
             <div class="file-input">
               {{
                 this.fileObj['name'] ||
-                ('请上传文件进行检测（当前可用余额：' + directBalance || 0 +  '条）') | formatName
+                ('请上传文件进行检测（当前可用余额：' +
+                  (directBalance
+                    ? directBalance
+                    : 0) +
+                  '条）')
+                  | formatName
               }}
             </div>
             <div
