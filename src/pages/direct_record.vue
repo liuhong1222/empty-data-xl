@@ -284,19 +284,22 @@ var columns = [
     title: '检测状态',
     dataIndex: 'checkStatus',
     width: '110px',
-    scopedSlots: { customRender: 'checkStatus' }
+    scopedSlots: { customRender: 'checkStatus' },
+    fixed: 'right'
   },
   {
     title: '检测进度',
     dataIndex: 'checkProcess',
-    width: '100px',
-    scopedSlots: { customRender: 'checkProcess' }
+    width: '90px',
+    scopedSlots: { customRender: 'checkProcess' },
+    fixed: 'right'
   },
   {
     title: '操作',
     dataIndex: 'action',
-    width: '220px',
-    scopedSlots: { customRender: 'action' }
+    width: '190px',
+    scopedSlots: { customRender: 'action' },
+    fixed: 'right'
   }
 ]
 

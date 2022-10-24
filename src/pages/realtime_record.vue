@@ -559,7 +559,8 @@ var columns = [
     title: '操作',
     dataIndex: 'action',
     width: '220px',
-    scopedSlots: { customRender: 'action' }
+    scopedSlots: { customRender: 'action' },
+    fixed: 'right'
   }
 ]
 

@@ -261,30 +261,30 @@ var columns = [
   {
     title: '大小',
     dataIndex: 'size',
-    width: '100px',
+    width: '90px',
     scopedSlots: { customRender: 'size' }
   },
   {
     title: '日期',
     dataIndex: 'createTime',
-    width: '180px'
+    width: '170px'
   },
   {
     title: '已激活',
     dataIndex: 'activeNumber',
-    width: '120px',
+    width: '100px',
     scopedSlots: { customRender: 'activeNumber' }
   },
   {
     title: '未激活',
     dataIndex: 'noRegisterNumber',
-    width: '120px',
+    width: '100px',
     scopedSlots: { customRender: 'noRegisterNumber' }
   },
   {
     title: '未注册',
     dataIndex: 'unknownNumber',
-    width: '120px',
+    width: '100px',
     scopedSlots: { customRender: 'unknownNumber' }
   },
   {
@@ -296,8 +296,9 @@ var columns = [
   {
     title: '操作',
     dataIndex: 'action',
-    width: '220px',
-    scopedSlots: { customRender: 'action' }
+    width: '200px',
+    scopedSlots: { customRender: 'action' },
+    fixed: 'right'
   }
 ]
 
