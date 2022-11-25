@@ -217,6 +217,62 @@ export var serverConfig = {
     method: 'GET',
     baseURL: mockURL
   },
+  getTestConsumeReport: {
+    url: '/front/dailyInfo/list/empty',
+    method: 'post',
+    baseURL: mockURL,
+    headers: {
+      fetchtype: 'file',
+      'Content-Type': 'multipart/form-data'
+    },
+    transformRequest: [
+      function (params) {
+        return params
+      }
+    ]
+  },
+  getRealTimeConsumeReport: {
+    url: '/front/dailyInfo/list/realtime',
+    method: 'post',
+    baseURL: mockURL,
+    headers: {
+      fetchtype: 'file',
+      'Content-Type': 'multipart/form-data'
+    },
+    transformRequest: [
+      function (params) {
+        return params
+      }
+    ]
+  },
+  getInternationalConsumeReport: {
+    url: '/front/dailyInfo/list/international',
+    method: 'post',
+    baseURL: mockURL,
+    headers: {
+      fetchtype: 'file',
+      'Content-Type': 'multipart/form-data'
+    },
+    transformRequest: [
+      function (params) {
+        return params
+      }
+    ]
+  },
+  getDirectConsumeReport: {
+    url: '/front/dailyInfo/list/direct',
+    method: 'post',
+    baseURL: mockURL,
+    headers: {
+      fetchtype: 'file',
+      'Content-Type': 'multipart/form-data'
+    },
+    transformRequest: [
+      function (params) {
+        return params
+      }
+    ]
+  },
   getGoodsList: {
     url: '/front/personal/goodsList',
     method: 'post',

@@ -70,7 +70,7 @@
         >
       </div>
 
-      <div class="default-width echart-regin">
+      <!-- <div class="default-width echart-regin">
         <h2>历史检测/月</h2>
         <div class="echart-handle">
           <span>选择月份：</span>
@@ -85,7 +85,7 @@
             class="el-button el-button--primary"
             v-if="false"
           >
-            <!----><i class="el-icon-download"></i><span>下载报表</span>
+            <i class="el-icon-download"></i><span>下载报表</span>
           </button>
         </div>
         <div class="echart-title">
@@ -95,7 +95,8 @@
           <div id="directMainMore"></div>
         </div>
         <div class="month-nodata" v-else>此月无检测数据!</div>
-      </div>
+      </div> -->
+
       <div class="default-width order-regin" id="fromDirectTest">
         <h2>历史检测记录</h2>
         <div class="history-handle history-record-search">
@@ -200,10 +201,6 @@
             <span :style="{'color': text === 0  ? '#FFAC2E' : '#34C38B'}">{{text === 0 ? '正在检测中' : '检测完成'}} {{record.checkProcess}}{{record.checkProcess ? '%' : ''}}</span>
           </span>
 
-          <!-- <span slot="checkProcess" slot-scope="text, record">
-            <span :style="{'color': record.checkStatus === 0  ? '#FFAC2E' : 'rgba(0, 0, 0, 0.65)'}">{{text}}{{text ? '%' : ''}}</span>
-          </span> -->
-
           <span slot="action" slot-scope="text, record" v-if="record.checkStatus === 1">
             <a @click="downloadZip(record)">下载</a>
             <a
@@ -226,12 +223,82 @@
           />
         </div>
       </div>
+
+      <!-- 接口消耗统计 -->
+      <div class="default-width order-regin">
+        <h2>统计列表</h2>
+        <div class="history-handle">
+          <span class="demonstration">日期：</span>
+          <a-range-picker
+            :default-value="consumeTimeVal"
+            :allowClear="false"
+            @change="onConsumeDateChange"
+            style="width: 260px"
+          />
+          <label class="labelTxt">数据类型：</label>
+          <a-select
+            v-model="staticTypeVal"
+            style="width: 160px"
+          >
+            <a-select-option
+              :key="item.id"
+              v-for="item in staticTypeOptions.options"
+              :value="item.id"
+            >
+              {{ item.name }}
+            </a-select-option>
+          </a-select>
+          <label class="labelTxt">产品类型：</label>
+          <a-select
+            v-model="productTypeVal"
+            style="width: 160px"
+          >
+            <a-select-option
+              :key="item.id"
+              v-for="item in productTypeOptions.options"
+              :value="item.id"
+            >
+              {{ item.name }}
+            </a-select-option>
+          </a-select>
+          <button
+            type="button"
+            class="el-button el-button--primary"
+            @click="handleChangeConsume"
+          >
+            <span>查询</span>
+          </button>
+        </div>
+        <a-table
+          :columns="consumeColumns"
+          :rowKey="(record) => record.id"
+          :dataSource="consumeList"
+          :loading="consumeLoading"
+          :pagination="false"
+        >
+          <template slot="dayInt" slot-scope="text">
+            <span>{{ text ? moment(text).format('YYYY-MM-DD') : '' }}</span>
+          </template>
+        </a-table>
+        <div class="pages-regin">
+          <a-pagination
+            :total="consumePagination.total"
+            :defaultCurrent="consumePagination.current"
+            :pageSize.sync="consumePagination.pageSize"
+            showSizeChanger
+            showQuickJumper
+            @showSizeChange="onConsumeSizeChange"
+            @change="onConsumeChange"
+            :showTotal="(total) => `共 ${total} 条`"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </template>
 <script>
 import { computeFileSize } from '../utils'
-import echarts from 'echarts'
+// import echarts from 'echarts'
 import server from '../server/index'
 import getUserData from '../mixin/getUserData'
 import axios from 'axios'
@@ -251,12 +318,6 @@ var columns = [
     width: '200px',
     scopedSlots: { customRender: 'name' }
   },
-  // {
-  //   title: '大小',
-  //   dataIndex: 'size',
-  //   width: '100px',
-  //   scopedSlots: { customRender: 'size' }
-  // },
   {
     title: '日期',
     dataIndex: 'createTime',
@@ -300,6 +361,44 @@ var columns = [
     width: '190px',
     scopedSlots: { customRender: 'action' },
     fixed: 'right'
+  }
+]
+
+var consumeColumns = [
+  {
+    title: '日期',
+    dataIndex: 'dayInt',
+    width: '160px',
+    scopedSlots: { customRender: 'dayInt' }
+  },
+  {
+    title: '数据类型',
+    dataIndex: 'staticType',
+    width: '120px',
+    customRender: (text) => text === 1 ? '在线检测' : 'API接口'
+  },
+  {
+    title: '产品类型',
+    dataIndex: 'productType',
+    width: '100px'
+  },
+  {
+    title: '已激活',
+    dataIndex: 'activeNumber',
+    width: '100px',
+    customRender: (text) => text || 0
+  },
+  {
+    title: '未注册',
+    dataIndex: 'noRegisterNumber',
+    width: '100px',
+    customRender: (text) => text || 0
+  },
+  {
+    title: '总条数',
+    dataIndex: 'totalNumber',
+    width: '100px',
+    customRender: (text) => text || 0
   }
 ]
 
@@ -391,7 +490,65 @@ export default {
           value: 'line',
           label: 'line'
         }
-      ]
+      ],
+      consumeTimeVal: [
+        this.moment().startOf('month').format('YYYY-MM-DD'),
+        this.moment(this.moment().format('YYYY-MM-DD'))
+      ],
+      consumeEndDate: this.moment(this.moment().format('YYYY-MM-DD')),
+      consumeStartDate: this.moment().startOf('month').format('YYYY-MM-DD'),
+      consumeColumns,
+      consumePagination: {
+        total: 0,
+        current: 1,
+        pageSize: 10
+      },
+      consumeList: [],
+      consumeLoading: false,
+      staticTypeVal: '',
+      staticTypeOptions: {
+        // select搜索框
+        options: [
+          {
+            id: '',
+            name: '全部'
+          },
+          {
+            id: '1',
+            name: '在线检测'
+          },
+          {
+            id: '2',
+            name: 'API接口'
+          }
+        ]
+      },
+      productTypeVal: '',
+      productTypeOptions: {
+        // select搜索框
+        options: [
+          {
+            id: '',
+            name: '全部'
+          },
+          {
+            id: 'viber',
+            name: 'viber'
+          },
+          {
+            id: 'zalo',
+            name: 'zalo'
+          },
+          {
+            id: 'botim',
+            name: 'botim'
+          },
+          {
+            id: 'line',
+            name: 'line'
+          }
+        ]
+      }
     }
   },
   props: {
@@ -413,6 +570,7 @@ export default {
     this.getDirectPageList()
     this.getPageByMobile()
     this.getLatestDirect()
+    this.getConsumePage()
     if (this.directPosition && this.directPosition === 'table') {
       // 定向检测-立即检测接口成功-锚点跳转到表格模块
       const anchorEle = document.querySelector('#fromDirectTest')
@@ -608,35 +766,35 @@ export default {
       }
     },
     async getDirectPageList () {
-      var params = {
-        year: this.moment(this.month).format('YYYY'),
-        month: parseInt(this.moment(this.month).format('MM'))
-      }
-      var { data } = await server.directStatistics(params)
-      if (data.code === 200) {
-        this.echartsData = null
-        if (data.data && data.data.length > 0) {
-          var day = new Date(params.year, params.month, 0)
-          var len = day.getDate()
-          this.echartsData = this.formatData(
-            data.data,
-            len,
-            params.year,
-            params.month
-          )
-          this.$nextTick(() => {
-            // 基于准备好的dom，初始化echarts实例
-            var myChart = echarts.init(
-              document.getElementById('directMainMore')
-            )
-            // 使用刚指定的配置项和数据显示图表。
-            myChart.clear()
-            myChart.setOption(this.echartsData, true)
-          })
-        }
-      } else {
-        this.$message.error(data.resultMsg)
-      }
+      // var params = {
+      //   year: this.moment(this.month).format('YYYY'),
+      //   month: parseInt(this.moment(this.month).format('MM'))
+      // }
+      // var { data } = await server.directStatistics(params)
+      // if (data.code === 200) {
+      //   this.echartsData = null
+      //   if (data.data && data.data.length > 0) {
+      //     var day = new Date(params.year, params.month, 0)
+      //     var len = day.getDate()
+      //     this.echartsData = this.formatData(
+      //       data.data,
+      //       len,
+      //       params.year,
+      //       params.month
+      //     )
+      //     this.$nextTick(() => {
+      //       // 基于准备好的dom，初始化echarts实例
+      //       var myChart = echarts.init(
+      //         document.getElementById('directMainMore')
+      //       )
+      //       // 使用刚指定的配置项和数据显示图表。
+      //       myChart.clear()
+      //       myChart.setOption(this.echartsData, true)
+      //     })
+      //   }
+      // } else {
+      //   this.$message.error(data.resultMsg)
+      // }
     },
     async getPageByMobile () {
       var userInfo = this.getUserInfo()
@@ -789,6 +947,47 @@ export default {
           }
         ]
       }
+    },
+    onConsumeDateChange (date, dateString) {
+      this.consumeEndDate = dateString[1]
+      this.consumeStartDate = dateString[0]
+    },
+    onConsumeSizeChange (current, pageSize) {
+      this.consumePagination.current = current
+      this.consumePagination.pageSize = pageSize
+      this.getConsumePage()
+    },
+    onConsumeChange (pageNumber) {
+      this.consumePagination.current = pageNumber
+      this.getConsumePage()
+    },
+    async getConsumePage () {
+      if (this.consumeStartDate > this.consumeEndDate) {
+        var t = this.consumeStartDate
+        this.consumeStartDate = this.consumeEndDate
+        this.consumeEndDate = t
+      }
+      const params = new FormData()
+      // 此接口使用form-data传参，body里面要传domain
+      params.append('domain', window.location.hostname)
+      params.append('startDay', this.consumeStartDate ? this.moment(this.consumeStartDate).format('YYYYMMDD') : '')
+      params.append('endDay', this.consumeEndDate ? this.moment(this.consumeEndDate).format('YYYYMMDD') : '')
+      params.append('staticType', this.staticTypeVal)
+      params.append('productType', this.productTypeVal)
+      params.append('page', this.consumePagination.current)
+      params.append('size', this.consumePagination.pageSize)
+      var { data } = await server.getDirectConsumeReport(params)
+      if (data.code === 200) {
+        this.consumeList = data.data.list
+        this.consumePagination.total = parseInt(data.data.total)
+        this.consumePagination.current = 1
+      } else {
+        this.$message.error(data.resultMsg)
+      }
+    },
+    handleChangeConsume () {
+      this.consumePagination.current = 1
+      this.getConsumePage()
     }
   }
 }
