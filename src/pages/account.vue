@@ -227,7 +227,7 @@ var columns = [
   {
     title: '支付方式',
     dataIndex: 'payType',
-    width: '150px',
+    width: '165px',
     scopedSlots: { customRender: 'payType' }
   }
 ]
@@ -267,11 +267,12 @@ export default {
         1: '支付宝扫码付',
         2: '注册赠送',
         3: '赠送',
-        4: '对公支付宝转账',
+        4: '对公支付宝',
         5: '对私支付宝',
         6: '对私微信',
         7: '对私转账',
-        8: '微信扫码付'
+        8: '微信扫码付',
+        11: '对公转账-综合收款码'
       },
       columns,
       loading: false,
