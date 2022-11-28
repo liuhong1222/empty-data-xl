@@ -225,7 +225,7 @@
       </div>
 
       <!-- 接口消耗统计 -->
-      <div class="default-width order-regin">
+      <div class="default-width order-regin consume-wrap">
         <h2>统计列表</h2>
         <div class="history-handle">
           <span class="demonstration">日期：</span>
@@ -383,21 +383,21 @@ var consumeColumns = [
     width: '100px'
   },
   {
+    title: '总条数',
+    dataIndex: 'directTotal',
+    width: '120px',
+    customRender: (text) => text || 0
+  },
+  {
     title: '已激活',
     dataIndex: 'activeNumber',
-    width: '100px',
+    width: '120px',
     customRender: (text) => text || 0
   },
   {
     title: '未注册',
     dataIndex: 'noRegisterNumber',
-    width: '100px',
-    customRender: (text) => text || 0
-  },
-  {
-    title: '总条数',
-    dataIndex: 'totalNumber',
-    width: '100px',
+    width: '120px',
     customRender: (text) => text || 0
   }
 ]
@@ -1094,6 +1094,10 @@ export default {
       font-weight: 400;
       padding-bottom: 15px;
     }
+  }
+
+  .consume-wrap {
+    margin-top: 20px;
   }
 
   .ant-calendar-picker-input, .ant-select-selection--single {

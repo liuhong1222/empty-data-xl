@@ -298,7 +298,7 @@
         </div>
 
         <!-- 接口消耗统计 -->
-        <div class="default-width order-regin">
+        <div class="default-width order-regin consume-wrap">
           <h2>统计列表</h2>
           <div class="history-handle">
             <span class="demonstration">日期：</span>
@@ -400,25 +400,25 @@ var columns = [
     width: '10%'
   },
   {
-    title: '实号包（条）',
+    title: '实号包',
     dataIndex: 'realNumber',
     width: '10%',
     scopedSlots: { customRender: 'realNumber' }
   },
   {
-    title: '沉默包（条）',
+    title: '沉默包',
     dataIndex: 'silentNumber',
     width: '10%',
     scopedSlots: { customRender: 'silentNumber' }
   },
   {
-    title: '空号包（条）',
+    title: '空号包',
     dataIndex: 'emptyNumber',
     width: '10%',
     scopedSlots: { customRender: 'emptyNumber' }
   },
   {
-    title: '风险包（条）',
+    title: '风险包',
     dataIndex: 'riskNumber',
     width: '10%',
     scopedSlots: { customRender: 'riskNumber' }
@@ -452,33 +452,33 @@ var consumeColumns = [
     customRender: (text) => text === 1 ? '在线检测' : 'API接口'
   },
   {
-    title: '实号包（条）',
-    dataIndex: 'realNumber',
-    width: '18%',
-    customRender: (text) => text || 0
-  },
-  {
-    title: '沉默包（条）',
-    dataIndex: 'silentNumber',
-    width: '18%',
-    customRender: (text) => text || 0
-  },
-  {
-    title: '空号包（条）',
-    dataIndex: 'emptyNumber',
-    width: '18%',
-    customRender: (text) => text || 0
-  },
-  {
-    title: '风险包（条）',
-    dataIndex: 'riskNumber',
-    width: '18%',
-    customRender: (text) => text || 0
-  },
-  {
     title: '总条数',
     dataIndex: 'emptyTotal',
     width: '150px',
+    customRender: (text) => text || 0
+  },
+  {
+    title: '实号包',
+    dataIndex: 'realNumber',
+    width: '15%',
+    customRender: (text) => text || 0
+  },
+  {
+    title: '沉默包',
+    dataIndex: 'silentNumber',
+    width: '15%',
+    customRender: (text) => text || 0
+  },
+  {
+    title: '空号包',
+    dataIndex: 'emptyNumber',
+    width: '15%',
+    customRender: (text) => text || 0
+  },
+  {
+    title: '风险包',
+    dataIndex: 'riskNumber',
+    width: '15%',
     customRender: (text) => text || 0
   }
 ]
@@ -1180,6 +1180,10 @@ export default {
       font-weight: 400;
       padding-bottom: 15px;
     }
+  }
+
+  .consume-wrap {
+    margin-top: 20px;
   }
 
   .ant-calendar-picker-input {

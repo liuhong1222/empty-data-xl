@@ -242,7 +242,7 @@
       </div>
 
       <!-- 接口消耗统计 -->
-      <div class="default-width order-regin">
+      <div class="default-width order-regin consume-wrap">
         <h2>统计列表</h2>
         <div class="history-handle">
           <span class="demonstration">日期：</span>
@@ -373,6 +373,12 @@ var consumeColumns = [
     customRender: (text) => text === 1 ? '在线检测' : 'API接口'
   },
   {
+    title: '总条数',
+    dataIndex: 'internationalTotal',
+    width: '100px',
+    customRender: (text) => text || 0
+  },
+  {
     title: '已激活',
     dataIndex: 'activeNumber',
     width: '100px',
@@ -387,12 +393,6 @@ var consumeColumns = [
   {
     title: '未注册',
     dataIndex: 'noRegisterNumber',
-    width: '100px',
-    customRender: (text) => text || 0
-  },
-  {
-    title: '总条数',
-    dataIndex: 'internationalTotal',
     width: '100px',
     customRender: (text) => text || 0
   }
@@ -1027,6 +1027,10 @@ export default {
       font-weight: 400;
       padding-bottom: 15px;
     }
+  }
+
+  .consume-wrap {
+    margin-top: 20px;
   }
 
   .ant-calendar-picker-input {
