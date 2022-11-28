@@ -66,14 +66,14 @@
             @click="getMobileCubePath"
             >号码魔方</a
           > -->
-          <a-dropdown :trigger="['click']" placement="bottomRight">
+          <a-dropdown :trigger="['hover']" placement="bottomRight">
             <a class="ant-dropdown-link" href="#">
               号码魔方
               <a-icon type="down" />
             </a>
             <a-menu slot="overlay">
-              <a-menu-item @click="getMobileCubePath(1)"> 国内 </a-menu-item>
-              <a-menu-item @click="getMobileCubePath(2)"> 国际 </a-menu-item>
+              <a-menu-item @click="getMobileCubePath('national')"> 国内 </a-menu-item>
+              <a-menu-item @click="getMobileCubePath('international')"> 国际 </a-menu-item>
             </a-menu>
           </a-dropdown>
         </li>
@@ -174,11 +174,13 @@ export default {
       }
     },
     // 号码魔方下载
-    async getMobileCubePath (cubeType) {
+    async getMobileCubePath (type) {
       if (!this.getSessionToken()) {
         this.$root.$emit('showlogin', true)
       } else {
-        var { data } = await server.getMobileCubePath({cubeType: cubeType})
+        const params = new FormData()
+        params.append('fileType', type)
+        var { data } = await server.getMobileCubePath(params)
         if (data) {
           window.location.href = this.downloadDomain + data.replace(/"/g, '')
         } else {

@@ -676,9 +676,18 @@ export var serverConfig = {
   },
   // 号码魔方
   getMobileCubePath: {
-    url: '/front/getMobileCubePath ',
+    url: '/front/getMobileCubePath',
     method: 'post',
-    baseURL: mockURL
+    baseURL: mockURL,
+    headers: {
+      fetchtype: 'file',
+      'Content-Type': 'multipart/form-data'
+    },
+    transformRequest: [
+      function (params) {
+        return params
+      }
+    ]
   }
 }
 
