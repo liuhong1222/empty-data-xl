@@ -426,15 +426,14 @@ var columns = [
   {
     title: '总条数',
     dataIndex: 'totalNumber',
-    width: '130px',
+    width: '150px',
     scopedSlots: { customRender: 'totalNumber' }
   },
   {
     title: '操作',
     dataIndex: 'action',
-    width: '210px',
-    scopedSlots: { customRender: 'action' },
-    fixed: 'right'
+    width: '185px',
+    scopedSlots: { customRender: 'action' }
   }
 ]
 
