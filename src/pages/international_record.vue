@@ -161,7 +161,7 @@
         </div>
         <a-table
           :columns="columns"
-          :rowKey="(record) => record.id"
+          :rowKey="(record, index) => index"
           :dataSource="orderlist"
           :loading="loading"
           :pagination="false"
@@ -187,7 +187,7 @@
                     : 'auto'
               }"
               @click="downloadTxt(record, '已激活.txt', 'activeFilePath')"
-              >{{ record.activeNumber || 0 }}</a
+              >{{ record.checkStatus === 0 ? '-' : (record.activeNumber || 0) }}</a
             >
           </span>
           <span slot="noRegisterNumber" slot-scope="text, record">
@@ -199,7 +199,7 @@
                     : 'auto'
               }"
               @click="downloadTxt(record, '未激活.txt', 'noRegisterFilePath')"
-              >{{ record.noRegisterNumber || 0 }}</a
+              >{{ record.checkStatus === 0 ? '-' : (record.noRegisterNumber || 0) }}</a
             >
           </span>
           <span slot="unknownNumber" slot-scope="text, record">
@@ -211,14 +211,19 @@
                     : 'auto'
               }"
               @click="downloadTxt(record, '未注册.txt', 'unknownFilePath')"
-              >{{ record.unknownNumber || 0 }}</a
+              >{{ record.checkStatus === 0 ? '-' : (record.unknownNumber || 0) }}</a
             >
           </span>
 
           <span slot="totalNumber" slot-scope="text, record">
             {{ Number(record.totalNumber) }}
           </span>
-          <span slot="action" slot-scope="text, record">
+
+          <span slot="checkStatus" slot-scope="text, record">
+            <span :style="{'color': text === 0  ? '#FFAC2E' : '#34C38B'}">{{text === 0 ? '正在检测中' : '检测完成'}} {{record.checkProcess}}{{record.checkProcess ? '%' : ''}}</span>
+          </span>
+
+          <span slot="action" slot-scope="text, record" v-if="record.checkStatus === 1">
             <a @click="downloadZip(record)">下载</a>
             <a
               style="margin-left: 16px"
@@ -351,6 +356,13 @@ var columns = [
     scopedSlots: { customRender: 'totalNumber' }
   },
   {
+    title: '检测状态',
+    dataIndex: 'checkStatus',
+    width: '110px',
+    scopedSlots: { customRender: 'checkStatus' },
+    fixed: 'right'
+  },
+  {
     title: '操作',
     dataIndex: 'action',
     width: '200px',
@@ -447,7 +459,12 @@ export default {
         onSelectAll: (selected, selectedRows, changeRows) => {
           console.log(selected, selectedRows, changeRows)
           this.selectedRows = selectedRows
-        }
+        },
+        getCheckboxProps: record => ({
+          props: { // 正在检测中，不允许勾选
+            disabled: record.checkStatus === 0
+          }
+        })
       },
       endDate: this.moment().format('YYYY-MM-DDT00:00:00.000') + 'Z',
       startDate: this.moment().format('YYYY-MM-DDT00:00:00.000') + 'Z',

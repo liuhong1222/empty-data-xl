@@ -299,41 +299,16 @@ export default {
     this.getCountryCode()
     this.getPersonalInfo()
     this.getCertifiedInfo()
-    try {
-      const internationalTestingID = sessionStorage.getItem(
-        'internationalTestingID'
-      )
-      const internationalTestingsendID = sessionStorage.getItem(
-        'internationalTestingsendID'
-      )
-      const countryCodeValue = sessionStorage.getItem('countryCodeValue')
-      const internationalTestingRows = sessionStorage.getItem(
-        'internationalTestingRows'
-      )
-      if (internationalTestingID) {
-        this.fileInfObj = {
-          id: internationalTestingID,
-          sendID: internationalTestingsendID,
-          minshow: true
-        }
-        this.countryCodeValue = countryCodeValue
-        this.countryCodeDisabled = true
-        this.getTestProcessMobile('fromMounted')
-      }
-      if (internationalTestingRows) {
-        this.fileRows = internationalTestingRows
-      }
-    } catch (err) {
-      this.fileInfObj = {
-        id: null,
-        sendID: null,
-        minshow: false
-      }
-      this.countryCodeDisabled = false
-      sessionStorage.removeItem('internationalTestingID')
-      sessionStorage.removeItem('internationalTestingsendID')
-      sessionStorage.removeItem('countryCodeValue')
+
+    this.fileInfObj = {
+      id: null,
+      sendID: null,
+      minshow: false
     }
+    this.countryCodeDisabled = false
+    sessionStorage.removeItem('internationalTestingID')
+    sessionStorage.removeItem('internationalTestingsendID')
+    sessionStorage.removeItem('countryCodeValue')
   },
   methods: {
     // 是否展示文件上传可选按钮
@@ -461,18 +436,14 @@ export default {
           if (res.data.code === 200) {
             // 请求成功，关闭定时器
             clearInterval(this.timersecond)
-            this.testingSuccess(
-              res.data.data.runCount ? res.data.data.runCount : 3
-            )
-            this.sendID = res.data.data.sendID
-            sessionStorage.setItem('internationalTestingID', res.data.data.code)
-            sessionStorage.setItem(
-              'internationalTestingsendID',
-              res.data.data.sendID
-            )
-            sessionStorage.setItem('countryCodeValue', this.countryCodeValue)
-            sessionStorage.setItem('internationalTestingRows', this.fileRows)
-            this.countryCodeDisabled = true
+
+            this.$message.success('文件检测成功，跳转到检测记录页面')
+            // 立即检测-检测成功-直接跳转检测进度页面-表格模块
+            this.$router.push({
+              path: '/testrecord',
+              name: 'testrecord',
+              params: { index: 2, position: 'table' }
+            })
           } else {
             this.dialogIndex = ''
             this.$message.warning(res.data.msg)
@@ -484,82 +455,6 @@ export default {
           this.resetFrom()
         })
     },
-    // 缓冲后台数据读取延迟
-    testingSuccess ({ runCount = 3 }) {
-      console.log(runCount)
-      this.timersecond = setInterval(() => {
-        runCount--
-        if (runCount <= 0) {
-          this.dialogIndex = 2
-          this.getTestProcessMobile()
-          this.fileInfObj.minshow = true
-          clearInterval(this.timersecond)
-        }
-      }, 4000)
-    },
-    //  200进行中，999979已完成
-    getTestProcessMobile (type) {
-      const testForm = new FormData()
-      const fileId = this.checkId || sessionStorage.getItem('internationalTestingID')
-      const sendID = this.sendID || sessionStorage.getItem('internationalTestingsendID')
-      testForm.append('fileId', fileId)
-      testForm.append('sendID', sendID)
-      // sendID改为非必须
-      if (fileId) {
-        server
-          .internationalCheckFileProgress(testForm)
-          .then((res) => {
-            console.log(res)
-            // debugger
-            if (res.data.code === 200) {
-              // 检测中
-              const { testCounts = '36', fileCounts } = res.data.data || {}
-              if (testCounts === '36') {
-                this.mobileObj = {
-                  ...res.data.data,
-                  testCounts: '0',
-                  stateDesc: '准备检测'
-                }
-              } else {
-                if (testCounts === fileCounts) {
-                  this.mobileObj = { ...res.data.data, stateDesc: '文件解析中' }
-                } else {
-                  this.mobileObj = { ...res.data.data, stateDesc: '正在检测' }
-                }
-              }
-              if (type === 'fromMounted') {
-                this.dialogIndex = 2
-              }
-              this.fileRows = res.data.data.fileCounts
-              this.loopTestProcess(4000)
-            } else if (res.data.code === 999979) {
-              // 检测完成
-              this.fileInfObj = {}
-              this.dialogIndex = 4
-              this.countryCodeDisabled = false
-              sessionStorage.removeItem('internationalTestingID')
-              sessionStorage.removeItem('internationalTestingsendID')
-              sessionStorage.removeItem('countryCodeValue')
-              sessionStorage.removeItem('internationalTestingRows')
-              this.handleDoneDown()
-            } else {
-              // 检测失败
-              this.dialogIndex = 0
-              this.$message.warning(res.data.msg)
-              this.countryCodeDisabled = false
-              sessionStorage.removeItem('internationalTestingID')
-              sessionStorage.removeItem('internationalTestingsendID')
-              sessionStorage.removeItem('countryCodeValue')
-              sessionStorage.removeItem('internationalTestingRows')
-            }
-          })
-          .catch(() => {
-            this.fileInfObj = {}
-            this.loopTestProcess(4000)
-          })
-      }
-    },
-    // 循环数据检测进度
     loopTestProcess (times) {
       this.timersecond = setTimeout(() => {
         this.getTestProcessMobile()
