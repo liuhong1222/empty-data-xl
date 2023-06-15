@@ -48,27 +48,27 @@ export default {
 </script>
 
 <style lang="less">
-// .bg-mask {
-//   width: 100%;
-//   height: 100%;
-//   position: fixed;
-//   left: 0;
-//   top: 0;
-//   background: #000;
-//   opacity: .5;
-//   z-index: 2000000000;
-// }
-// #slideverify {
-//   position: fixed;
-//   width: 360px;
-//   height: 360px;
-//   top: 288px;
-//   left: 393px;
-//   transition: opacity 0.3s ease 0s;
-//   opacity: 1;
-//   border: 1px solid rgb(229, 229, 229);
-//   border-radius: 3px;
-// }
+.bg-mask {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  left: 0;
+  top: 0;
+  background: #000;
+  opacity: .5;
+  z-index: 2000000000;
+}
+#slideverify {
+  position: fixed;
+  width: 360px;
+  height: 360px;
+  top: 288px;
+  left: 393px;
+  transition: opacity 0.3s ease 0s;
+  opacity: 1;
+  border: 1px solid rgb(229, 229, 229);
+  border-radius: 3px;
+}
 .slide-verify {
   position: fixed !important;
   top: 50%;

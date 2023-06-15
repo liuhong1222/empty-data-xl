@@ -111,23 +111,14 @@
         </a-form>
       </a-tab-pane>
     </a-tabs>
-    <div class="slideverify" v-show="isShowSlide" @mouseleave="hideSlide">
-      <slide-verify
-        ref="slideblock"
-        @success="sendSmsAndVerifyJyCode"
-      ></slide-verify>
-    </div>
   </a-modal>
-  <!-- </div> -->
 </template>
 <script>
 import server from '../server/index'
-import SlideVerify from './slideVerify'
 
 export default {
   name: 'login',
   components: {
-    SlideVerify
   },
   data () {
     return {
@@ -171,7 +162,6 @@ export default {
           }
         ]
       },
-      isShowSlide: false,
       submitLoading: false
     }
   },
@@ -179,12 +169,6 @@ export default {
     this.$root.$on('showlogin', this.setModal1Visible)
   },
   methods: {
-    hideSlide () {
-      setTimeout(() => {
-        this.isShowSlide = false
-        this.$refs.slideblock.onReset() // 重置滑块
-      }, 500)
-    },
     forgotPwd () {},
     isPhone (value) {
       const re = /^[1][3,4,5,6,7,8,9][0-9]{9}$/
@@ -214,13 +198,60 @@ export default {
         this.$message.error('手机号码格式不正确')
         return
       }
-      this.isShowSlide = true
+      this.captChaClick()
     },
-    async sendSmsAndVerifyJyCode () {
+    // 定义验证码触发事件
+    captChaClick () {
+      try {
+        // 生成一个验证码对象
+        // CaptchaAppId：登录验证码控制台，从【验证管理】页面进行查看。如果未创建过验证，请先新建验证。注意：不可使用客户端类型为小程序的CaptchaAppId，会导致数据统计错误。
+        // captChaCallback：定义的回调函数
+        // 创蓝图文验证码：
+        // appId：pa1Ji2dT
+        // appKey：U82xVQXX
+        // CaptchaAppId：199229427
+        // AppSecretKey：0qSrQXgWWKWyHxZjEC1LG9XsH
+        var captcha = new window.TencentCaptcha('199229427', this.captChaCallback, {})
+        // 调用方法，显示验证码
+        captcha.show()
+      } catch (error) {
+        // 加载异常，调用验证码js加载错误处理函数
+        this.loadErrorCallback()
+      }
+    },
+    // 定义验证码js加载错误处理函数
+    loadErrorCallback () {
+      var appid = 'pa1Ji2dT'
+      // 生成容灾票据或自行做其它处理
+      var ticket = 'terror_1001_' + appid + Math.floor(new Date().getTime() / 1000)
+      this.captChaCallback({
+        ret: 0,
+        randStr: '@' + Math.random().toString(36).substr(2),
+        ticket,
+        errorCode: 1001,
+        errorMessage: 'jsload_error'
+      })
+    },
+    // 定义回调函数
+    captChaCallback (res) {
+      // 第一个参数传入回调结果，结果如下：
+      // ret         Int       验证结果，0：验证成功。2：用户主动关闭验证码。
+      // ticket      String    验证成功的票据，当且仅当 ret = 0 时 ticket 有值。
+      // CaptchaAppId       String    验证码应用ID。
+      // bizState    Any       自定义透传参数。
+      // randStr     String    本次验证的随机串，后续票据校验时需传递该参数。
+      // console.log('callback:', res)
+      if (res.ret === 0 && res.randstr && res.ticket) {
+        this.sendSmsAndVerifyJyCode(res.randstr, res.ticket)
+      }
+    },
+    async sendSmsAndVerifyJyCode (randStr, ticket) {
       var params = {
         code: this.form.getFieldValue('verticalCode'),
         verifyToken: this.verifyToken,
-        phone: this.form.getFieldValue('userName')
+        phone: this.form.getFieldValue('userName'),
+        randStr: randStr,
+        ticket: ticket
       }
       var result = await server.sendSmsAndVerifyJyCode(params)
       var { data } = result
@@ -228,17 +259,13 @@ export default {
         this.countdown()
         this.verifysmstoken = result.headers.verifysmstoken
         this.$message.success('获取验证码成功')
-        // todo
       } else if (data.code === 5107) {
         this.isShowVerticalCode = true
         this.getBase64Image()
-        this.isShowSlide = true
-        // console.log(this.isShowSlide)
+        this.captChaClick() // 触发验证码滑块
       } else {
         this.$message.error(data.msg)
       }
-      this.isShowSlide = false // 隐藏滑块
-      this.$refs.slideblock.onReset() // 重置滑块
     },
     async getBase64Image () {
       var params = {}
@@ -340,15 +367,6 @@ export default {
 }
 </script>
 <style lang="less">
-.slideverify {
-  width: 100%;
-  height: 100%;
-  position: fixed;
-  left: 0;
-  top: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 2000000000;
-}
 #qrcode {
   width: 280px;
   height: 200px;
