@@ -226,7 +226,7 @@ export default {
       var ticket = 'terror_1001_' + appid + Math.floor(new Date().getTime() / 1000)
       this.captChaCallback({
         ret: 0,
-        randStr: '@' + Math.random().toString(36).substr(2),
+        randstr: '@' + Math.random().toString(36).substr(2),
         ticket,
         errorCode: 1001,
         errorMessage: 'jsload_error'
@@ -239,7 +239,7 @@ export default {
       // ticket      String    验证成功的票据，当且仅当 ret = 0 时 ticket 有值。
       // CaptchaAppId       String    验证码应用ID。
       // bizState    Any       自定义透传参数。
-      // randStr     String    本次验证的随机串，后续票据校验时需传递该参数。
+      // randstr     String    本次验证的随机串，后续票据校验时需传递该参数。
       // console.log('callback:', res)
       if (res.ret === 0 && res.randstr && res.ticket) {
         this.sendSmsAndVerifyJyCode(res.randstr, res.ticket)

@@ -9,7 +9,7 @@
     @cancel="modal1Visible = false"
   >
     <h3>尊敬的用户</h3>
-    <p style="color: #ffffff">您的试用期已过，根据互联网安全相关规定，您需通过实名认证后方可继续使用本平台产品，如需帮助请联系客服人员。</p>
+    <p style="color: #ffffff">根据互联网安全相关规定，您需通过实名认证后方可继续使用本平台产品，如需帮助请联系客服人员。</p>
     <div class="auth-footer">
       <button type="button" class="el-button el-button--default el-button--small" @click="closeModal" v-if="isShowClose">
         <span>暂不认证</span></button>
