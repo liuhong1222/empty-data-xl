@@ -322,6 +322,23 @@ export var serverConfig = {
     method: 'POST',
     baseURL: mockURL
   },
+  setBalanceRemind: {
+    url: '/front/warning/modify',
+    method: 'POST',
+    baseURL: mockURL
+  },
+  getBalanceRemind: {
+    url: '/front/warning/findOne',
+    method: 'post',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    transformRequest: [
+      function (params) {
+        return params
+      }
+    ]
+  },
   statistics: {
     url: '/front/empty/statistics/{year}/{month}',
     method: 'get',

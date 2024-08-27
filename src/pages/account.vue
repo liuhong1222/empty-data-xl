@@ -83,6 +83,13 @@
             >
               <span>充值</span>
             </button>
+            <button
+              type="button"
+              class="el-button el-button--primary balance-btn"
+              @click="balanceRemindShow(record)"
+            >
+              <span>余额提醒</span>
+            </button>
           </span>
         </a-table>
       </div>
@@ -164,6 +171,7 @@
       :phone="userInfo.phone"
       @changeZipPwdFlag="changeZipPwdFlag"
     ></forgetZipPwd>
+    <balanceRemind ref="balanceRemind"></balanceRemind>
   </div>
 </template>
 <script>
@@ -174,6 +182,7 @@ import changeUserPwd from '../components/changeUserPwd'
 import forgetUserPwd from '../components/forgetUserPwd'
 import changeZipPwd from '../components/changeZipPwd'
 import forgetZipPwd from '../components/forgetZipPwd'
+import balanceRemind from '../components/balanceRemind'
 
 import server from '../server/index'
 import getUserData from '../mixin/getUserData'
@@ -247,13 +256,13 @@ var balanceColumns = [
   {
     title: '可用条数',
     dataIndex: 'number',
-    width: '150px',
+    width: '120px',
     scopedSlots: { customRender: 'number' }
   },
   {
     title: '操作',
     dataIndex: 'operate',
-    width: '200px',
+    width: '280px',
     scopedSlots: { customRender: 'operate' }
   }
 ]
@@ -331,7 +340,8 @@ export default {
     changeUserPwd,
     forgetUserPwd,
     changeZipPwd,
-    forgetZipPwd
+    forgetZipPwd,
+    balanceRemind
   },
   mixins: [getUserData],
   filters: {
@@ -384,6 +394,9 @@ export default {
       this.$refs.changeZipPwd.setModal1Visible(false)
       this.$refs.forgetZipPwd.setModal1Visible(true)
     },
+    balanceRemindShow (record) {
+      this.$refs.balanceRemind.setModal1Visible(true, record)
+    },
     // forgetUserPwd () {
     //   this.$refs.forgetUserPwd.setModal1Visible(true)
     // },
@@ -406,6 +419,7 @@ export default {
       this.balanceList = [
         {
           productType: '空号检测',
+          productTypeCode: '1',
           balance: this.userInfo.remainNumberTotal,
           number: this.userInfo.remainNumberTotal,
           recordIndex: 0,
@@ -413,6 +427,7 @@ export default {
         },
         {
           productType: '实时检测',
+          productTypeCode: '2',
           balance: this.userInfo.realtimeBalance,
           number: this.userInfo.realtimeBalance,
           recordIndex: 1,
@@ -420,6 +435,7 @@ export default {
         },
         {
           productType: '国际号码检测',
+          productTypeCode: '3',
           balance: this.userInfo.internationalBalance,
           number: this.userInfo.internationalBalance,
           recordIndex: 2,
@@ -427,6 +443,7 @@ export default {
         },
         {
           productType: '定向通用检测',
+          productTypeCode: '4',
           balance: this.userInfo.directCommonBalance,
           number: this.userInfo.directCommonBalance,
           recordIndex: 3,
@@ -434,6 +451,7 @@ export default {
         },
         {
           productType: 'line定向检测',
+          productTypeCode: '5',
           balance: this.userInfo.lineDirectBalance,
           number: this.userInfo.lineDirectBalance,
           recordIndex: 3,
@@ -623,7 +641,7 @@ export default {
         color: #fff;
         background-color: #f56c6c;
         border-color: #f56c6c;
-        margin-left: 8px;
+        margin: 0 8px;
       }
     }
   }
