@@ -18,7 +18,7 @@
       :wrapper-col='{ span: 17 }'
     >
       <a-form-model-item label='提醒余额' prop='warningCount'>
-        <a-input-number style='width: 150px;' v-model='form.warningCount' default-value='0' :min='0' :precision='0' placeholder='请输入提醒余额' />
+        <a-input-number style='width: 150px;' v-model='form.warningCount' default-value='1' :min='1' :precision='0' placeholder='请输入提醒余额' />
         <span class='count-unit'>条</span>
         <p class='count-note'>产品余额低于该值时，系统会发送提醒信息到联系人手机号</p>
       </a-form-model-item>
