@@ -11,6 +11,9 @@
       <template slot="name" slot-scope="text">
         <span>{{ text.indexOf('_') === -1 ? text : text.split('_')[1] }}</span>
       </template>
+      <template slot="productType" slot-scope="text">
+        <span>{{ text ? productTypeMap[text] : '' }}</span>
+      </template>
     </a-table>
   </div>
 </template>
@@ -40,6 +43,11 @@ export default {
         pageSizeOptions: ['10', '20', '30', '40', '50'],
         showSizeChanger: true,
         showQuickJumper: true
+      },
+      productTypeMap: {
+        1: '一般场景黑名单',
+        2: '敏感场景黑名单',
+        3: '高危场景黑名单'
       }
     }
   },

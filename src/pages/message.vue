@@ -8,7 +8,7 @@
       <h2>消息</h2>
       <div class="history-handle">
         <span class="demonstration">选中状态：</span>
-        <a-select defaultValue="" v-model="isRead" @change="handleChange">
+        <a-select v-model="isRead" @change="handleChange">
           <a-select-option value="">
             全部
           </a-select-option>

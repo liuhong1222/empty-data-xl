@@ -123,6 +123,9 @@
         <span slot="payType" slot-scope="text, record">
           {{ remark[record.payType] || record.payType }}
         </span>
+        <span slot="category" slot-scope="text">
+          {{ searchOptions.maps[text] || '' }}
+        </span>
         <span slot="remark"> 充值 </span>
         <span slot="state"> 成功 </span>
       </a-table>
@@ -198,8 +201,7 @@ var columns = [
     title: '产品类别',
     dataIndex: 'category',
     width: '150px',
-    customRender: (text, record) =>
-      `${text === 0 ? '空号检测产品' : '实时检测产品'}`
+    scopedSlots: { customRender: 'category' }
   },
   {
     title: '产品名',
@@ -315,14 +317,16 @@ export default {
             name: '国际检测产品'
           },
           {
-            id: 4,
-            name: '定向通用检测产品'
-          },
-          {
             id: 5,
-            name: 'line定向检测产品'
+            name: '黑名单检测产品'
           }
-        ]
+        ],
+        maps: {
+          0: '空号检测产品',
+          1: '实时检测产品',
+          2: '国际检测产品',
+          5: '黑名单检测产品'
+        }
       },
       category: ''
     }
@@ -442,20 +446,12 @@ export default {
           rechargeIndex: 2
         },
         {
-          productType: '定向通用检测',
-          productTypeCode: '4',
-          balance: this.userInfo.directCommonBalance,
-          number: this.userInfo.directCommonBalance,
-          recordIndex: 3,
-          rechargeIndex: 3
-        },
-        {
-          productType: 'line定向检测',
+          productType: '黑名单检测',
           productTypeCode: '5',
           balance: this.userInfo.lineDirectBalance,
           number: this.userInfo.lineDirectBalance,
           recordIndex: 3,
-          rechargeIndex: 4
+          rechargeIndex: 3
         }
       ]
     },

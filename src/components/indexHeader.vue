@@ -41,9 +41,9 @@
         </li>
         <li>
           <a
-            :class="{ active: path.indexOf('direct') > -1 }"
+            :class="{ active: path.indexOf('direct') > -1 && path.indexOf('blacklistapi') === -1 }"
             @click="goto('/direct')"
-            >定向检测</a
+            >黑名单检测</a
           >
         </li>
         <li>

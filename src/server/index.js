@@ -627,7 +627,7 @@ export var serverConfig = {
   },
   // 黑名单检测api-检测记录
   blacklistApiTestRecord: {
-    url: '/front/blacklist/getTestRecord',
+    url: '/front/risk/getTestRecord',
     method: 'get',
     baseURL: mockURL
   },

@@ -361,7 +361,7 @@
       <div class="international-test-record" v-if="testPageShow === 2">
         <international-record :personalInfo="personalInfo" />
       </div>
-      <!-- 定向检测结果 -->
+      <!-- 黑名单检测结果 -->
       <div class="direct-test-record" v-if="testPageShow === 3">
         <direct-record :personalInfo="personalInfo" :directPosition="directPosition" />
       </div>
@@ -549,7 +549,7 @@ export default {
           title: '国际号码检测'
         },
         {
-          title: '定向检测'
+          title: '黑名单检测'
         }
       ],
       searchTimeVal: [

@@ -8,6 +8,7 @@ module.exports = {
   assetsDir: 'static',
   runtimeCompiler: false,
   productionSourceMap: false,
+  lintOnSave: false, // 解决eslint报错问题
   transpileDependencies: [
     /[/\\]node_modules[/\\]test[/\\]/,
     /[/\\]node_modules[/\\][@\\]test2[/\\]test3[/\\]/
@@ -49,8 +50,8 @@ module.exports = {
     proxy: {
       '/apis/*': {
         // target: 'http://172.18.3.134:8883', // xybb
-        // target: 'http://172.18.109.31:8883', // lh
-        target: 'http://172.16.43.37:8883', // stable
+        target: 'http://117.131.65.246:48883', // lh
+        // target: 'http://172.16.43.37:8883', // stable
         // target: 'http://khkjc.com/',
         ws: false,
         secure: false,

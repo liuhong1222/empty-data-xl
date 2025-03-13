@@ -11,8 +11,8 @@
           <li>
             <span>
               <a-popover overlayClassName="testrecordpop">
-                <template slot="content"> 已激活 </template>
-                <strong style="border-color: rgb(73, 146, 255)">已激活</strong>
+                <template slot="content"> 正常号码 </template>
+                <strong style="border-color: rgb(73, 146, 255)">正常号码</strong>
                 <h3>{{ testResult.activeNumber || 0 }}</h3>
               </a-popover>
             </span>
@@ -21,7 +21,7 @@
                 'pointer-events': !testResult.activeNumber ? 'none' : 'auto'
               }"
               style="cursor: pointer"
-              @click="downloadTxt(testResult, '已激活.txt', 'activeFilePath')"
+              @click="downloadTxt(testResult, '正常号码.txt', 'activeFilePath')"
             >
               <a
                 :style="{
@@ -35,8 +35,8 @@
           <li>
             <span>
               <a-popover overlayClassName="testrecordpop">
-                <template slot="content"> 未注册 </template>
-                <strong style="border-color: rgb(246, 179, 127)">未注册</strong>
+                <template slot="content"> 黑名单 </template>
+                <strong style="border-color: rgb(246, 179, 127)">黑名单</strong>
                 <h3>{{ testResult.noRegisterNumber || 0 }}</h3>
               </a-popover>
             </span>
@@ -46,7 +46,7 @@
               }"
               style="cursor: pointer"
               @click="
-                downloadTxt(testResult, '未注册.txt', 'noRegisterFilePath')
+                downloadTxt(testResult, '黑名单.txt', 'noRegisterFilePath')
               "
             >
               <a
@@ -161,6 +161,9 @@
           <span slot="name" slot-scope="text, record">
             {{ record.isOldData ? text : record.zipName }}
           </span>
+          <template slot="productType" slot-scope="text">
+            <span>{{ text ? productTypeMap[text] : '' }}</span>
+          </template>
           <span slot="size" slot-scope="text, record">
             {{
               record.isOldData
@@ -176,7 +179,7 @@
                     ? 'none'
                     : 'auto'
               }"
-              @click="downloadTxt(record, '已激活.txt', 'activeFilePath')"
+              @click="downloadTxt(record, '正常号码.txt', 'activeFilePath')"
               >{{ record.checkStatus === 0 ? '-' : (record.activeNumber || 0) }}</a
             >
           </span>
@@ -188,7 +191,7 @@
                     ? 'none'
                     : 'auto'
               }"
-              @click="downloadTxt(record, '未注册.txt', 'noRegisterFilePath')"
+              @click="downloadTxt(record, '黑名单.txt', 'noRegisterFilePath')"
               >{{ record.checkStatus === 0 ? '-' : (record.noRegisterNumber || 0) }}</a
             >
           </span>
@@ -279,6 +282,9 @@
           <template slot="dayInt" slot-scope="text">
             <span>{{ text ? moment(text).format('YYYY-MM-DD') : '' }}</span>
           </template>
+          <template slot="productType" slot-scope="text">
+            <span>{{ text ? productTypeMap[text] : '' }}</span>
+          </template>
         </a-table>
         <div class="pages-regin">
           <a-pagination
@@ -324,13 +330,13 @@ var columns = [
     width: '160px'
   },
   {
-    title: '已激活',
+    title: '正常号码',
     dataIndex: 'activeNumber',
     width: '100px',
     scopedSlots: { customRender: 'activeNumber' }
   },
   {
-    title: '未注册',
+    title: '黑名单',
     dataIndex: 'noRegisterNumber',
     width: '100px',
     scopedSlots: { customRender: 'noRegisterNumber' }
@@ -380,6 +386,7 @@ var consumeColumns = [
   {
     title: '产品类型',
     dataIndex: 'productType',
+    scopedSlots: { customRender: 'productType' },
     width: '100px'
   },
   {
@@ -389,13 +396,13 @@ var consumeColumns = [
     customRender: (text) => text || 0
   },
   {
-    title: '已激活',
+    title: '正常号码',
     dataIndex: 'activeNumber',
     width: '120px',
     customRender: (text) => text || 0
   },
   {
-    title: '未注册',
+    title: '黑名单',
     dataIndex: 'noRegisterNumber',
     width: '120px',
     customRender: (text) => text || 0
@@ -475,22 +482,23 @@ export default {
           label: '全部'
         },
         {
-          value: 'viber',
-          label: 'viber'
+          value: '1',
+          label: '一般场景黑名单'
         },
         {
-          value: 'zalo',
-          label: 'zalo'
+          value: '2',
+          label: '敏感场景黑名单'
         },
         {
-          value: 'botim',
-          label: 'botim'
-        },
-        {
-          value: 'line',
-          label: 'line'
+          value: '3',
+          label: '高危场景黑名单'
         }
       ],
+      productTypeMap: {
+        '1': '一般场景黑名单',
+        '2': '敏感场景黑名单',
+        '3': '高危场景黑名单'
+      },
       consumeTimeVal: [
         this.moment().startOf('month').format('YYYY-MM-DD'),
         this.moment(this.moment().format('YYYY-MM-DD'))
@@ -532,20 +540,16 @@ export default {
             name: '全部'
           },
           {
-            id: 'viber',
-            name: 'viber'
+            id: '1',
+            name: '一般场景黑名单'
           },
           {
-            id: 'zalo',
-            name: 'zalo'
+            id: '2',
+            name: '敏感场景黑名单'
           },
           {
-            id: 'botim',
-            name: 'botim'
-          },
-          {
-            id: 'line',
-            name: 'line'
+            id: '3',
+            name: '高危场景黑名单'
           }
         ]
       }
@@ -867,7 +871,7 @@ export default {
         color: ['rgb(73, 146, 255)', 'rgb(246, 179, 127)', '#67C23A'],
         legend: {
           top: '10',
-          data: ['已激活', '未注册', '总条数']
+          data: ['正常号码', '黑名单', '总条数']
         },
         toolbox: {
           feature: {
@@ -931,12 +935,12 @@ export default {
         },
         series: [
           {
-            name: '已激活',
+            name: '正常号码',
             type: 'line',
             data: yjh
           },
           {
-            name: '未注册',
+            name: '黑名单',
             type: 'line',
             data: wzc
           },

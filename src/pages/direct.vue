@@ -5,8 +5,8 @@
         <div class="center-box">
           <img
             height="100"
-            src="../assets/index/empty_dxjc.png"
-            alt="国际号码-高效检测"
+            src="../assets/index/empty_hmd.png"
+            alt="黑名单检测"
           />
           <div class="select-input-wrap product-type">
             <a-select
@@ -23,22 +23,6 @@
               >
               {{item.label}}
               </a-select-option>
-            </a-select>
-          </div>
-          <div class="select-input-wrap country-code">
-            <a-select
-              style="width: 100%; height: 50px"
-              placeholder="请选择国码（必选）"
-              v-model="countryCodeValue"
-              :disabled="countryCodeDisabled"
-            >
-              <a-select-option
-                :key="item.id"
-                v-for="item in countryCodeList"
-                :value="item.code"
-                >+{{ item.code }} - {{ item.name }} -
-                {{ item.desc }}</a-select-option
-              >
             </a-select>
           </div>
           <div class="file-box">
@@ -71,16 +55,13 @@
             </div>
           </div>
           <p class="form-remark">
-            注:
-            1、号码文件中号码不管有没有带国码都<strong>必须选择国码</strong>；每批上传的号码只能同一个国家的号码，不支持一次性筛查多个国家的号
-            <span style="margin-left: 36px"
-              >码；筛查完下载的号码系统都已带上了国码</span
+            注: 1、待检测文件格式<strong
+              >支持TXT格式（每行一个手机号码）、xls（手机号须在第一张工作表的第一列）</strong
             >
           </p>
+          <p class="form-remark1">2、支持最低1—300W条号码(40M)上传</p>
           <p class="form-remark1">
-            <strong
-              >2、文件格式仅支持TXT格式文件/每行一个手机号/支持最低2000条-200W条号码包上传/txt文件小于30MB</strong
-            >
+            3、检测完成后，请点击右上角<strong>【个人中心】>【历史检测】</strong>查看检测报告（检测记录仅保存一年）
           </p>
           <div if="stepIndex > 0" class="handle-regin">
             <!-- <a-button v-if='stepIndex == 1' @click='clickSingleUpload'>点击上传</a-button> -->
@@ -204,27 +185,20 @@ export default {
       isUploadShow: false, // 分片上传弹窗
       uploadCompleted: '文件上传中，请勿离开...', // 分片上传进度
       checkId: '', // 文件检测id（唯一id）
-      countryCodeList: [], // 国码下拉框列表
-      countryCodeValue: undefined, // 选中的国码
-      countryCodeDisabled: false, // 检测时不可选择国码
       productType: undefined, // 选中的类型
       productTypeDisabled: false, // 检测时不可选择类型
       productTypeList: [ // 类型下拉框数据
         {
-          value: 'viber',
-          label: 'viber'
+          value: '1',
+          label: '一般场景黑名单'
         },
         {
-          value: 'zalo',
-          label: 'zalo'
+          value: '2',
+          label: '敏感场景黑名单'
         },
         {
-          value: 'botim',
-          label: 'botim'
-        },
-        {
-          value: 'line',
-          label: 'line'
+          value: '3',
+          label: '高危场景黑名单'
         }
       ],
       directBalance: 0 // 定向检测余额
@@ -264,7 +238,6 @@ export default {
     }
   },
   mounted () {
-    this.getCountryCode()
     this.getPersonalInfo()
     this.getCertifiedInfo()
   },
@@ -290,11 +263,6 @@ export default {
       if (!this.productType) {
         event.preventDefault()
         this.$message.error('请先选择类型')
-        return
-      }
-      if (!this.countryCodeValue) {
-        event.preventDefault()
-        this.$message.error('请先选择国码')
         return
       }
       // 判断是否认证
@@ -347,11 +315,14 @@ export default {
         return
       }
       if (file) {
-        if (file.name.substr(-4) !== '.txt') {
-          this.$message.warning('仅支持txt格式文件')
+        if (
+          file.name.substr(-4) !== '.txt' &&
+          file.name.substr(-4) !== '.xls'
+        ) {
+          this.$message.warning('仅支持txt或者xls格式的文件')
           this.$refs.directSingleFile.value = ''
-        } else if (file.size >= 31457280) {
-          this.$message.warning('文件大小不能超过30M')
+        } else if (file.size >= 41943041) {
+          this.$message.warning('文件大小不能超过40M')
           this.$refs.directSingleFile.value = ''
         } else {
           this.fileObj = file || {}
@@ -393,7 +364,7 @@ export default {
         this.checkId || sessionStorage.getItem('directTestingID')
       )
       testForm.append('productType', this.productType)
-      testForm.append('countryCode', this.countryCodeValue)
+      testForm.append('countryCode', '86')
       server
         .directCheckFile(testForm)
         .then((res) => {
@@ -531,23 +502,13 @@ export default {
         }, 500)
       }
     },
-    // 获取国码列表
-    async getCountryCode () {
-      var params = {}
-      var { data } = await server.getCountryCode(params)
-      if (data.code === 200) {
-        this.countryCodeList = data.data
-      } else {
-        this.$message.error(data.msg)
-      }
-    },
     // 获取用户信息
     async getPersonalInfo () {
       var params = {}
       var { data } = await server.getPersonalInfo(params)
       if (data.code === 200) {
         this.userInfo = data.data
-        this.directBalance = data.data.directCommonBalance
+        this.directBalance = data.data.lineDirectBalance
       } else {
         this.$message.error(data.msg)
       }
@@ -564,12 +525,7 @@ export default {
     },
     // 选择类型
     handleProductType (value) {
-      console.log(value)
-      if (value === 'line') {
-        this.directBalance = this.userInfo.lineDirectBalance
-      } else {
-        this.directBalance = this.userInfo.directCommonBalance
-      }
+      this.directBalance = this.userInfo.lineDirectBalance
     }
   },
   beforeDestroy () {
@@ -595,10 +551,6 @@ export default {
   padding-top: 60px;
   position: relative;
   z-index: 1250;
-}
-
-.direct-regin {
-  top: 13%;
 }
 
 .center-box {

@@ -20,6 +20,7 @@ import internationalComponent from '../pages/international.vue'
 import directComponent from '../pages/direct.vue'
 import emptyapiComponent from '../pages/emptyapi.vue'
 import realtimeapiComponent from '../pages/realtimeapi.vue'
+import blacklistapiComponent from '../pages/blacklistapi.vue'
 import testrecordComponent from '../pages/testrecord.vue'
 import messageComponent from '../pages/message.vue'
 import NotFound from '../views/404.vue'
@@ -131,6 +132,11 @@ var routes = [
         path: '/realtimeapi',
         name: 'realtimeapi',
         component: realtimeapiComponent
+      },
+      {
+        path: '/blacklistapi',
+        name: 'blacklistapi',
+        component: blacklistapiComponent
       },
       {
         path: '/testrecord',
