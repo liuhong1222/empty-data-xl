@@ -138,7 +138,16 @@ export var serverConfig = {
   getCountryCode: {
     url: '/front/country/codeList',
     method: 'post',
-    baseURL: mockURL
+    baseURL: mockURL,
+    headers: {
+      fetchtype: 'file',
+      'Content-Type': 'multipart/form-data'
+    },
+    transformRequest: [
+      function (params) {
+        return params
+      }
+    ]
   },
   // 上传
   fileUploadMatching: {
@@ -596,9 +605,29 @@ export var serverConfig = {
       }
     ]
   },
-  // 空号检测api-检测记录
+  // 实时检测api-检测记录
   realtimeApiTestRecord: {
     url: '/front/realtime/getTestRecord',
+    method: 'get',
+    baseURL: mockURL
+  },
+  // 黑名单检测api
+  blacklistApiTest: {
+    url: '/front/risk/batchCheck',
+    method: 'post',
+    headers: {
+      // fetchtype: 'file',
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    transformRequest: [
+      function (params) {
+        return params
+      }
+    ]
+  },
+  // 黑名单检测api-检测记录
+  blacklistApiTestRecord: {
+    url: '/front/blacklist/getTestRecord',
     method: 'get',
     baseURL: mockURL
   },

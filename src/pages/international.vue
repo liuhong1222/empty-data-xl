@@ -14,6 +14,10 @@
               placeholder="请选择国码（必选）"
               v-model="countryCodeValue"
               :disabled="countryCodeDisabled"
+              showSearch
+              :filterOption="false"
+              :notFoundContent="loading ? '搜索中...' : '无匹配数据'"
+              @search="handleSearch"
             >
               <a-select-option
                 :key="item.id"
@@ -218,6 +222,7 @@
 import server from '../server/index'
 // import footerinfo from '../components/footerinfo'
 import { uploadByPieces } from '../utils/uploadByPieces'
+import { debounce } from 'lodash'
 export default {
   components: {
     // footerinfo
@@ -258,8 +263,10 @@ export default {
       checkId: '', // 文件检测id（唯一id）
       sendID: '', // 外部文件id
       countryCodeList: [], // 国码下拉框列表
+      allCountry: [],
       countryCodeValue: undefined, // 选中的国码
-      countryCodeDisabled: false // 检测时不可选择国码
+      countryCodeDisabled: false, // 检测时不可选择国码
+      loading: false // 模糊查询
     }
   },
   head () {
@@ -296,7 +303,7 @@ export default {
     }
   },
   mounted () {
-    this.getCountryCode()
+    this.getAllCountry()
     this.getPersonalInfo()
     this.getCertifiedInfo()
 
@@ -570,15 +577,47 @@ export default {
       }
     },
     // 获取国码列表
-    async getCountryCode () {
-      var params = {}
+    async getAllCountry () {
+      const params = new FormData()
       var { data } = await server.getCountryCode(params)
       if (data.code === 200) {
         this.countryCodeList = data.data
+        this.allCountry = data.data
       } else {
         this.$message.error(data.msg)
       }
     },
+    // 获取国码列表
+    async getCountryCode (value) {
+      const params = new FormData()
+      if (value) {
+        params.append('carrierCode', value)
+      }
+      try {
+        var { data } = await server.getCountryCode(params)
+        if (data.code === 200) {
+          this.countryCodeList = data.data
+        } else {
+          this.$message.error(data.msg)
+        }
+      } catch (error) {
+        console.error('请求出错:', error)
+      }
+    },
+    handleSearch: debounce(async function (value) {
+      if (value) {
+        this.loading = true
+        try {
+          await this.getCountryCode(value)
+        } catch (error) {
+          console.error('请求失败:', error)
+        } finally {
+          this.loading = false
+        }
+      } else {
+        this.countryCodeList = this.allCountry
+      }
+    }, 300), // 设置防抖时间为 300ms
     // 获取用户信息
     async getPersonalInfo () {
       var params = {}
