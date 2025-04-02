@@ -190,15 +190,15 @@ export default {
       productTypeList: [ // 类型下拉框数据
         {
           value: '1',
-          label: '一般场景黑名单'
+          label: '一般场景黑名单【高投诉群体和当天极度敏感人群】'
         },
         {
           value: '2',
-          label: '敏感场景黑名单'
+          label: '敏感场景黑名单【包含一般场景黑名单和近一年有投诉号码】'
         },
         {
           value: '3',
-          label: '高危场景黑名单'
+          label: '高危场景黑名单【包含一般、敏感场景黑名单和有投诉意向的号码】'
         }
       ],
       directBalance: 0 // 定向检测余额
